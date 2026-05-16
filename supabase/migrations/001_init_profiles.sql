@@ -19,7 +19,8 @@ CREATE POLICY "owner_own_profile"
 
 -- Auto-create profile on user signup
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER AS $$
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
 BEGIN
   INSERT INTO profiles (id, email) VALUES (NEW.id, NEW.email);
   RETURN NEW;
