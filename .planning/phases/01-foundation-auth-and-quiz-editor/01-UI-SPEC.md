@@ -177,7 +177,7 @@ Background: white. Bottom border: `border-b border-gray-200`. Padding: `px-6 py-
 **Header anatomy (left to right, two-line structure):**
 
 Line 1:
-- Back arrow: Lucide `ArrowLeft`, `variant="ghost"`, links to `/my`
+- Back arrow: Lucide `ArrowLeft`, `variant="ghost"`, links to `/my`. Wrapped in `<Tooltip>` with content "Вернуться к списку тестов". Element must declare `aria-label="Вернуться к списку тестов"`.
 - Quiz title: `<Input>` inline, `text-heading` (20px/600), borderless in default state (appears as plain text), shows border on focus. Placeholder: "Без названия". Auto-saves on blur with 500ms debounce.
 - Publish toggle: right-aligned. Uses shadcn-vue `Switch` component. Label: "Черновик" when off, "Опубликован" when on. Color: gray when off, green (emerald-500) when on. Clicking "Опубликовать" when validation fails → toast error listing missing requirements.
 
@@ -242,7 +242,7 @@ Row 3 — Answer options list:
    - `type = 'single'`: radio circle. Unchecked: `border-gray-300 bg-white`. Checked: `border-violet-600 bg-violet-600` with white dot. Clicking marks this option correct and unmarks all others.
    - `type = 'multiple'`: checkbox. Unchecked: `border-gray-300 bg-white`. Checked: `bg-violet-600 border-violet-600` with white checkmark (Lucide `Check`).
 2. Answer text: `<Input>` full width, borderless-style in default, shows subtle border on focus. Placeholder: "Вариант ответа". `text-body` (14px/400). Auto-saves on blur.
-3. Delete button: Lucide `X`, `variant="ghost"`, size sm, gray-400. No confirmation — immediate delete (D-11).
+3. Delete button: Lucide `X`, `variant="ghost"`, size sm, gray-400. No confirmation — immediate delete (D-11). Wrapped in `<Tooltip>` with content "Удалить вариант". Element must declare `aria-label="Удалить вариант"`.
 
 **Saving:** `answer_options` row upserts to Supabase on every blur. No batch save.
 
@@ -316,13 +316,13 @@ All user-facing toast copy is in Russian (D-12).
 **For quiz deletion (D-07):**
 - Title: "Удалить тест?"
 - Body: "Это действие нельзя отменить. Все вопросы и настройки теста будут удалены."
-- Actions: `<Button variant="destructive">Удалить</Button>` + `<Button variant="outline">Отмена</Button>`
+- Actions: `<Button variant="destructive">Удалить</Button>` + `<Button variant="outline">Оставить тест</Button>`
 - `window.confirm` is acceptable for v1 but the spec calls for a custom dialog to avoid native browser styling inconsistency. Use shadcn-vue `Dialog`.
 
 **For question deletion (D-11):**
 - Title: "Удалить вопрос?"
 - Body: "Вопрос и все варианты ответов будут удалены."
-- Actions: `<Button variant="destructive">Удалить</Button>` + `<Button variant="outline">Отмена</Button>`
+- Actions: `<Button variant="destructive">Удалить</Button>` + `<Button variant="outline">Оставить вопрос</Button>`
 
 **Dialog width:** `max-w-md`. `sm:max-w-[425px]`.
 
@@ -355,8 +355,12 @@ All user-facing toast copy is in Russian (D-12).
 | Quiz created toast | "Тест создан. Добавьте вопросы." | D-05 |
 | Delete quiz confirmation title | "Удалить тест?" | D-07 |
 | Delete quiz confirmation body | "Это действие нельзя отменить. Все вопросы и настройки теста будут удалены." | D-07 |
+| Delete quiz dialog confirm | "Удалить" | D-07 |
+| Delete quiz dialog dismiss | "Оставить тест" | D-07 |
 | Delete question confirmation title | "Удалить вопрос?" | D-11 |
 | Delete question confirmation body | "Вопрос и все варианты ответов будут удалены." | D-11 |
+| Delete question dialog confirm | "Удалить" | D-11 |
+| Delete question dialog dismiss | "Оставить вопрос" | D-11 |
 | Question placeholder | "Введите текст вопроса..." | default |
 | Answer option placeholder | "Вариант ответа" | default |
 | Quiz title placeholder | "Без названия" | D-05 |
@@ -370,6 +374,8 @@ All user-facing toast copy is in Russian (D-12).
 | Question type option 2 | "Несколько ответов" | EDIT-02 |
 | Required toggle label | "Обязательный" | EDIT-03 |
 | Logout button | "Выйти" | AUTH-03 |
+| Editor back arrow aria-label | "Вернуться к списку тестов" | accessibility |
+| Answer option delete aria-label | "Удалить вариант" | accessibility |
 
 ---
 
