@@ -46,7 +46,7 @@ function onDrop(e: DragEvent) {
         >
         <button
           type="button"
-          class="absolute inset-0 flex items-center justify-center gap-2 rounded-lg bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100"
+          class="absolute inset-0 flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100"
           @click="openPicker"
         >
           <Camera class="h-5 w-5" />

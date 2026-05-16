@@ -43,7 +43,7 @@ onMounted(async () => {
 
       <div
         v-else
-        class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
       >
         <QuizCard
           v-for="quiz in quizzes"
