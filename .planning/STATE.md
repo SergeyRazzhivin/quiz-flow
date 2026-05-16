@@ -2,7 +2,7 @@
 
 **Initialized:** 2026-05-16
 **Current Phase:** 1 — Foundation, Auth & Quiz Editor
-**Status:** Executing — paused at checkpoint (Task 3, Plan 01-01)
+**Status:** Executing — Plan 01-03 in progress
 
 ---
 
@@ -11,18 +11,18 @@
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 1 Plan 01 — Walking Skeleton (paused at Supabase db push checkpoint)
+**Current focus:** Phase 1 Plan 03 — Quiz editor shell (metadata, cover, publish, nav settings)
 
 ---
 
 ## Current Position
 
 **Phase:** 1 — Foundation, Auth & Quiz Editor
-**Plan:** 01-01 (Walking Skeleton) — PAUSED at Task 3 checkpoint
-**Status:** Awaiting human: supabase db push + covers bucket + gen types + .env
+**Plan:** 01-03 (Quiz editor shell) — executing
+**Status:** Active
 
 ```
-Phase 1 [▓▓▓       ] executing (Plan 01 paused at Task 3/6)
+Phase 1 [▓▓▓▓▓▓▓   ] executing (Plans 01-02 done, Plan 03 active)
 Phase 2 [          ] 0%
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
@@ -33,9 +33,9 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 0 (01-01 partially done, awaiting checkpoint)
+**Plans completed:** 2 (01-01 Walking Skeleton ✓, 01-02 Quiz lists ✓)
 **Plans created:** 4 (Phase 1)
-**Requirements shipped:** 0 / 48
+**Requirements shipped:** 7 / 48 (AUTH-01–03, QUIZ-04–06, NAV-01)
 **Requirements planned:** 20 / 48 (Phase 1)
 **Phases completed:** 0 / 5
 
@@ -63,15 +63,20 @@ Phase 5 [          ] 0%
 
 ### Blockers
 
-- **Task 3 (01-01):** Requires human to: run `supabase db push`, create covers Storage bucket, run `supabase gen types typescript --linked > src/6-shared/api/database.types.ts`, populate `.env` with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. Type "applied" to resume.
+None.
+
+### Incidents
+
+- `handle_new_user()` trigger required `SET search_path = public` (Supabase SECURITY DEFINER restriction) — fixed in a49925e
+- Supabase dashboard shows new `sb_publishable_*` key format — must use JWT `eyJ…` anon key in `.env`
 
 ---
 
 ## Session Continuity
 
-**Last session:** 2026-05-17 — Plan 01-01 executing; Tasks 1 and 2 committed (5346f18, de428b6); paused at Task 3 checkpoint
-**Resume file:** .planning/phases/01-foundation-auth-and-quiz-editor/01-01-SUMMARY.md
-**Next action:** Human applies Supabase migrations → types "applied" → executor resumes from Task 4
+**Last session:** 2026-05-17 — Plans 01-01 and 01-02 complete and verified; moving to Plan 01-03
+**Resume file:** .planning/phases/01-foundation-auth-and-quiz-editor/01-03-PLAN.md
+**Next action:** Execute Plan 01-03 — quiz editor shell (metadata, cover upload, publish, nav settings)
 
 ---
 

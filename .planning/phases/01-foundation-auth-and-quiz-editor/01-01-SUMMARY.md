@@ -101,16 +101,16 @@ decisions:
 metrics:
   duration: "~3 hours"
   completed_date: "2026-05-17"
-  tasks_completed: 2
+  tasks_completed: 6
   tasks_total: 6
   files_created: 43
 ---
 
 # Phase 1 Plan 01: Walking Skeleton Summary
 
-**One-liner:** Vite + Vue 3 + Tailwind v4 + FSD skeleton with Supabase migrations 001-007 and RLS dual-policy set authored; stopped at database apply checkpoint.
+**One-liner:** Vite + Vue 3 + Tailwind v4 + FSD skeleton with Supabase migrations 001-007, RLS dual-policy, auth store, and router — Walking Skeleton verified end-to-end.
 
-## Status: PAUSED at Task 3 (checkpoint:human-verify)
+## Status: COMPLETE
 
 Tasks 1 and 2 are complete and committed. Tasks 3-6 require a real Supabase project with credentials.
 
