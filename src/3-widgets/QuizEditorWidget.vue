@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { useQuizEditorStore } from '@features/quiz-editor/model/useQuizEditorStore'
 import QuizEditorHeader from './QuizEditorHeader.vue'
 import QuizEditorFooter from './QuizEditorFooter.vue'
+import QuestionList from './QuestionList.vue'
 
 const props = defineProps<{ quizId: string }>()
 const store = useQuizEditorStore()
@@ -14,8 +15,8 @@ onMounted(() => store.loadQuiz(props.quizId))
   <div class="quiz-editor-layout">
     <QuizEditorHeader />
     <main class="editor-body">
-      <div class="mx-auto max-w-7xl px-6 py-6 text-sm text-gray-400">
-        Редактор вопросов появится в следующем обновлении.
+      <div class="mx-auto max-w-7xl px-6 py-6">
+        <QuestionList />
       </div>
     </main>
     <QuizEditorFooter />
