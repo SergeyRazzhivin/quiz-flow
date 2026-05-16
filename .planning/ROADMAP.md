@@ -29,7 +29,12 @@
 3. An owner can create a quiz with title, description, time limit, and cover image (uploaded to Supabase Storage)
 4. An owner can add, edit, reorder (drag-and-drop), and delete questions and their answer options; correct answers are marked and question type (single/multiple) is selectable
 5. An owner can toggle navigation permissions (allow back, show stop button) and publish or unpublish the quiz; published quizzes appear on the home page list
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 01-01-PLAN.md — Walking Skeleton: scaffold + 7 migrations + RLS + auth slice (AUTH-01–03)
+- [ ] 01-02-PLAN.md — Quiz lists: home /, my quizzes /my, create/delete, app header (QUIZ-04–06, NAV-01)
+- [ ] 01-03-PLAN.md — Quiz editor shell: metadata, cover upload, publish, navigation settings (QUIZ-01–03, QUIZ-07, EDIT-08, NAV-01–02)
+- [ ] 01-04-PLAN.md — Question editor: question/option CRUD, DnD reorder, publish validation (EDIT-01–07, QUIZ-03)
 **UI hint**: yes
 
 ### Phase 2: Quiz Taking & Sharing
