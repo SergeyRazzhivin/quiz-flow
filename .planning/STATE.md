@@ -2,7 +2,7 @@
 
 **Initialized:** 2026-05-16
 **Current Phase:** 1 — Foundation, Auth & Quiz Editor
-**Status:** Executing — Plan 01-03 in progress
+**Status:** Executing — Plan 01-03 complete; Plan 01-04 next
 
 ---
 
@@ -11,18 +11,18 @@
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 1 Plan 03 — Quiz editor shell (metadata, cover, publish, nav settings)
+**Current focus:** Phase 1 Plan 04 — Question editor (CRUD, DnD reorder, publish validation)
 
 ---
 
 ## Current Position
 
 **Phase:** 1 — Foundation, Auth & Quiz Editor
-**Plan:** 01-03 (Quiz editor shell) — executing
-**Status:** Active
+**Plan:** 01-04 (Question editor) — next
+**Status:** Plan 01-03 complete
 
 ```
-Phase 1 [▓▓▓▓▓▓▓   ] executing (Plans 01-02 done, Plan 03 active)
+Phase 1 [▓▓▓▓▓▓▓▓▓ ] executing (Plans 01-03 done, Plan 04 next)
 Phase 2 [          ] 0%
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
@@ -33,9 +33,9 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 2 (01-01 Walking Skeleton ✓, 01-02 Quiz lists ✓)
+**Plans completed:** 3 (01-01 ✓, 01-02 ✓, 01-03 ✓)
 **Plans created:** 4 (Phase 1)
-**Requirements shipped:** 7 / 48 (AUTH-01–03, QUIZ-04–06, NAV-01)
+**Requirements shipped:** 14 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-08, NAV-01–02)
 **Requirements planned:** 20 / 48 (Phase 1)
 **Phases completed:** 0 / 5
 
@@ -74,9 +74,9 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17 — Plans 01-01 and 01-02 complete and verified; moving to Plan 01-03
-**Resume file:** .planning/phases/01-foundation-auth-and-quiz-editor/01-03-PLAN.md
-**Next action:** Execute Plan 01-03 — quiz editor shell (metadata, cover upload, publish, nav settings)
+**Last session:** 2026-05-17 — Plans 01-01/02/03 complete and verified; UI design-review tweaks applied; moving to Plan 01-04
+**Resume file:** .planning/phases/01-foundation-auth-and-quiz-editor/01-04-PLAN.md
+**Next action:** Execute Plan 01-04 — question editor (question/option CRUD, DnD reorder, publish validation)
 
 ---
 
