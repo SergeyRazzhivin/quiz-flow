@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --color-brand-from: theme(--color-violet-600);
+  --color-brand-to:   theme(--color-indigo-600);
+}
+
+/* Class-based dark mode — v4 syntax (not darkMode: 'class' in config) */
+@custom-variant dark (&:where(.dark, .dark *));
