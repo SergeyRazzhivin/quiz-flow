@@ -1,0 +1,34 @@
+-- supabase/migrations/003_questions_answers.sql
+CREATE TYPE question_type AS ENUM ('single', 'multiple');
+
+CREATE TABLE questions (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  quiz_id     uuid NOT NULL REFERENCES quizzes ON DELETE CASCADE,
+  body        text NOT NULL DEFAULT '',
+  type        question_type NOT NULL DEFAULT 'single',
+  order_index int NOT NULL DEFAULT 0,
+  is_required bool NOT NULL DEFAULT false
+  -- NO UNIQUE constraint on (quiz_id, order_index) — batch reorder requires duplicates mid-transaction
+);
+
+ALTER TABLE questions ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX ON questions (quiz_id);
+
+CREATE TABLE answer_options (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  question_id uuid NOT NULL REFERENCES questions ON DELETE CASCADE,
+  body        text NOT NULL DEFAULT '',
+  is_correct  bool NOT NULL DEFAULT false,
+  order_index int NOT NULL DEFAULT 0
+);
+
+ALTER TABLE answer_options ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX ON answer_options (question_id);
+
+-- SECURITY DEFINER view: anon reads answer_options WITHOUT is_correct
+-- (prevents correct answers leaking to quiz-takers — Phase 2 concern, created now for schema completeness)
+CREATE VIEW answer_options_public AS
+  SELECT id, question_id, body, order_index
+  FROM answer_options;
