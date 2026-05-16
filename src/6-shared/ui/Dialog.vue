@@ -1,28 +1,8 @@
 <script setup lang="ts">
-import {
-  DialogRoot,
-  DialogPortal,
-  DialogOverlay,
-  DialogContent,
-  DialogClose,
-  DialogTitle,
-  DialogDescription,
-} from 'radix-vue'
-import { cn } from '@shared/lib/utils'
-
-// Re-export sub-components for convenience
-export {
-  DialogPortal,
-  DialogOverlay,
-  DialogContent,
-  DialogClose,
-  DialogTitle,
-  DialogDescription,
-}
+import { DialogRoot } from 'radix-vue'
 
 const props = defineProps<{
   open?: boolean
-  class?: string
 }>()
 
 const emit = defineEmits<{

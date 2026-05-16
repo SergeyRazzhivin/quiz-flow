@@ -2,16 +2,17 @@
 import { ref, onMounted } from 'vue'
 import { fetchPublishedQuizzes } from '@entities/quiz/api'
 import type { Quiz } from '@entities/quiz/model'
+import AppHeader from '@widgets/AppHeader.vue'
+import QuizCard from '@entities/quiz/ui/QuizCard.vue'
 
 const quizzes = ref<Quiz[]>([])
 const isLoading = ref(true)
-const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
     quizzes.value = await fetchPublishedQuizzes()
-  } catch (err: unknown) {
-    error.value = err instanceof Error ? err.message : 'Ошибка загрузки тестов'
+  } catch {
+    // no-op: empty list shown
   } finally {
     isLoading.value = false
   }
@@ -20,29 +21,36 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="mx-auto max-w-5xl px-4 py-8">
-      <h1 class="mb-6 text-2xl font-bold text-gray-900">Опубликованные тесты</h1>
+    <AppHeader />
+    <main class="mx-auto max-w-6xl px-6 py-8">
+      <h1 class="mb-6 text-2xl font-semibold text-gray-900">
+        Все тесты
+      </h1>
 
-      <div v-if="isLoading" class="text-gray-500">Загрузка...</div>
-
-      <div v-else-if="error" class="text-red-500">{{ error }}</div>
-
-      <div v-else-if="quizzes.length === 0" class="text-gray-500">
-        Опубликованных тестов пока нет.
+      <div
+        v-if="isLoading"
+        class="text-sm text-gray-500"
+      >
+        Загрузка...
       </div>
 
-      <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div
+      <p
+        v-else-if="quizzes.length === 0"
+        class="text-sm text-gray-500"
+      >
+        Пока нет опубликованных тестов.
+      </p>
+
+      <div
+        v-else
+        class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        <QuizCard
           v-for="quiz in quizzes"
           :key="quiz.id"
-          class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-        >
-          <h2 class="font-semibold text-gray-900">{{ quiz.title }}</h2>
-          <p v-if="quiz.description" class="mt-1 text-sm text-gray-500">
-            {{ quiz.description }}
-          </p>
-        </div>
+          :quiz="quiz"
+        />
       </div>
-    </div>
+    </main>
   </div>
 </template>
