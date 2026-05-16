@@ -970,7 +970,7 @@ All required tooling is available on the development machine.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **steiger + numeric FSD prefixes compatibility**
    - What we know: steiger resolves layer order by directory name; numeric prefixes `1-app` through `6-shared` may need explicit configuration
