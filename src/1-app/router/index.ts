@@ -15,6 +15,7 @@ export const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
+  await authStore.init()
   const requiresAuth = PROTECTED_ROUTES.some(r => to.path.startsWith(r))
   if (requiresAuth && !authStore.user) {
     return { path: '/auth', query: { returnUrl: to.fullPath } }

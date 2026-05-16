@@ -6,16 +6,22 @@ import type { User } from '@supabase/supabase-js'
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const isLoading = ref(true)
+  let initPromise: Promise<void> | null = null
 
-  // Call once from App.vue onMounted — establishes session sync
-  async function init() {
-    const { data: { session } } = await supabase.auth.getSession()
-    user.value = session?.user ?? null
-    isLoading.value = false
-
-    supabase.auth.onAuthStateChange((_event, session) => {
+  // Idempotent — awaited by the router guard so the session is resolved
+  // before any protected-route check runs.
+  function init(): Promise<void> {
+    if (initPromise) return initPromise
+    initPromise = (async () => {
+      const { data: { session } } = await supabase.auth.getSession()
       user.value = session?.user ?? null
-    })
+      isLoading.value = false
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        user.value = session?.user ?? null
+      })
+    })()
+    return initPromise
   }
 
   async function login(email: string, password: string) {
