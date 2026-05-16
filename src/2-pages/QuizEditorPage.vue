@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { Monitor } from 'lucide-vue-next'
+import AppHeader from '@widgets/AppHeader.vue'
 import QuizEditorWidget from '@widgets/QuizEditorWidget.vue'
 
 const route = useRoute()
@@ -8,7 +9,8 @@ const quizId = route.params.id as string
 </script>
 
 <template>
-  <div class="hidden h-full md:block">
+  <div class="hidden md:block">
+    <AppHeader />
     <QuizEditorWidget :quiz-id="quizId" />
   </div>
   <div class="flex min-h-screen flex-col items-center justify-center p-6 text-center md:hidden">

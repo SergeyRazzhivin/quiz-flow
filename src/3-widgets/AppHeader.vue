@@ -14,7 +14,7 @@ async function handleLogout() {
 
 <template>
   <header class="sticky top-0 z-40 h-14 border-b border-gray-200 bg-white">
-    <div class="mx-auto flex h-full max-w-6xl items-center gap-6 px-6">
+    <div class="mx-auto flex h-full max-w-7xl items-center gap-6 px-6">
       <RouterLink
         to="/"
         class="text-xl font-semibold text-violet-600"

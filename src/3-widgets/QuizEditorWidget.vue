@@ -14,7 +14,7 @@ onMounted(() => store.loadQuiz(props.quizId))
   <div class="quiz-editor-layout">
     <QuizEditorHeader />
     <main class="editor-body">
-      <div class="mx-auto max-w-3xl px-6 py-6 text-sm text-gray-400">
+      <div class="mx-auto max-w-7xl px-6 py-6 text-sm text-gray-400">
         Редактор вопросов появится в следующем обновлении.
       </div>
     </main>
@@ -26,7 +26,7 @@ onMounted(() => store.loadQuiz(props.quizId))
 .quiz-editor-layout {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  height: 100dvh;
+  height: calc(100dvh - 3.5rem); /* viewport minus the AppHeader (h-14) */
   overflow: hidden;
 }
 .editor-body {
