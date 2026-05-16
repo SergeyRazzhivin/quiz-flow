@@ -45,7 +45,7 @@ async function onAddQuestion() {
 
     <p
       v-if="store.questions.length === 0"
-      class="mb-4 text-sm text-gray-400"
+      class="mb-4 text-sm text-neutral-500"
     >
       В тесте пока нет вопросов. Добавьте первый.
     </p>

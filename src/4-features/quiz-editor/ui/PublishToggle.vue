@@ -11,7 +11,7 @@ const isPublished = computed(() => store.quiz?.is_published ?? false)
   <div class="flex items-center gap-2">
     <span
       class="text-sm font-medium"
-      :class="isPublished ? 'text-emerald-600' : 'text-gray-500'"
+      :class="isPublished ? 'text-emerald-400' : 'text-neutral-400'"
     >
       {{ isPublished ? 'Опубликован' : 'Черновик' }}
     </span>

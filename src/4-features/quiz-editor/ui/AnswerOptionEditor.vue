@@ -39,7 +39,7 @@ function saveBody() {
       class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center border-2 transition-colors"
       :class="[
         type === 'single' ? 'rounded-full' : 'rounded',
-        option.is_correct ? 'border-violet-600 bg-violet-600' : 'border-gray-300 bg-white',
+        option.is_correct ? 'border-orange-500 bg-orange-500' : 'border-neutral-700 bg-neutral-900',
       ]"
       :aria-label="option.is_correct ? 'Правильный ответ' : 'Отметить правильным'"
       @click="toggleCorrect"
@@ -56,14 +56,14 @@ function saveBody() {
     <input
       v-model="localBody"
       placeholder="Вариант ответа"
-      class="flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm text-gray-900 transition-colors hover:border-gray-200 focus:border-gray-300 focus:outline-none"
+      class="flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm text-neutral-50 transition-colors hover:border-neutral-800 focus:border-neutral-700 focus:outline-none"
       @blur="saveBody"
     >
     <Tooltip content="Удалить вариант">
       <button
         type="button"
         aria-label="Удалить вариант"
-        class="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+        class="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
         @click="store.deleteAnswerOption(option.id)"
       >
         <X class="h-4 w-4" />

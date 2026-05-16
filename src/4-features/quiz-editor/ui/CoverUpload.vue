@@ -56,7 +56,7 @@ function onDrop(e: DragEvent) {
       <Button
         variant="ghost"
         size="sm"
-        class="mt-1 text-red-500 hover:bg-red-50 hover:text-red-600"
+        class="mt-1 text-red-400 hover:bg-red-500/15 hover:text-red-600"
         @click="store.removeCover()"
       >
         Удалить обложку
@@ -65,23 +65,23 @@ function onDrop(e: DragEvent) {
 
     <div
       v-else-if="store.isUploadingCover"
-      class="flex h-48 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white"
+      class="flex h-48 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-neutral-700 bg-neutral-900"
     >
-      <Loader2 class="h-8 w-8 animate-spin text-gray-400" />
-      <span class="mt-1 text-sm text-gray-400">Загружается...</span>
+      <Loader2 class="h-8 w-8 animate-spin text-neutral-500" />
+      <span class="mt-1 text-sm text-neutral-500">Загружается...</span>
     </div>
 
     <div
       v-else
-      class="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-white transition-colors"
-      :class="isDragOver ? 'border-violet-400 bg-violet-50' : 'border-gray-300'"
+      class="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-neutral-900 transition-colors"
+      :class="isDragOver ? 'border-orange-500 bg-orange-500/15' : 'border-neutral-700'"
       @click="openPicker"
       @dragover.prevent="isDragOver = true"
       @dragleave.prevent="isDragOver = false"
       @drop="onDrop"
     >
-      <ImagePlus class="h-8 w-8 text-gray-300" />
-      <span class="mt-1 text-sm text-gray-400">
+      <ImagePlus class="h-8 w-8 text-neutral-600" />
+      <span class="mt-1 text-sm text-neutral-500">
         {{ isDragOver ? 'Отпустите для загрузки' : 'Добавить обложку' }}
       </span>
     </div>

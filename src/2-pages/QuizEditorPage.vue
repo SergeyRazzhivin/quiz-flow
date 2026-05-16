@@ -9,13 +9,16 @@ const quizId = route.params.id as string
 </script>
 
 <template>
-  <div class="hidden md:block">
+  <div class="hidden h-dvh flex-col md:flex">
     <AppHeader />
-    <QuizEditorWidget :quiz-id="quizId" />
+    <QuizEditorWidget
+      :quiz-id="quizId"
+      class="min-h-0 flex-1"
+    />
   </div>
   <div class="flex min-h-screen flex-col items-center justify-center p-6 text-center md:hidden">
-    <Monitor class="h-12 w-12 text-gray-300" />
-    <p class="mt-4 text-base text-gray-500">
+    <Monitor class="h-12 w-12 text-neutral-600" />
+    <p class="mt-4 text-base text-neutral-400">
       Для редактирования теста откройте страницу на компьютере.
     </p>
   </div>

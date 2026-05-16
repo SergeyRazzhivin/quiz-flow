@@ -31,12 +31,11 @@ onMounted(() => store.loadQuiz(props.quizId))
 .quiz-editor-layout {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  height: calc(100dvh - 3.5rem); /* viewport minus the AppHeader (h-14) */
   overflow: hidden;
 }
 .editor-body {
   overflow-y: auto;
   overscroll-behavior: contain;
-  background-color: #f9fafb;
+  background-color: #0a0a0a;
 }
 </style>

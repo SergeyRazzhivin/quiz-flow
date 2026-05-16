@@ -8,11 +8,11 @@ import TabsContent from '@shared/ui/TabsContent.vue'
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gray-50">
+  <div class="flex min-h-screen items-center justify-center bg-neutral-950">
     <div class="w-full max-w-md p-6">
       <div class="mb-8 text-center">
-        <h1 class="text-2xl font-bold text-gray-900">Quiz Flow</h1>
-        <p class="mt-1 text-sm text-gray-500">Создавайте и проходите тесты</p>
+        <h1 class="text-2xl font-bold text-neutral-50">Quiz Flow</h1>
+        <p class="mt-1 text-sm text-neutral-400">Создавайте и проходите тесты</p>
       </div>
       <Tabs default-value="login" class="w-full">
         <TabsList class="grid w-full grid-cols-2">

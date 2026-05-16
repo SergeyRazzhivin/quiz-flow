@@ -36,7 +36,7 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <form class="mt-4 space-y-4" @submit="onSubmit">
     <div>
-      <label for="register-email" class="block text-sm font-medium text-gray-700">
+      <label for="register-email" class="block text-sm font-medium text-neutral-200">
         Email
       </label>
       <input
@@ -46,12 +46,12 @@ const onSubmit = handleSubmit(async (values) => {
         type="email"
         autocomplete="email"
         placeholder="you@example.com"
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+        class="mt-1 block w-full rounded-md border border-neutral-700 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
       />
     </div>
 
     <div>
-      <label for="register-password" class="block text-sm font-medium text-gray-700">
+      <label for="register-password" class="block text-sm font-medium text-neutral-200">
         Пароль
       </label>
       <input
@@ -61,14 +61,14 @@ const onSubmit = handleSubmit(async (values) => {
         type="password"
         autocomplete="new-password"
         placeholder="Минимум 6 символов"
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+        class="mt-1 block w-full rounded-md border border-neutral-700 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
       />
     </div>
 
     <button
       type="submit"
       :disabled="isSubmitting"
-      class="w-full rounded-md bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50"
+      class="w-full rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-50"
     >
       {{ isSubmitting ? 'Регистрация...' : 'Зарегистрироваться' }}
     </button>

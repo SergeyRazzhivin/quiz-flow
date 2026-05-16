@@ -7,7 +7,7 @@ const store = useQuizEditorStore()
 
 <template>
   <div>
-    <p class="text-base font-semibold text-gray-700">
+    <p class="text-base font-semibold text-neutral-200">
       Настройки навигации для тестируемого
     </p>
     <div class="mt-3 flex flex-col gap-2">
@@ -16,14 +16,14 @@ const store = useQuizEditorStore()
           :model-value="store.settings.allow_back"
           @update:model-value="store.updateSettings({ allow_back: $event })"
         />
-        <span class="text-sm text-gray-700">Разрешить возврат к предыдущему вопросу</span>
+        <span class="text-sm text-neutral-200">Разрешить возврат к предыдущему вопросу</span>
       </label>
       <label class="flex items-center gap-3">
         <Switch
           :model-value="store.settings.show_stop_button"
           @update:model-value="store.updateSettings({ show_stop_button: $event })"
         />
-        <span class="text-sm text-gray-700">Показывать кнопку «Стоп»</span>
+        <span class="text-sm text-neutral-200">Показывать кнопку «Стоп»</span>
       </label>
     </div>
   </div>

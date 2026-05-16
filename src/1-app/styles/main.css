@@ -8,3 +8,10 @@
 
 /* Class-based dark mode — v4 syntax (not darkMode: 'class' in config) */
 @custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html, body, #app {
+    background-color: #0a0a0a;
+    color: #fafafa;
+  }
+}

@@ -20,23 +20,23 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-neutral-950">
     <AppHeader />
     <main class="mx-auto max-w-7xl px-6 py-8">
-      <h1 class="mb-6 text-2xl font-semibold text-gray-900">
+      <h1 class="mb-6 text-2xl font-semibold text-neutral-50">
         Все тесты
       </h1>
 
       <div
         v-if="isLoading"
-        class="text-sm text-gray-500"
+        class="text-sm text-neutral-400"
       >
         Загрузка...
       </div>
 
       <p
         v-else-if="quizzes.length === 0"
-        class="text-sm text-gray-500"
+        class="text-sm text-neutral-400"
       >
         Пока нет опубликованных тестов.
       </p>

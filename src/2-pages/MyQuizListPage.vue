@@ -51,11 +51,11 @@ async function handleConfirmDelete() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-neutral-950">
     <AppHeader />
     <main class="mx-auto max-w-7xl px-6 py-8">
       <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-semibold text-gray-900">
+        <h1 class="text-2xl font-semibold text-neutral-50">
           Мои тесты
         </h1>
         <Button
@@ -69,7 +69,7 @@ async function handleConfirmDelete() {
 
       <div
         v-if="isLoading"
-        class="text-sm text-gray-500"
+        class="text-sm text-neutral-400"
       >
         Загрузка...
       </div>

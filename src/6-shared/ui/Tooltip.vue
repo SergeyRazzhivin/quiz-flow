@@ -17,7 +17,7 @@ const props = defineProps<{
 
 const contentClass = computed(() =>
   cn(
-    'z-50 overflow-hidden rounded-md bg-gray-900 px-3 py-1.5 text-xs text-white animate-in fade-in-0 zoom-in-95',
+    'z-50 overflow-hidden rounded-md bg-neutral-800 px-3 py-1.5 text-xs text-white animate-in fade-in-0 zoom-in-95',
     props.class
   )
 )
@@ -31,7 +31,7 @@ const contentClass = computed(() =>
       </TooltipTrigger>
       <TooltipContent :side="side ?? 'top'" :class="contentClass">
         {{ content }}
-        <TooltipArrow class="fill-gray-900" />
+        <TooltipArrow class="fill-neutral-800" />
       </TooltipContent>
     </TooltipRoot>
   </TooltipProvider>

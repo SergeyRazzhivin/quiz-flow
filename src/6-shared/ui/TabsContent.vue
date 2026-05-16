@@ -8,7 +8,7 @@ const props = defineProps<{
   class?: string
 }>()
 const computedClass = computed(() =>
-  cn('mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500', props.class)
+  cn('mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500', props.class)
 )
 </script>
 
