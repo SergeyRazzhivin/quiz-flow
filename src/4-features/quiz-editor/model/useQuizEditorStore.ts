@@ -2,9 +2,22 @@ import { ref, watch, nextTick } from 'vue'
 import { defineStore } from 'pinia'
 import { toast } from 'vue-sonner'
 import { fetchQuiz, updateQuiz } from '@entities/quiz/api'
-import { fetchQuestions } from '@entities/question/api'
+import {
+  fetchQuestions,
+  createQuestion,
+  updateQuestion as apiUpdateQuestion,
+  deleteQuestion as apiDeleteQuestion,
+  reorderQuestions as apiReorderQuestions,
+} from '@entities/question/api'
+import {
+  fetchAnswerOptions,
+  createAnswerOption,
+  updateAnswerOption as apiUpdateAnswerOption,
+  deleteAnswerOption as apiDeleteAnswerOption,
+} from '@entities/answer-option/api'
 import type { Quiz } from '@entities/quiz/model'
 import type { Question } from '@entities/question/model'
+import type { AnswerOption } from '@entities/answer-option/model'
 import type { QuizSettings } from '@shared/types'
 import { supabase } from '@shared/api/supabase'
 import { resizeImageToMaxWidth } from '@shared/lib/image'
@@ -25,6 +38,7 @@ const SAVE_ERROR = 'Ошибка сохранения. Проверьте сое
 export const useQuizEditorStore = defineStore('quiz-editor', () => {
   const quiz = ref<Quiz | null>(null)
   const questions = ref<Question[]>([])
+  const answerOptions = ref<Record<string, AnswerOption[]>>({})
   const title = ref('')
   const description = ref('')
   const timeLimit = ref<number | null>(null)
@@ -65,7 +79,15 @@ export const useQuizEditorStore = defineStore('quiz-editor', () => {
       description.value = loaded.description ?? ''
       timeLimit.value = loaded.time_limit_sec
       settings.value = { ...DEFAULT_SETTINGS, ...loaded.settings }
-      questions.value = await fetchQuestions(id)
+
+      const loadedQuestions = await fetchQuestions(id)
+      questions.value = loadedQuestions
+
+      const options = await fetchAnswerOptions(loadedQuestions.map(q => q.id))
+      const grouped: Record<string, AnswerOption[]> = {}
+      for (const q of loadedQuestions) grouped[q.id] = []
+      for (const option of options) (grouped[option.question_id] ??= []).push(option)
+      answerOptions.value = grouped
     } catch {
       toast.error('Не удалось загрузить тест. Проверьте соединение и попробуйте снова.')
     } finally {
@@ -86,9 +108,133 @@ export const useQuizEditorStore = defineStore('quiz-editor', () => {
     }
   }
 
-  // Extended in Plan 04 with per-question answer-option checks.
+  // ─── questions ────────────────────────────────────────────────────────────
+
+  async function addQuestion(): Promise<string | null> {
+    if (!quiz.value) return null
+    try {
+      const created = await createQuestion(quiz.value.id, questions.value.length)
+      questions.value.push(created)
+      answerOptions.value[created.id] = []
+      return created.id
+    } catch {
+      toast.error(SAVE_ERROR)
+      return null
+    }
+  }
+
+  async function updateQuestion(id: string, patch: Partial<Question>) {
+    const question = questions.value.find(q => q.id === id)
+    if (question) Object.assign(question, patch)
+    try {
+      await apiUpdateQuestion(id, patch)
+    } catch {
+      toast.error(SAVE_ERROR)
+    }
+  }
+
+  async function deleteQuestion(id: string) {
+    try {
+      await apiDeleteQuestion(id)
+      const index = questions.value.findIndex(q => q.id === id)
+      if (index !== -1) questions.value.splice(index, 1)
+      delete answerOptions.value[id]
+      questions.value.forEach((q, i) => { q.order_index = i })
+      await apiReorderQuestions(questions.value)
+    } catch {
+      toast.error(SAVE_ERROR)
+    }
+  }
+
+  async function reorderQuestions(reordered: Question[]) {
+    reordered.forEach((q, i) => { q.order_index = i })
+    if (reordered !== questions.value) {
+      questions.value.splice(0, questions.value.length, ...reordered)
+    }
+    try {
+      await apiReorderQuestions(questions.value)
+    } catch {
+      toast.error(SAVE_ERROR)
+    }
+  }
+
+  // ─── answer options ───────────────────────────────────────────────────────
+
+  async function addAnswerOption(questionId: string) {
+    try {
+      const list = answerOptions.value[questionId] ?? []
+      const created = await createAnswerOption(questionId, list.length)
+      ;(answerOptions.value[questionId] ??= []).push(created)
+    } catch {
+      toast.error(SAVE_ERROR)
+    }
+  }
+
+  async function updateAnswerOption(id: string, patch: Partial<AnswerOption>) {
+    let questionId: string | null = null
+    let option: AnswerOption | null = null
+    for (const [qid, list] of Object.entries(answerOptions.value)) {
+      const found = list.find(o => o.id === id)
+      if (found) {
+        questionId = qid
+        option = found
+        break
+      }
+    }
+    if (!option || !questionId) return
+
+    try {
+      // For single-answer questions, marking one option correct unmarks the rest.
+      if (patch.is_correct === true) {
+        const question = questions.value.find(q => q.id === questionId)
+        if (question?.type === 'single') {
+          const siblings = answerOptions.value[questionId].filter(
+            o => o.id !== id && o.is_correct,
+          )
+          for (const sibling of siblings) {
+            sibling.is_correct = false
+            await apiUpdateAnswerOption(sibling.id, { is_correct: false })
+          }
+        }
+      }
+      Object.assign(option, patch)
+      await apiUpdateAnswerOption(id, patch)
+    } catch {
+      toast.error(SAVE_ERROR)
+    }
+  }
+
+  async function deleteAnswerOption(id: string) {
+    try {
+      await apiDeleteAnswerOption(id)
+      for (const list of Object.values(answerOptions.value)) {
+        const index = list.findIndex(o => o.id === id)
+        if (index !== -1) {
+          list.splice(index, 1)
+          break
+        }
+      }
+    } catch {
+      toast.error(SAVE_ERROR)
+    }
+  }
+
+  // ─── publish ──────────────────────────────────────────────────────────────
+
   function validateForPublish(): string | null {
-    if (questions.value.length === 0) return 'Добавьте хотя бы один вопрос, прежде чем публиковать тест.'
+    if (questions.value.length === 0) {
+      return 'Добавьте хотя бы один вопрос, прежде чем публиковать тест.'
+    }
+    for (const question of questions.value) {
+      const options = answerOptions.value[question.id] ?? []
+      const label = question.body.trim() || 'без текста'
+      if (options.length < 2) {
+        return `Вопрос «${label}» должен иметь минимум 2 варианта ответа.`
+      }
+      if (!options.some(o => o.is_correct)) {
+        return `Вопрос «${label}» должен иметь хотя бы один правильный ответ.`
+      }
+    }
     return null
   }
 
@@ -110,6 +256,8 @@ export const useQuizEditorStore = defineStore('quiz-editor', () => {
       toast.error(SAVE_ERROR)
     }
   }
+
+  // ─── cover ────────────────────────────────────────────────────────────────
 
   async function uploadCover(file: File) {
     if (!quiz.value) return
@@ -148,6 +296,7 @@ export const useQuizEditorStore = defineStore('quiz-editor', () => {
   return {
     quiz,
     questions,
+    answerOptions,
     title,
     description,
     timeLimit,
@@ -156,6 +305,14 @@ export const useQuizEditorStore = defineStore('quiz-editor', () => {
     isUploadingCover,
     loadQuiz,
     updateSettings,
+    addQuestion,
+    updateQuestion,
+    deleteQuestion,
+    reorderQuestions,
+    addAnswerOption,
+    updateAnswerOption,
+    deleteAnswerOption,
+    validateForPublish,
     publishToggle,
     uploadCover,
     removeCover,
