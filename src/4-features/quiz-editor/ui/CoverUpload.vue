@@ -28,7 +28,7 @@ function onDrop(e: DragEvent) {
 </script>
 
 <template>
-  <div class="w-full max-w-xs">
+  <div class="w-full">
     <input
       ref="fileInput"
       type="file"
@@ -38,11 +38,11 @@ function onDrop(e: DragEvent) {
     >
 
     <div v-if="store.quiz?.cover_url">
-      <div class="group relative h-28 w-full">
+      <div class="group relative h-48 w-full">
         <img
           :src="store.quiz.cover_url"
           alt="Обложка теста"
-          class="h-28 w-full rounded-lg object-cover"
+          class="h-48 w-full rounded-lg object-cover"
         >
         <button
           type="button"
@@ -65,7 +65,7 @@ function onDrop(e: DragEvent) {
 
     <div
       v-else-if="store.isUploadingCover"
-      class="flex h-28 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white"
+      class="flex h-48 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white"
     >
       <Loader2 class="h-8 w-8 animate-spin text-gray-400" />
       <span class="mt-1 text-sm text-gray-400">Загружается...</span>
@@ -73,7 +73,7 @@ function onDrop(e: DragEvent) {
 
     <div
       v-else
-      class="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-white transition-colors"
+      class="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-white transition-colors"
       :class="isDragOver ? 'border-violet-400 bg-violet-50' : 'border-gray-300'"
       @click="openPicker"
       @dragover.prevent="isDragOver = true"

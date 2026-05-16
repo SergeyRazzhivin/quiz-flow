@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQuizEditorStore } from '@features/quiz-editor/model/useQuizEditorStore'
+import CoverUpload from './CoverUpload.vue'
 
 const store = useQuizEditorStore()
 
@@ -20,14 +21,24 @@ function onTimeLimitInput(e: Event) {
 </script>
 
 <template>
-  <div class="flex flex-1 items-start gap-4">
+  <div>
+    <CoverUpload />
+
+    <input
+      v-model="store.title"
+      placeholder="Без названия"
+      class="mt-4 w-full rounded-md border border-transparent bg-transparent px-2 py-1 text-2xl font-semibold text-gray-900 transition-colors hover:border-gray-200 focus:border-gray-300 focus:outline-none"
+    >
+
     <textarea
       v-model="store.description"
-      rows="2"
+      rows="5"
       placeholder="Описание теста (необязательно)"
-      class="flex-1 resize-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500"
+      class="mt-2 w-full resize-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500"
     />
-    <div class="flex items-center gap-2">
+
+    <div class="mt-2 flex items-center gap-2">
+      <span class="text-sm text-gray-500">Лимит времени</span>
       <input
         :value="timeLimitMin ?? ''"
         type="number"

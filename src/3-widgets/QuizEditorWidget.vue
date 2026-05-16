@@ -4,6 +4,7 @@ import { useQuizEditorStore } from '@features/quiz-editor/model/useQuizEditorSto
 import QuizEditorHeader from './QuizEditorHeader.vue'
 import QuizEditorFooter from './QuizEditorFooter.vue'
 import QuestionList from './QuestionList.vue'
+import QuizMetaForm from '@features/quiz-editor/ui/QuizMetaForm.vue'
 
 const props = defineProps<{ quizId: string }>()
 const store = useQuizEditorStore()
@@ -16,7 +17,10 @@ onMounted(() => store.loadQuiz(props.quizId))
     <QuizEditorHeader />
     <main class="editor-body">
       <div class="mx-auto max-w-7xl px-6 py-6">
-        <QuestionList />
+        <QuizMetaForm />
+        <div class="mt-8">
+          <QuestionList />
+        </div>
       </div>
     </main>
     <QuizEditorFooter />
