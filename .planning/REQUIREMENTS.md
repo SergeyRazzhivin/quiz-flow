@@ -125,57 +125,57 @@
 | AUTH-01 | Phase 1 | Pending |
 | AUTH-02 | Phase 1 | Pending |
 | AUTH-03 | Phase 1 | Pending |
-| QUIZ-01 | Phase 2 | Pending |
-| QUIZ-02 | Phase 2 | Pending |
-| QUIZ-03 | Phase 2 | Pending |
-| QUIZ-04 | Phase 2 | Pending |
-| QUIZ-05 | Phase 2 | Pending |
-| QUIZ-06 | Phase 2 | Pending |
-| QUIZ-07 | Phase 2 | Pending |
-| EDIT-01 | Phase 2 | Pending |
-| EDIT-02 | Phase 2 | Pending |
-| EDIT-03 | Phase 2 | Pending |
-| EDIT-04 | Phase 2 | Pending |
-| EDIT-05 | Phase 2 | Pending |
-| EDIT-06 | Phase 2 | Pending |
-| EDIT-07 | Phase 2 | Pending |
-| EDIT-08 | Phase 2 | Pending |
-| NAV-01 | Phase 2 | Pending |
-| NAV-02 | Phase 2 | Pending |
-| TAKE-01 | Phase 3 | Pending |
-| TAKE-02 | Phase 3 | Pending |
-| TAKE-03 | Phase 3 | Pending |
-| TAKE-04 | Phase 3 | Pending |
-| TAKE-05 | Phase 3 | Pending |
-| TAKE-06 | Phase 3 | Pending |
-| TAKE-07 | Phase 3 | Pending |
-| TAKE-08 | Phase 3 | Pending |
-| TAKE-09 | Phase 3 | Pending |
-| TAKE-10 | Phase 3 | Pending |
-| SHARE-01 | Phase 3 | Pending |
-| SHARE-02 | Phase 3 | Pending |
-| SHARE-03 | Phase 3 | Pending |
-| AI-01 | Phase 4 | Pending |
-| AI-02 | Phase 4 | Pending |
-| AI-03 | Phase 4 | Pending |
-| AI-04 | Phase 4 | Pending |
-| AI-05 | Phase 4 | Pending |
-| AI-06 | Phase 4 | Pending |
-| AI-07 | Phase 4 | Pending |
-| STATS-01 | Phase 5 | Pending |
-| STATS-02 | Phase 5 | Pending |
-| STATS-03 | Phase 5 | Pending |
-| PAY-01 | Phase 6 | Pending |
-| PAY-02 | Phase 6 | Pending |
-| PAY-03 | Phase 6 | Pending |
-| PAY-04 | Phase 6 | Pending |
-| PAY-05 | Phase 6 | Pending |
+| QUIZ-01 | Phase 1 | Pending |
+| QUIZ-02 | Phase 1 | Pending |
+| QUIZ-03 | Phase 1 | Pending |
+| QUIZ-04 | Phase 1 | Pending |
+| QUIZ-05 | Phase 1 | Pending |
+| QUIZ-06 | Phase 1 | Pending |
+| QUIZ-07 | Phase 1 | Pending |
+| EDIT-01 | Phase 1 | Pending |
+| EDIT-02 | Phase 1 | Pending |
+| EDIT-03 | Phase 1 | Pending |
+| EDIT-04 | Phase 1 | Pending |
+| EDIT-05 | Phase 1 | Pending |
+| EDIT-06 | Phase 1 | Pending |
+| EDIT-07 | Phase 1 | Pending |
+| EDIT-08 | Phase 1 | Pending |
+| NAV-01 | Phase 1 | Pending |
+| NAV-02 | Phase 1 | Pending |
+| TAKE-01 | Phase 2 | Pending |
+| TAKE-02 | Phase 2 | Pending |
+| TAKE-03 | Phase 2 | Pending |
+| TAKE-04 | Phase 2 | Pending |
+| TAKE-05 | Phase 2 | Pending |
+| TAKE-06 | Phase 2 | Pending |
+| TAKE-07 | Phase 2 | Pending |
+| TAKE-08 | Phase 2 | Pending |
+| TAKE-09 | Phase 2 | Pending |
+| TAKE-10 | Phase 2 | Pending |
+| SHARE-01 | Phase 2 | Pending |
+| SHARE-02 | Phase 2 | Pending |
+| SHARE-03 | Phase 2 | Pending |
+| AI-01 | Phase 3 | Pending |
+| AI-02 | Phase 3 | Pending |
+| AI-03 | Phase 3 | Pending |
+| AI-04 | Phase 3 | Pending |
+| AI-05 | Phase 3 | Pending |
+| AI-06 | Phase 3 | Pending |
+| AI-07 | Phase 3 | Pending |
+| STATS-01 | Phase 4 | Pending |
+| STATS-02 | Phase 4 | Pending |
+| STATS-03 | Phase 4 | Pending |
+| PAY-01 | Phase 5 | Pending |
+| PAY-02 | Phase 5 | Pending |
+| PAY-03 | Phase 5 | Pending |
+| PAY-04 | Phase 5 | Pending |
+| PAY-05 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 45 total
-- Mapped to phases: 45
+- v1 requirements: 48 total
+- Mapped to phases: 48
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-16*
-*Last updated: 2026-05-16 after initial definition*
+*Last updated: 2026-05-16 — traceability updated to 5-phase roadmap*
