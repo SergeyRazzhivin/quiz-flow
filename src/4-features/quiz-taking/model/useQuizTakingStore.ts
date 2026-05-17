@@ -402,7 +402,12 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     if (!guestToken.value || !token.value || isStarting.value) return
     isStarting.value = true
     try {
-      const res = await invokeStartSession(guestToken.value)
+      // newAttempt: true — every startSession() call is the taker actively starting
+      // a quiz (fresh login or a D-04 retake). The EF enforces allow_retake, so a
+      // first attempt (no prior session) is unaffected — it just inserts as before;
+      // a retake against an allow_retake quiz gets a brand-new quiz_sessions row
+      // instead of reusing the stale finished session.
+      const res = await invokeStartSession(guestToken.value, { newAttempt: true })
 
       sessionId.value = res.sessionId
       startedAt.value = res.started_at

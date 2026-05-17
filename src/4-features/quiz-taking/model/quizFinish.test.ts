@@ -171,7 +171,8 @@ describe('useQuizTakingStore — 02-05 finishSession and loadResult', () => {
 
       expect(mockVerify).toHaveBeenCalledWith('abc', 'login', 'password')
       // verifyAccess must drive the session start itself (no 'intro' screen).
-      expect(mockStart).toHaveBeenCalledWith('guest-tok')
+      // startSession() always requests a new attempt (server enforces allow_retake).
+      expect(mockStart).toHaveBeenCalledWith('guest-tok', { newAttempt: true })
       expect(store.sessionStatus).toBe('active')
       expect(store.sessionId).toBe('sess-1')
       expect(store.isLoading).toBe(false)

@@ -81,10 +81,18 @@ export async function invokeGetQuizMeta(token: string): Promise<GetQuizMetaRespo
  * Invoke start-quiz-session — creates a new session or resumes an existing open one (D-04).
  * Returns sessionId, server-authoritative started_at, resumed flag, stored answers,
  * and the quiz + questions (so a reload-resumed session can repopulate the store).
+ *
+ * options.newAttempt — when true, signals the EF that the taker is actively starting
+ * a quiz (first attempt or a retake). The EF still enforces allow_retake server-side:
+ * a finished single-attempt quiz returns sessionState 'finished' regardless. Absent
+ * (detection mode): an open session resumes, a finished one is reported as 'finished'.
  */
-export async function invokeStartSession(guestToken: string): Promise<StartSessionResponse> {
+export async function invokeStartSession(
+  guestToken: string,
+  options?: { newAttempt?: boolean },
+): Promise<StartSessionResponse> {
   const { data, error } = await supabase.functions.invoke('start-quiz-session', {
-    body: { guestToken },
+    body: { guestToken, newAttempt: options?.newAttempt ?? false },
   })
   if (error) throw error
   return data as StartSessionResponse

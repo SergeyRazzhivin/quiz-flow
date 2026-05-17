@@ -14,7 +14,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { guestToken } = await req.json()
+    // newAttempt: explicit "start a brand-new attempt" signal from the store's
+    // D-04 retake branch. Absent/false → detection mode (resume or report finished).
+    const { guestToken, newAttempt } = await req.json()
 
     // T-02-12: verify token — 401 before any DB access on bad/expired token
     const payload = await verifyGuestToken(guestToken)
@@ -111,20 +113,31 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (finished) {
-      // Return the finished session — the store's D-04 machine decides what to do next.
-      // No session_answers needed here: if allow_retake → clear answers anyway; if single-attempt → show result.
-      return Response.json(
-        {
-          sessionId: finished.id,
-          started_at: finished.started_at,
-          resumed: false,
-          sessionState: 'finished',
-          answers: [],
-          quiz: quizMeta,
-          questions,
-        },
-        { headers: corsHeaders },
-      )
+      // allow_retake is server-enforced here: a newAttempt request only creates a
+      // second session when the quiz actually permits retakes.
+      const allowRetake = (quizMeta.settings as { allow_retake?: boolean })?.allow_retake ?? false
+
+      // newAttempt + allow_retake → fall through to the INSERT branch and create a
+      // brand-new quiz_sessions row (a genuine fresh retake attempt).
+      // Otherwise → return the finished session, exactly as before. A newAttempt
+      // request against a single-attempt quiz still gets sessionState: 'finished'.
+      if (!(newAttempt === true && allowRetake === true)) {
+        // Return the finished session — the store's D-04 machine decides what to do next.
+        // No session_answers needed here: if allow_retake → clear answers anyway; if single-attempt → show result.
+        return Response.json(
+          {
+            sessionId: finished.id,
+            started_at: finished.started_at,
+            resumed: false,
+            sessionState: 'finished',
+            answers: [],
+            quiz: quizMeta,
+            questions,
+          },
+          { headers: corsHeaders },
+        )
+      }
+      // else: fall through to the INSERT branch below — fresh retake attempt.
     }
 
     // No open or finished session — insert a new one.
@@ -149,7 +162,18 @@ Deno.serve(async (req) => {
       { headers: corsHeaders },
     )
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
+    // Serialize real error messages (never String(err) on plain objects — yields [object Object])
+    let message: string
+    if (err instanceof Error) {
+      message = err.message
+    } else if (err && typeof err === 'object') {
+      const e = err as { message?: unknown; code?: unknown }
+      const base = typeof e.message === 'string' ? e.message : JSON.stringify(err)
+      message = typeof e.code === 'string' ? `${e.code}: ${base}` : base
+    } else {
+      message = String(err)
+    }
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
