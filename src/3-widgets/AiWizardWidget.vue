@@ -25,7 +25,12 @@ const store = useAiWizardStore()
 
 // D-12 leave-confirmation dialog state.
 const leaveDialogOpen = ref(false)
+// IN-06: both leave-guard handles are declared here, BEFORE onBeforeRouteLeave,
+// so there is no declared-after-use ordering. The guard callback runs lazily at
+// navigation time, so the prior ordering was technically safe — but fragile and
+// confusing to a reader. Keep both `let` bindings together, above their first use.
 let pendingLeave: (() => void) | null = null
+let leaveResolveCancel: (() => void) | null = null
 
 // Block step-4 exit while a generation is in flight (D-12).
 function isLocked(): boolean {
@@ -61,8 +66,6 @@ onBeforeRouteLeave(() => {
     leaveResolveCancel = () => resolve(false)
   })
 })
-
-let leaveResolveCancel: (() => void) | null = null
 
 function confirmLeave(): void {
   leaveDialogOpen.value = false
