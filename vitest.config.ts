@@ -10,6 +10,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // Supabase Edge Function _shared modules import zod via the Deno `npm:` specifier.
+      // Alias it to the project's zod dep so quiz-schema.test.ts is vitest-runnable.
+      'npm:zod@3.24.1': 'zod',
       '@app':      fileURLToPath(new URL('./src/1-app', import.meta.url)),
       '@pages':    fileURLToPath(new URL('./src/2-pages', import.meta.url)),
       '@widgets':  fileURLToPath(new URL('./src/3-widgets', import.meta.url)),
