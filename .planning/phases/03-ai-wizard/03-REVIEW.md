@@ -34,6 +34,9 @@ findings:
   warning: 9
   info: 6
   total: 17
+  critical_open: 0
+  warning_open: 0
+  info_open: 6
 status: issues_found
 ---
 
@@ -61,6 +64,28 @@ cases) round out the warnings.
 
 No structural pre-pass (`<structural_findings>`) was provided, so all findings below are
 narrative.
+
+## Resolution (2026-05-17)
+
+All 2 Critical and all 9 Warning findings have been fixed and committed. The 6 Info
+findings (IN-01..IN-06) remain open as tracked low-priority debt.
+
+| Finding | Commit |
+|---------|--------|
+| CR-01 | `801e6cd` |
+| CR-02 | `cd73bd1` |
+| WR-01 | `3ee6471` |
+| WR-02 / WR-03 | `0e1bf13`, `adcb8e5` |
+| WR-04 | `051450e` |
+| WR-05 | `ec3e191` |
+| WR-06 | `0904b1c` |
+| WR-07 | `ca8b9f1` |
+| WR-08 | `50496c4` |
+| WR-09 | `6ad6f2f` |
+
+Post-fix verification: `vitest` 90 passed, `vue-tsc` clean, `steiger` clean, `npm run build` clean.
+Note: the Edge Function fixes (CR-01/CR-02/WR-04/WR-05/WR-06/WR-07) require
+`npx supabase functions deploy ai-generate-quiz` to take effect in production.
 
 ## Critical Issues
 
