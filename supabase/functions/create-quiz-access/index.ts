@@ -88,6 +88,9 @@ Deno.serve(async (req) => {
     const passwordHash = await bcrypt.hash(password, 10)
 
     // INSERT quiz_access row — token defaults to gen_random_uuid() in the DB
+    // CR-03: also select the real row `id` (PK) so the client can use it as the
+    // QuizAccess identifier — token and id are different columns, and using token
+    // as the id breaks delete-before-reload.
     const { data: accessRow, error: insertError } = await supabase
       .from('quiz_access')
       .insert({
@@ -97,7 +100,7 @@ Deno.serve(async (req) => {
         label: label ?? null,
         expires_at: expiresAt ?? null,
       })
-      .select('token')
+      .select('id, token')
       .single()
 
     if (insertError || !accessRow) {
@@ -106,7 +109,7 @@ Deno.serve(async (req) => {
 
     // D-15: Return plaintext password exactly once — it is never stored or re-returned
     return Response.json(
-      { token: accessRow.token, login, password },
+      { id: accessRow.id, token: accessRow.token, login, password },
       { headers: corsHeaders },
     )
   } catch (err) {

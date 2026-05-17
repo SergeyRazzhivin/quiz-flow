@@ -39,9 +39,12 @@ export const useQuizShareStore = defineStore('quiz-share', () => {
       if (error) throw error
       // D-15: plaintext password stored in lastCreated only — never persisted
       lastCreated.value = data as { token: string; login: string; password: string }
-      // Prepend the new link optimistically (id will be re-fetched on reload)
+      // CR-03: prepend the new link optimistically using the REAL row id returned
+      // by create-quiz-access. Using token as the id would make removeLink() call
+      // deleteAccessLink with the wrong identifier — the delete matches zero rows
+      // and the link silently survives in the DB.
       links.value.unshift({
-        id: data.token, // temporary id — token is unique and serves as UI key until reload
+        id: data.id,
         quiz_id: quizId,
         token: data.token,
         login: data.login,
