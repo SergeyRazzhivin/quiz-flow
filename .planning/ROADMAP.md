@@ -55,14 +55,28 @@
 **Goal:** A guest taker can open a quiz by token URL, authenticate with their assigned credentials, complete the quiz under a live timer, and immediately see their score; the owner can create, view, and delete per-person access links
 **Mode:** mvp
 **Depends on:** Phase 1
-**Requirements:** TAKE-01, TAKE-02, TAKE-03, TAKE-04, TAKE-05, TAKE-06, TAKE-07, TAKE-08, TAKE-09, TAKE-10, SHARE-01, SHARE-02, SHARE-03
+**Requirements:** TAKE-01, TAKE-02, TAKE-03, TAKE-04, TAKE-05, TAKE-06, TAKE-07, TAKE-08, TAKE-09, TAKE-10, SHARE-01, SHARE-02, SHARE-03, EXT-04
 **Success Criteria**:
 1. A taker who opens /q/:token sees the quiz title, description, and cover image; entering the correct owner-assigned login + password grants access
 2. A taker can navigate questions (next/previous per allow_back setting), see "Question X of Y" progress and a countdown timer, and stop early; each answer is saved immediately to the DB on selection
 3. The timer counts down based on the server's started_at timestamp; the quiz auto-submits when time expires; the timer turns red in the final 20% of remaining time
 4. After submission the taker sees a result page with their score and percentage
 5. An owner can create a per-person access link (token + login + password + optional expiry), view all links for a quiz, and delete individual links
-**Plans**: TBD
+**Plans**: 5 plans across 4 waves
+
+**Wave 1**
+- [ ] 02-01-PLAN.md — Migration 009 + Edge Function foundation: cors/jwt helpers, bcrypt probe, verify-quiz-access (TAKE-01–03)
+
+**Wave 2**
+- [ ] 02-02-PLAN.md — Owner access-link slice: create-quiz-access EF, quiz-share store/UI, editor modal (SHARE-01–03)
+- [ ] 02-03-PLAN.md — Guest entry slice: /q/:token routes, intro + login, start-quiz-session, allow_retake toggle (TAKE-01–03, EXT-04)
+
+**Wave 3**
+- [ ] 02-04-PLAN.md — Quiz-taking slice: answering, immediate upsert, server-anchored timer, navigation (TAKE-04–07, TAKE-09–10)
+
+**Wave 4**
+- [ ] 02-05-PLAN.md — Submit + scoring + result slice: partial-credit scoring, result page, D-04 re-entry (TAKE-06, TAKE-08, TAKE-10, EXT-04)
+
 **UI hint**: yes
 
 ### Phase 3: AI Wizard
@@ -110,7 +124,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
-| 2. Quiz Taking & Sharing | 0/? | Not started | - |
+| 2. Quiz Taking & Sharing | 0/5 | Not started | - |
 | 3. AI Wizard | 0/? | Not started | - |
 | 4. Statistics | 0/? | Not started | - |
 | 5. Billing | 0/? | Not started | - |
