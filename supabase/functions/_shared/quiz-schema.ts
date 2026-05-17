@@ -36,6 +36,12 @@ export const QUIZ_JSON_SCHEMA = {
           is_required: { type: 'boolean' },
           answers: {
             type: 'array',
+            // WR-05: the answer-count contract is 3–5 across all three layers
+            // (this JSON schema, QuestionSchema below, and SYSTEM_PROMPT in
+            // quiz-prompt.ts). Constraining the model at decode time means it
+            // physically cannot emit a 2- or 6+-option question.
+            minItems: 3,
+            maxItems: 5,
             items: {
               type: 'object',
               additionalProperties: false,
@@ -64,7 +70,9 @@ const QuestionSchema = z
     type: z.enum(['single', 'multiple']),
     order_index: z.number().int(),
     is_required: z.boolean(),
-    answers: z.array(AnswerSchema).min(2).max(8),
+    // WR-05: 3–5 answers per question — kept in sync with QUIZ_JSON_SCHEMA
+    // above and the "3–5 вариантов ответа" rule in SYSTEM_PROMPT.
+    answers: z.array(AnswerSchema).min(3).max(5),
   })
   // Semantic rule a JSON schema CANNOT express: a `single` question has exactly one
   // correct answer; a `multiple` question has at least one.

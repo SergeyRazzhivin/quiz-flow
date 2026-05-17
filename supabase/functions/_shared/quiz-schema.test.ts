@@ -16,6 +16,7 @@ function makeQuestion(overrides: Record<string, unknown> = {}) {
     answers: [
       { body: 'Протокол передачи гипертекста', is_correct: true },
       { body: 'Язык программирования', is_correct: false },
+      { body: 'Тип базы данных', is_correct: false },
     ],
     ...overrides,
   }
@@ -45,6 +46,7 @@ describe('QuizSchema — Zod re-validation of AI-generated quizzes', () => {
       answers: [
         { body: 'A', is_correct: false },
         { body: 'B', is_correct: false },
+        { body: 'C', is_correct: false },
       ],
     })
     expect(() => QuizSchema.parse(makeQuiz({ questions: [q] }))).toThrow()
@@ -55,6 +57,7 @@ describe('QuizSchema — Zod re-validation of AI-generated quizzes', () => {
       answers: [
         { body: 'A', is_correct: true },
         { body: 'B', is_correct: true },
+        { body: 'C', is_correct: false },
       ],
     })
     expect(() => QuizSchema.parse(makeQuiz({ questions: [q] }))).toThrow()
@@ -66,6 +69,7 @@ describe('QuizSchema — Zod re-validation of AI-generated quizzes', () => {
       answers: [
         { body: 'A', is_correct: false },
         { body: 'B', is_correct: false },
+        { body: 'C', is_correct: false },
       ],
     })
     expect(() => QuizSchema.parse(makeQuiz({ questions: [q] }))).toThrow()
@@ -94,18 +98,46 @@ describe('QuizSchema — Zod re-validation of AI-generated quizzes', () => {
       answers: [
         { body: '', is_correct: true },
         { body: 'B', is_correct: false },
+        { body: 'C', is_correct: false },
       ],
     })
     expect(() => QuizSchema.parse(makeQuiz({ questions: [q] }))).toThrow()
   })
 
-  it('throws when a question has fewer than 2 answers', () => {
-    const q = makeQuestion({ answers: [{ body: 'A', is_correct: true }] })
+  // WR-05: the answer-count contract is 3–5 (Zod, JSON schema, prompt all agree).
+  it('accepts a question with exactly 3 answers (WR-05 lower bound)', () => {
+    const q = makeQuestion({
+      answers: [
+        { body: 'A', is_correct: true },
+        { body: 'B', is_correct: false },
+        { body: 'C', is_correct: false },
+      ],
+    })
+    expect(() => QuizSchema.parse(makeQuiz({ questions: [q] }))).not.toThrow()
+  })
+
+  it('accepts a question with exactly 5 answers (WR-05 upper bound)', () => {
+    const answers = Array.from({ length: 5 }, (_, i) => ({
+      body: `Вариант ${i}`,
+      is_correct: i === 0,
+    }))
+    expect(() =>
+      QuizSchema.parse(makeQuiz({ questions: [makeQuestion({ answers })] })),
+    ).not.toThrow()
+  })
+
+  it('throws when a question has fewer than 3 answers (WR-05)', () => {
+    const q = makeQuestion({
+      answers: [
+        { body: 'A', is_correct: true },
+        { body: 'B', is_correct: false },
+      ],
+    })
     expect(() => QuizSchema.parse(makeQuiz({ questions: [q] }))).toThrow()
   })
 
-  it('throws when a question has more than 8 answers', () => {
-    const answers = Array.from({ length: 9 }, (_, i) => ({
+  it('throws when a question has more than 5 answers (WR-05)', () => {
+    const answers = Array.from({ length: 6 }, (_, i) => ({
       body: `Вариант ${i}`,
       is_correct: i === 0,
     }))
