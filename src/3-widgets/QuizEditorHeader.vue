@@ -49,7 +49,7 @@ const modalOpen = ref(false)
         </Tooltip>
         <Button
           v-if="editorStore.quiz"
-          variant="default"
+          variant="outline"
           size="sm"
           @click="modalOpen = true"
         >

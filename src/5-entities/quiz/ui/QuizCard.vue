@@ -4,6 +4,7 @@ import { BarChart3, Image, Pencil, Trash2 } from 'lucide-vue-next'
 import type { Quiz } from '../model'
 import { formatDuration } from '@shared/lib/format'
 import Button from '@shared/ui/Button.vue'
+import Tooltip from '@shared/ui/Tooltip.vue'
 
 defineProps<{
   quiz: Quiz
@@ -62,35 +63,39 @@ const router = useRouter()
 
       <div
         v-if="showActions"
-        class="mt-auto flex items-center gap-1 border-t border-neutral-800 pt-2"
+        class="mt-auto flex items-center gap-1 border-t border-neutral-800 pt-3"
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          class="flex-1"
-          @click="router.push('/editor/' + quiz.id)"
-        >
-          <Pencil class="h-3.5 w-3.5" />
-          Изменить
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          class="flex-1"
-          @click="router.push(`/quiz/${quiz.id}/stats`)"
-        >
-          <BarChart3 class="h-3.5 w-3.5" />
-          Статистика
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label="Удалить тест"
-          class="text-red-400 hover:bg-red-500/15 hover:text-red-600"
-          @click="emit('delete', quiz)"
-        >
-          <Trash2 class="h-3.5 w-3.5" />
-        </Button>
+        <Tooltip content="Изменить">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Изменить тест"
+            @click="router.push('/editor/' + quiz.id)"
+          >
+            <Pencil class="h-4 w-4" />
+          </Button>
+        </Tooltip>
+        <Tooltip content="Статистика">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Статистика теста"
+            @click="router.push(`/quiz/${quiz.id}/stats`)"
+          >
+            <BarChart3 class="h-4 w-4" />
+          </Button>
+        </Tooltip>
+        <Tooltip content="Удалить тест">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Удалить тест"
+            class="ml-auto text-red-400 hover:bg-red-500/15 hover:text-red-600"
+            @click="emit('delete', quiz)"
+          >
+            <Trash2 class="h-4 w-4" />
+          </Button>
+        </Tooltip>
       </div>
     </div>
   </div>

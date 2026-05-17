@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue'
-import { GripVertical, Trash2, Plus } from 'lucide-vue-next'
+import { GripVertical, Trash2, Plus, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import {
   DialogPortal,
   DialogOverlay,
@@ -15,7 +15,8 @@ import Dialog from '@shared/ui/Dialog.vue'
 import Switch from '@shared/ui/Switch.vue'
 import Button from '@shared/ui/Button.vue'
 
-const props = defineProps<{ question: Question }>()
+const props = defineProps<{ question: Question; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 const store = useQuizEditorStore()
 
 const number = computed(() => store.questions.findIndex(q => q.id === props.question.id) + 1)
@@ -68,7 +69,28 @@ defineExpose({ focus })
       >
         <GripVertical class="h-5 w-5" />
       </span>
-      <span class="text-sm text-neutral-500">Вопрос {{ number }}</span>
+      <button
+        type="button"
+        class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
+        :aria-label="collapsed ? 'Развернуть вопрос' : 'Свернуть вопрос'"
+        @click="emit('toggle-collapse')"
+      >
+        <ChevronRight
+          v-if="collapsed"
+          class="h-4 w-4"
+        />
+        <ChevronDown
+          v-else
+          class="h-4 w-4"
+        />
+      </button>
+      <span class="shrink-0 text-sm text-neutral-500">Вопрос {{ number }}</span>
+      <span
+        v-if="collapsed"
+        class="line-clamp-1 text-sm text-neutral-400"
+      >
+        {{ question.body || 'Без текста' }}
+      </span>
       <div class="ml-auto flex items-center gap-3">
         <div class="flex">
           <button
@@ -111,16 +133,20 @@ defineExpose({ focus })
     </div>
 
     <textarea
+      v-show="!collapsed"
       ref="textareaEl"
       v-model="localBody"
-      rows="2"
+      rows="1"
       placeholder="Введите текст вопроса..."
-      class="mt-3 min-h-[80px] w-full resize-none rounded-2xl border border-neutral-800 bg-[#101010] px-3 py-2 text-base text-neutral-50 placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+      class="mt-3 w-full resize-none rounded-2xl border border-neutral-800 bg-[#101010] px-3 py-2 text-base text-neutral-50 placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
       @input="autoResize"
       @blur="saveBody"
     />
 
-    <div class="mt-3 flex flex-col gap-1">
+    <div
+      v-show="!collapsed"
+      class="mt-3 flex flex-col gap-1"
+    >
       <AnswerOptionEditor
         v-for="option in options"
         :key="option.id"
