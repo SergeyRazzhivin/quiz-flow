@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 03
 status: executing
-stopped_at: Phase 3 Plan 01 complete — AI generation backend
+stopped_at: Phase 3 Plan 02 complete — AI-wizard frontend slice
 last_updated: "2026-05-17T17:09:45.192Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 12
-  completed_plans: 10
-  percent: 43
+  completed_plans: 11
+  percent: 50
 ---
 
 # State: Quiz Flow
@@ -34,8 +34,9 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 03 (ai-wizard) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 **Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
+**Phase 3 Plan 2:** COMPLETE — AI-wizard frontend slice (ai-job entity, useAiWizardStore 4-step machine + poll loop, 4 step components/stepper/widget/page, /ai-wizard route; AI-01–04, AI-06–07)
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
 **Phase:** 2 — Quiz Taking & Sharing — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
@@ -47,7 +48,7 @@ Plan: 2 of 3
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
-Phase 3 [▓▓▓       ] 33% (1/3 plans)
+Phase 3 [▓▓▓▓▓▓▓   ] 67% (2/3 plans)
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
 ```
@@ -56,9 +57,9 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 10 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓)
+**Plans completed:** 11 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓, 03-02 ✓)
 **Plans created:** 12 (Phase 1: 4, Phase 2: 5, Phase 3: 3)
-**Requirements shipped:** 35 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-05)
+**Requirements shipped:** 41 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-01–07)
 **Requirements planned:** 41 / 48 (Phase 1 + Phase 2 + Phase 3)
 **Phases completed:** 2 / 5
 
@@ -100,9 +101,13 @@ Phase 5 [          ] 0%
 - OpenAI pinned to v4 SDK (openai@4.104.0) — AI-SPEC §4b code is v4-only; hand-written QUIZ_JSON_SCHEMA strict + Zod QuizSchema.parse re-validation gate before any DB insert (no openai/helpers/zod)
 - PDF/DOCX text extraction runs inside the Edge Function: unpdf (serverless pdf.js, Deno-safe) for PDF, unzipit for DOCX (read word/document.xml, strip tags); recovered text capped at 12000 chars
 - ai_jobs writes are service_role-only — owner-only SELECT RLS, no anon policy, no authenticated INSERT/UPDATE policy (threat T-03-02)
+- AiWizardPage intentionally omits AppHeader — the 03-UI-SPEC prescribes the wizard's own full-viewport (100dvh) shell as the authoritative visual contract
+- The wizard store runs resetWizard() on every /ai-wizard entry so a second visit opens a fresh step 1 (D-02 — the wizard always creates a new quiz, never mutates an existing one)
+- fetchAiJob widens the supabase client to an untyped shape for the ai_jobs read — ai_jobs is absent from the stale generated database.types.ts (migration 012 shipped without a type regen)
 
 ### Open Questions
 
+- Follow-up (03-02): regenerate database.types.ts (`npx supabase gen types`) so ai_jobs is typed, then drop the untyped-client widening in fetchAiJob
 - File parsing strategy for AI wizard RESOLVED (03-01): unpdf for PDF, unzipit for DOCX — both run inside the Edge Function
 - EF request-body limit for a Pro 5 MB base64 file (~6.7 MB encoded) — deferred to phase verification / human UAT; base64-in-JSON is the chosen transport, Storage-upload remains the documented contingency if a live test shows a 413 (RESEARCH Open Question 2 / Assumption A3)
 - shuffle_answers RESOLVED: added to quizzes.settings JSONB default in migration 002
@@ -122,9 +127,9 @@ None.
 ## Session Continuity
 
 **Last session:** 2026-05-17T17:09:45.192Z
-**Resume file:** .planning/phases/03-ai-wizard/03-01-SUMMARY.md
-**Stopped at:** Phase 3 Plan 01 complete — AI generation backend
-**Next action:** Execute Phase 3 Plan 02
+**Resume file:** .planning/phases/03-ai-wizard/03-02-SUMMARY.md
+**Stopped at:** Phase 3 Plan 02 complete — AI-wizard frontend slice
+**Next action:** Execute Phase 3 Plan 03
 
 ---
 

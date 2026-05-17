@@ -95,7 +95,7 @@
 - [x] 03-01-PLAN.md — Server foundation: migration 012 (ai_jobs + RLS), _shared AI helpers, ai-generate-quiz Edge Function (AI-05)
 
 **Wave 2**
-- [ ] 03-02-PLAN.md — AI-wizard frontend slice: ai-job entity, 4-step wizard store + polling, step UI, /ai-wizard route, editor redirect (AI-01–04, AI-06–07)
+- [x] 03-02-PLAN.md — AI-wizard frontend slice: ai-job entity, 4-step wizard store + polling, step UI, /ai-wizard route, editor redirect (AI-01–04, AI-06–07)
 
 **Wave 3**
 - [ ] 03-03-PLAN.md — Entry-point buttons (/my + editor header) and the AI-SPEC §5 evals harness (AI-01)
@@ -135,6 +135,6 @@
 |-------|----------------|--------|-----------|
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
 | 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
-| 3. AI Wizard | 1/3 | In Progress|  |
+| 3. AI Wizard | 2/3 | In Progress|  |
 | 4. Statistics | 0/? | Not started | - |
 | 5. Billing | 0/? | Not started | - |
