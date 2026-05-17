@@ -87,7 +87,11 @@ const QuestionSchema = z
 export const QuizSchema = z.object({
   title: z.string().min(1).max(120),
   description: z.string(),
-  time_limit_sec: z.number().int().positive().nullable(),
+  // WR-06: cap the model-supplied time limit at 24h (86400s). The strict JSON
+  // schema REQUIRES time_limit_sec, so the model always emits something; an
+  // unbounded value (e.g. 999999999) would otherwise be persisted verbatim and
+  // surface as a multi-year countdown in the Phase 2 quiz-taker timer.
+  time_limit_sec: z.number().int().positive().max(86_400).nullable(),
   questions: z.array(QuestionSchema).min(1),
 })
 

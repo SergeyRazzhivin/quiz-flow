@@ -148,4 +148,18 @@ describe('QuizSchema — Zod re-validation of AI-generated quizzes', () => {
   it('throws when the quiz has zero questions', () => {
     expect(() => QuizSchema.parse(makeQuiz({ questions: [] }))).toThrow()
   })
+
+  // WR-06: time_limit_sec is capped at 86400 (24h) — an absurd model value
+  // must not reach the quizzes row.
+  it('accepts time_limit_sec at the 86400 cap (WR-06)', () => {
+    expect(() =>
+      QuizSchema.parse(makeQuiz({ time_limit_sec: 86_400 })),
+    ).not.toThrow()
+  })
+
+  it('throws when time_limit_sec exceeds the 86400 cap (WR-06)', () => {
+    expect(() =>
+      QuizSchema.parse(makeQuiz({ time_limit_sec: 999_999_999 })),
+    ).toThrow()
+  })
 })
