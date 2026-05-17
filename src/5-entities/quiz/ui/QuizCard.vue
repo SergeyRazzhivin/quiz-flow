@@ -19,7 +19,7 @@ const router = useRouter()
 
 <template>
   <div
-    class="group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition-colors duration-150 hover:border-orange-500/50"
+    class="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition-colors duration-150 hover:border-orange-500/50"
   >
     <div class="relative aspect-video bg-neutral-800">
       <img
@@ -43,7 +43,7 @@ const router = useRouter()
       </span>
     </div>
 
-    <div class="p-3">
+    <div class="flex flex-1 flex-col p-3">
       <h3 class="line-clamp-1 text-sm font-semibold text-neutral-50">
         {{ quiz.title }}
       </h3>
@@ -62,7 +62,7 @@ const router = useRouter()
 
       <div
         v-if="showActions"
-        class="mt-2 flex items-center gap-1 border-t border-neutral-800 pt-2"
+        class="mt-auto flex items-center gap-1 border-t border-neutral-800 pt-2"
       >
         <Button
           variant="ghost"
