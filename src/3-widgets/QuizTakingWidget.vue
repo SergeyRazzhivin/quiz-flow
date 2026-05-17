@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ClipboardX, LinkIcon } from 'lucide-vue-next'
 import { useQuizTakingStore } from '@features/quiz-taking/model/useQuizTakingStore'
 import QuizIntroScreen from '@features/quiz-taking/ui/QuizIntroScreen.vue'
 import GracefulState from '@features/quiz-taking/ui/GracefulState.vue'
+import StopConfirmDialog from '@features/quiz-taking/ui/StopConfirmDialog.vue'
+import QuizTakingHeader from './QuizTakingHeader.vue'
+import QuestionTaker from '@features/quiz-taking/ui/QuestionTaker.vue'
+import NavigationControls from '@features/quiz-taking/ui/NavigationControls.vue'
 
 const route = useRoute()
 const store = useQuizTakingStore()
+
+// Stop/finish dialog — shared between the header "Стоп" button and the last-question "Завершить" button
+const stopDialogOpen = ref(false)
 
 onMounted(() => {
   const token = route.params.token as string
@@ -17,10 +24,33 @@ onMounted(() => {
 onUnmounted(() => {
   store.cleanup()
 })
+
+// Answer options for the current question — the questions from verify-quiz-access
+// include answer_options_public nested inside them (raw DB shape from the EF response).
+interface AnswerOption {
+  id: string
+  body: string
+}
+
+const currentOptions = computed<AnswerOption[]>(() => {
+  const q = store.currentQuestion
+  if (!q) return []
+  // The raw question object from the EF response has answer_options_public nested
+  const raw = q as unknown as { answer_options_public?: AnswerOption[] }
+  return raw.answer_options_public ?? []
+})
+
+const selectedOptionIds = computed<string[]>(() => {
+  const q = store.currentQuestion
+  if (!q) return []
+  return store.answers[q.id] ?? []
+})
+
+const isFirstQuestion = computed<boolean>(() => store.currentQuestionIndex === 0)
 </script>
 
 <template>
-  <!-- idle → intro+login on one screen (D-01) -->
+  <!-- idle/intro → intro+login on one screen (D-01) -->
   <QuizIntroScreen
     v-if="store.sessionStatus === 'idle' || store.sessionStatus === 'intro'"
   />
@@ -41,16 +71,54 @@ onUnmounted(() => {
     body="Ссылка устарела или была отозвана. Обратитесь к автору теста."
   />
 
-  <!-- active → placeholder; full QuestionTaker UI added in 02-04 -->
+  <!-- active → full question-taking UI (100dvh two-row grid: header + scrollable body) -->
   <div
     v-else-if="store.sessionStatus === 'active'"
-    class="flex min-h-screen flex-col items-center justify-center px-4 py-12"
+    class="taking-layout"
   >
-    <div class="w-full max-w-md rounded-2xl bg-neutral-900 p-8 text-center shadow-lg">
-      <p class="text-xl font-semibold text-neutral-50">Тест начат</p>
-      <p class="mt-2 text-base text-neutral-400">
-        Интерфейс вопросов будет доступен в следующем обновлении.
-      </p>
-    </div>
+    <!-- Sticky header: progress + timer + stop (D-05/D-06/D-09) -->
+    <QuizTakingHeader v-model:stop-dialog-open="stopDialogOpen" />
+
+    <!-- Scrollable body: question card + navigation footer -->
+    <main class="taking-body">
+      <div class="mx-auto flex w-full max-w-2xl flex-col px-4 py-6">
+        <QuestionTaker
+          v-if="store.currentQuestion"
+          :question="store.currentQuestion"
+          :selected-option-ids="selectedOptionIds"
+          :options="currentOptions"
+        />
+
+        <NavigationControls
+          class="mt-4"
+          :can-go-back="store.canGoBack"
+          :allow-back="store.quiz?.settings?.allow_back ?? false"
+          :can-go-forward="store.canGoForward"
+          :is-last-question="store.isLastQuestion"
+          :is-first-question="isFirstQuestion"
+          @back="store.goBack()"
+          @forward="store.goForward()"
+          @finish="stopDialogOpen = true"
+        />
+      </div>
+    </main>
+
+    <!-- Stop/finish confirmation dialog — shared between Стоп and Завершить (D-06) -->
+    <StopConfirmDialog v-model:open="stopDialogOpen" />
   </div>
 </template>
+
+<style scoped>
+/* Two-row grid layout: sticky header auto + scrollable body 1fr (analog: QuizEditorWidget.vue) */
+.taking-layout {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.taking-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+</style>
