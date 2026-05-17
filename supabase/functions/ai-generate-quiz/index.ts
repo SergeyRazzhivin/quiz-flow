@@ -19,6 +19,7 @@ import { corsHeaders } from '../_shared/cors.ts'
 import { GENERIC_500_MESSAGE, serializeError } from '../_shared/errors.ts'
 import { extractDocumentText } from '../_shared/extract-text.ts'
 import { generateQuiz } from '../_shared/openai.ts'
+import { normalizeDifficulty } from '../_shared/quiz-prompt.ts'
 import type { GeneratedQuiz } from '../_shared/quiz-schema.ts'
 
 const JSON_HEADERS = { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -286,7 +287,8 @@ Deno.serve(async (req) => {
         source,
         clarifyingPrompt: typeof clarifyingPrompt === 'string' ? clarifyingPrompt : '',
         count,
-        difficulty: typeof difficulty === 'string' ? difficulty : 'средний',
+        // CR-01: map the English client enum to the Russian key the prompt expects.
+        difficulty: normalizeDifficulty(difficulty),
         difficultyPrompt:
           typeof difficultyPrompt === 'string' ? difficultyPrompt : undefined,
       }),

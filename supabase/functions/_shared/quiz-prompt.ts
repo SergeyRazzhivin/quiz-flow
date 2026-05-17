@@ -27,6 +27,25 @@ const DIFFICULTY_INSTRUCTIONS: Record<string, string> = {
   'сложный': 'вопросы на применение и анализ, с близкими по смыслу дистракторами',
 }
 
+// CR-01: the client contract (GenerateQuizPayload) sends difficulty as the English
+// enum 'easy' | 'medium' | 'hard'; DIFFICULTY_INSTRUCTIONS above is keyed by the
+// Russian labels. This map bridges the two so the Edge Function can normalize the
+// incoming value before buildUserPrompt — keeping it next to the instruction table
+// it maps onto means the two can never drift apart.
+const DIFFICULTY_RU: Record<string, string> = {
+  easy: 'лёгкий',
+  medium: 'средний',
+  hard: 'сложный',
+}
+
+/**
+ * Normalize the client's English difficulty enum to the Russian key the prompt uses.
+ * An unexpected/missing value falls back to 'средний' (medium).
+ */
+export function normalizeDifficulty(raw: unknown): string {
+  return (typeof raw === 'string' && DIFFICULTY_RU[raw]) || 'средний'
+}
+
 export function buildUserPrompt(p: {
   sourceText: string
   clarifyingPrompt: string
