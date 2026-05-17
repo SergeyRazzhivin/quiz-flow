@@ -35,6 +35,7 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 
 Phase: 04 (statistics) — EXECUTING
 Plan: 2 of 2
+**Phase 4 Plan 1:** COMPLETE — Statistics data layer (migration 013 get_quiz_stats + get_quiz_accuracy RPCs, format helpers, ProgressBar size prop; STATS-01–03)
 **Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
 **Phase 3 Plan 2:** COMPLETE — AI-wizard frontend slice (ai-job entity, useAiWizardStore 4-step machine + poll loop, 4 step components/stepper/widget/page, /ai-wizard route; AI-01–04, AI-06–07)
 **Phase 3 Plan 3:** COMPLETE — D-02 entry-point buttons (/my, /my empty state, editor header) + AI-SPEC §5 evals harness scaffold (AI-01)
@@ -50,7 +51,7 @@ Plan: 2 of 2
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
 Phase 3 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
-Phase 4 [          ] 0%
+Phase 4 [▓▓▓▓▓     ] 50% (1/2 plans)
 Phase 5 [          ] 0%
 ```
 
@@ -58,9 +59,9 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 12 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓, 03-02 ✓, 03-03 ✓)
+**Plans completed:** 13 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓, 03-02 ✓, 03-03 ✓, 04-01 ✓)
 **Plans created:** 12 (Phase 1: 4, Phase 2: 5, Phase 3: 3)
-**Requirements shipped:** 41 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-01–07)
+**Requirements shipped:** 44 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-01–07, STATS-01–03)
 **Requirements planned:** 41 / 48 (Phase 1 + Phase 2 + Phase 3)
 **Phases completed:** 3 / 5
 
@@ -106,6 +107,10 @@ Phase 5 [          ] 0%
 - The wizard store runs resetWizard() on every /ai-wizard entry so a second visit opens a fresh step 1 (D-02 — the wizard always creates a new quiz, never mutates an existing one)
 - fetchAiJob widens the supabase client to an untyped shape for the ai_jobs read — ai_jobs is absent from the stale generated database.types.ts (migration 012 shipped without a type regen)
 - D-02 AI-wizard entry points: three `Создать с ИИ` buttons (on /my, the /my empty state, editor header); the editor-header button is outline/sm and passes no quiz id so the wizard always creates a fresh quiz
+- Stats aggregation via SECURITY DEFINER RPCs (get_quiz_stats, get_quiz_accuracy): each first-statement ownership check raises 'unauthorized' for non-owners; GRANT EXECUTE TO authenticated only — no anon grant
+- D-03: completion rate inputs (totalAttempts/finishedCount) span ALL sessions; D-04: avgScore/accuracy_percent from DISTINCT ON (quiz_access_id) latest-finished per taker only
+- answer_options.is_correct read inside RPC body only — never a key in any returned JSONB payload
+- totalQuestions included in get_quiz_stats payload to avoid second query from UI (RESEARCH open question #1)
 - promptfoo is CI-only — intentionally NOT a devDependency; its native dep better-sqlite3 needs a Python build toolchain absent locally, so adding it would break `npm install` for the team. The D4-D6 Promptfoo LLM-judge gate runs in CI; package.json keeps only the `eval` script
 - AI-SPEC §5 evals harness scaffolded with an empty dataset — the 15-case reference dataset + Russian judge prompts are filled incrementally (flywheel), so the D1-D3 Vitest suite ships green with it.todo placeholders
 
@@ -131,10 +136,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17T21:18:14.897Z
+**Last session:** 2026-05-18
 **Resume file:** None
-**Stopped at:** Phase 4 UI-SPEC approved
-**Next action:** Verify Phase 3 (`/gsd:verify-work 3`), then plan Phase 4 (Statistics)
+**Stopped at:** Phase 4 Plan 1 complete (04-01-SUMMARY.md)
+**Next action:** Execute plan 04-02 (Statistics UI slice)
 
 ---
 

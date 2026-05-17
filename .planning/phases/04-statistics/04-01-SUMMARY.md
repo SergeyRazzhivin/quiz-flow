@@ -59,7 +59,7 @@ completed: 2026-05-18
 - **Duration:** ~15 min
 - **Started:** 2026-05-18T00:00:00Z
 - **Completed:** 2026-05-18
-- **Tasks completed:** 2 of 3 (Task 3 is a blocking human checkpoint — push to live DB)
+- **Tasks completed:** 3 of 3
 - **Files modified:** 3
 
 ## Accomplishments
@@ -74,7 +74,7 @@ completed: 2026-05-18
 
 1. **Task 1: Migration 013 — get_quiz_stats and get_quiz_accuracy RPCs** - `561e954` (feat)
 2. **Task 2: Add format helpers and extend ProgressBar** - `35b9665` (feat)
-3. **Task 3: Push migration 013 to live DB** - BLOCKED (checkpoint:human-verify)
+3. **Task 3: Push migration 013 to live DB** - completed by user (`npx supabase db push`, verified via `supabase migration list`: Local 013 = Remote 013)
 
 ## Files Created/Modified
 
@@ -97,12 +97,7 @@ None - plan executed exactly as written (Tasks 1 and 2). Task 3 is the planned b
 
 ## User Setup Required
 
-**Task 3 is a blocking human checkpoint.** To complete this plan:
-
-1. Run `supabase db push` to apply migration 013_quiz_stats_rpc.sql to the linked Supabase project.
-2. Verify in the Supabase SQL editor: `SELECT proname FROM pg_proc WHERE proname IN ('get_quiz_stats','get_quiz_accuracy');` should return 2 rows.
-3. Confirm a call for a quiz you do NOT own raises 'unauthorized'.
-4. Reply "approved" to resume plan 04-02.
+None — migration 013 was pushed to the live database by the user (`npx supabase db push`). Both RPCs confirmed live.
 
 ## Known Stubs
 
@@ -114,9 +109,9 @@ None — all threats in the plan's threat model are mitigated by the implemented
 
 ## Next Phase Readiness
 
-- Migration 013 is committed and ready to push
+- Migration 013 is live — both `get_quiz_stats` and `get_quiz_accuracy` RPCs are callable in the remote DB
 - `format.ts` helpers and `ProgressBar` size prop are ready for plan 04-02 (UI slice)
-- Blocker: plan 04-02 cannot be verified until migration 013 is live in the database (RPCs must exist for runtime calls to succeed)
+- No blockers — plan 04-02 can proceed immediately
 
 ---
 
