@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Sparkles } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { fetchMyQuizzes, createQuiz, deleteQuiz } from '@entities/quiz/api'
 import type { Quiz } from '@entities/quiz/model'
@@ -10,6 +10,7 @@ import QuizCard from '@entities/quiz/ui/QuizCard.vue'
 import EmptyState from '@features/quiz-list/ui/EmptyState.vue'
 import DeleteQuizDialog from '@features/quiz-list/ui/DeleteQuizDialog.vue'
 import Button from '@shared/ui/Button.vue'
+import Tooltip from '@shared/ui/Tooltip.vue'
 
 const router = useRouter()
 const quizzes = ref<Quiz[]>([])
@@ -58,13 +59,24 @@ async function handleConfirmDelete() {
         <h1 class="text-2xl font-semibold text-neutral-50">
           Мои тесты
         </h1>
-        <Button
+        <div
           v-if="quizzes.length > 0"
-          @click="handleCreate"
+          class="flex items-center gap-3"
         >
-          <Plus class="h-4 w-4" />
-          Создать тест
-        </Button>
+          <Tooltip content="Сгенерировать новый тест из текста или файла">
+            <Button
+              variant="default"
+              @click="router.push('/ai-wizard')"
+            >
+              <Sparkles class="h-4 w-4" />
+              Создать с ИИ
+            </Button>
+          </Tooltip>
+          <Button @click="handleCreate">
+            <Plus class="h-4 w-4" />
+            Создать тест
+          </Button>
+        </div>
       </div>
 
       <div
@@ -77,6 +89,7 @@ async function handleConfirmDelete() {
       <EmptyState
         v-else-if="quizzes.length === 0"
         @create="handleCreate"
+        @create-ai="router.push('/ai-wizard')"
       />
 
       <div

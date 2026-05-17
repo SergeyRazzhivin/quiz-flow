@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { FileQuestion, Plus } from 'lucide-vue-next'
+import { FileQuestion, Plus, Sparkles } from 'lucide-vue-next'
 import Button from '@shared/ui/Button.vue'
+import Tooltip from '@shared/ui/Tooltip.vue'
 
 const emit = defineEmits<{
   create: []
+  createAi: []
 }>()
 </script>
 
@@ -16,12 +18,23 @@ const emit = defineEmits<{
     <p class="mt-2 max-w-sm text-center text-base text-neutral-400">
       Создайте первый тест и начните делиться им с участниками.
     </p>
-    <Button
-      class="mt-8"
-      @click="emit('create')"
-    >
-      <Plus class="h-4 w-4" />
-      Создать первый тест
-    </Button>
+    <div class="mt-8 flex items-center gap-3">
+      <Tooltip content="Сгенерировать новый тест из текста или файла">
+        <Button
+          variant="default"
+          @click="emit('createAi')"
+        >
+          <Sparkles class="h-4 w-4" />
+          Создать с ИИ
+        </Button>
+      </Tooltip>
+      <Button
+        variant="outline"
+        @click="emit('create')"
+      >
+        <Plus class="h-4 w-4" />
+        Создать первый тест
+      </Button>
+    </div>
   </div>
 </template>

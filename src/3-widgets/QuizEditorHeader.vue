@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, Link } from 'lucide-vue-next'
+import { ArrowLeft, Link, Sparkles } from 'lucide-vue-next'
 import PublishToggle from '@features/quiz-editor/ui/PublishToggle.vue'
 import Tooltip from '@shared/ui/Tooltip.vue'
 import Button from '@shared/ui/Button.vue'
@@ -28,6 +28,16 @@ const modalOpen = ref(false)
         </Button>
       </Tooltip>
       <div class="ml-auto flex items-center gap-3">
+        <Tooltip content="Сгенерировать новый тест из текста или файла">
+          <Button
+            variant="outline"
+            size="sm"
+            @click="router.push('/ai-wizard')"
+          >
+            <Sparkles class="h-4 w-4" />
+            Создать с ИИ
+          </Button>
+        </Tooltip>
         <Button
           v-if="editorStore.quiz"
           variant="default"
