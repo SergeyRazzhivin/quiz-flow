@@ -17,7 +17,7 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { GENERIC_500_MESSAGE, serializeError } from '../_shared/errors.ts'
-import { extractDocumentText } from '../_shared/extract-text.ts'
+import { extractDocumentText, MAX_SOURCE_CHARS } from '../_shared/extract-text.ts'
 import { generateQuiz } from '../_shared/openai.ts'
 import { normalizeDifficulty } from '../_shared/quiz-prompt.ts'
 import type { GeneratedQuiz } from '../_shared/quiz-schema.ts'
@@ -242,6 +242,17 @@ Deno.serve(async (req) => {
       if (!fileName) {
         return json({ error: 'fileName is required when fileBase64 is provided' }, 400)
       }
+      // CR-02: reject an oversized base64 payload BEFORE atob() decodes it. The JSON
+      // body the EF buffered is the base64 string (~1.37× the decoded file with
+      // padding) — guarding the decoded byte length alone lets a client bypass the
+      // plan cap and pin memory. The post-decode byte check stays as a backstop.
+      if (typeof fileBase64 !== 'string') {
+        return json({ error: 'fileBase64 must be a string' }, 400)
+      }
+      const maxB64 = Math.ceil(limits.maxFileBytes * 1.37)
+      if (fileBase64.length > maxB64) {
+        return json({ error: 'FILE_TOO_LARGE' }, 400)
+      }
       try {
         // extractDocumentText enforces the D-06 plan size limit before extraction.
         const extracted = await extractDocumentText(
@@ -262,7 +273,14 @@ Deno.serve(async (req) => {
         throw err
       }
     } else if (typeof sourceText === 'string' && sourceText.trim()) {
-      source = sourceText
+      // CR-02: pasted text bypasses extractDocumentText entirely, so it has no length
+      // cap of its own. Slice it to MAX_SOURCE_CHARS — the same ceiling capText()
+      // applies to extracted documents — so an owner cannot paste a multi-MB string
+      // and force the EF to buffer it into the prompt.
+      source =
+        sourceText.length > MAX_SOURCE_CHARS
+          ? sourceText.slice(0, MAX_SOURCE_CHARS)
+          : sourceText
     } else {
       return json({ error: 'Either sourceText or fileBase64 is required' }, 400)
     }
