@@ -75,9 +75,35 @@ double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
-password_min_length = 6
 
 [analytics]
 enabled = false
 port = 54327
 backend = "postgres"
+
+# Edge Function configuration — Phase 2
+# Guest-facing functions disable the built-in JWT check; they validate the custom
+# guestToken manually via verifyGuestToken() from _shared/jwt.ts.
+# Source: [VERIFIED: supabase.com/docs/guides/functions/function-configuration]
+# Pattern 8 from RESEARCH.md
+
+[functions.verify-quiz-access]
+verify_jwt = false
+
+[functions.start-quiz-session]
+verify_jwt = false
+
+[functions.upsert-session-answer]
+verify_jwt = false
+
+[functions.submit-quiz-answers]
+verify_jwt = false
+
+[functions.get-quiz-result]
+verify_jwt = false
+
+# _probe-bcrypt: temporary bcrypt runtime verification probe — no auth needed
+[functions._probe-bcrypt]
+verify_jwt = false
+
+# create-quiz-access: omitted → defaults to verify_jwt = true (owner must be authenticated)
