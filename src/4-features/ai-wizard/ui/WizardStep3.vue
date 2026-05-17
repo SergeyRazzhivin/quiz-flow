@@ -20,9 +20,19 @@ const countInvalid = computed(
     store.form.questionCount > store.planMaxQuestions,
 )
 
+// WR-02: keep the question-count input from desyncing UI validation from the
+// EF's `Number.isInteger(count) && count >= 1` check. A blank / non-numeric
+// entry → 0 (rejected by isStepValid), and `1e3` / `10.5` are truncated to a
+// plain integer so what the user sees is exactly what is sent. An over-plan
+// value is still allowed into the field so `countInvalid` can show the hint —
+// the EF remains the source of truth (constraint #4).
 function onCountInput(value: string | number): void {
   const n = Number(value)
-  store.form.questionCount = Number.isFinite(n) ? Math.trunc(n) : 0
+  if (!Number.isFinite(n) || n <= 0) {
+    store.form.questionCount = 0
+    return
+  }
+  store.form.questionCount = Math.trunc(n)
 }
 </script>
 
@@ -42,6 +52,9 @@ function onCountInput(value: string | number): void {
         id="wizard-count"
         :model-value="store.form.questionCount"
         type="number"
+        min="1"
+        :max="store.planMaxQuestions"
+        step="1"
         class="w-24"
         @update:model-value="onCountInput"
       />

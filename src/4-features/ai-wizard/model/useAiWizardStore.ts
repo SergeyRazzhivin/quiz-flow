@@ -7,7 +7,7 @@ import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 import { supabase } from '@shared/api/supabase'
 import { fileToBase64 } from '@shared/lib/file'
-import { invokeGenerateQuiz, fetchAiJob } from '@entities/ai-job/api'
+import { invokeGenerateQuiz, fetchAiJob, GenerateQuizError } from '@entities/ai-job/api'
 import type { GenerateQuizPayload } from '@entities/ai-job/api'
 import type { AiJobStage } from '@entities/ai-job/model'
 
@@ -32,6 +32,29 @@ type GenerationStatus = 'idle' | 'pending' | 'failed' | 'done'
 type SourceMode = 'text' | 'file'
 type Difficulty = 'easy' | 'medium' | 'hard'
 
+// WR-02 / WR-03: the Edge Function rejects client-correctable problems with a
+// 400 and a specific `error` code. Map those codes to a Russian message the
+// step-4 failure card can show instead of the generic "Не удалось…" text, so
+// the user knows exactly what to fix. Codes NOT in this table (network errors,
+// auth expiry, genuine AI failures) fall through to the generic card.
+const CORRECTABLE_FAILURE_MESSAGES: Record<string, string> = {
+  QUESTION_COUNT_EXCEEDED:
+    'Слишком много вопросов для вашего тарифа. Уменьшите количество вопросов на шаге 3.',
+  FILE_TOO_LARGE:
+    'Файл слишком большой для вашего тарифа. Загрузите файл меньшего размера на шаге 2.',
+  UNSUPPORTED_FILE_TYPE:
+    'Неподдерживаемый тип файла. Загрузите документ PDF или DOCX на шаге 2.',
+}
+
+/** Resolve a known EF error code to its correctable Russian message, if any. */
+function correctableMessage(code: string | null): string | null {
+  if (!code) return null
+  for (const [key, message] of Object.entries(CORRECTABLE_FAILURE_MESSAGES)) {
+    if (code.startsWith(key)) return message
+  }
+  return null
+}
+
 export const useAiWizardStore = defineStore('ai-wizard', () => {
   const router = useRouter()
 
@@ -52,6 +75,12 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
   const generationStatus = ref<GenerationStatus>('idle')
   const currentStage = ref<AiJobStage | null>(null)
   const jobId = ref<string | null>(null)
+
+  // WR-02 / WR-03: retained diagnostics for a failed generation. `failureCode`
+  // is the EF's error code (or null); `failureMessage` is the correctable
+  // Russian message shown on step 4 when the failure is user-fixable.
+  const failureCode = ref<string | null>(null)
+  const failureMessage = ref<string | null>(null)
 
   // Plan-aware limits — default to the free tier until profiles.plan is read.
   const plan = ref<'free' | 'pro'>('free')
@@ -115,6 +144,9 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
   async function startGeneration(): Promise<void> {
     generationStatus.value = 'pending'
     currentStage.value = 'reading'
+    // WR-02 / WR-03: clear any stale failure diagnostics from a prior attempt.
+    failureCode.value = null
+    failureMessage.value = null
     step.value = 4
     try {
       const payload: GenerateQuizPayload = {
@@ -133,7 +165,16 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
       const { jobId: id } = await invokeGenerateQuiz(payload)
       jobId.value = id
       startPolling(id)
-    } catch {
+    } catch (err) {
+      // WR-03: never swallow the error silently — log it so production
+      // incidents are debuggable from the client side.
+      console.error('ai-wizard generation failed:', err)
+      // WR-02: if the EF rejected with a client-correctable 400, surface a
+      // specific message; otherwise fall back to the generic AI-failure card.
+      if (err instanceof GenerateQuizError) {
+        failureCode.value = err.code
+        failureMessage.value = correctableMessage(err.code)
+      }
       // D-11 / UI-SPEC: the step-4 in-page failure UI carries the recovery
       // actions — no toast for this case.
       generationStatus.value = 'failed'
@@ -187,6 +228,8 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     generationStatus.value = 'idle'
     currentStage.value = null
     jobId.value = null
+    failureCode.value = null
+    failureMessage.value = null
     await startGeneration()
   }
 
@@ -196,6 +239,8 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     generationStatus.value = 'idle'
     currentStage.value = null
     jobId.value = null
+    failureCode.value = null
+    failureMessage.value = null
     step.value = 3
   }
 
@@ -216,6 +261,8 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     generationStatus.value = 'idle'
     currentStage.value = null
     jobId.value = null
+    failureCode.value = null
+    failureMessage.value = null
   }
 
   return {
@@ -224,6 +271,8 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     generationStatus,
     currentStage,
     jobId,
+    failureCode,
+    failureMessage,
     plan,
     planMaxQuestions,
     planMaxFileBytes,

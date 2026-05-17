@@ -20,10 +20,56 @@ export interface GenerateQuizPayload {
 }
 
 /**
+ * Error thrown by `invokeGenerateQuiz` when the Edge Function rejects the
+ * request. WR-02 / WR-03: it carries the EF's `error` code string so the
+ * wizard can branch its message — a client-correctable 400
+ * (`QUESTION_COUNT_EXCEEDED`, `FILE_TOO_LARGE`, `UNSUPPORTED_FILE_TYPE`) must
+ * be distinguishable from a generic AI failure.
+ */
+export class GenerateQuizError extends Error {
+  /** The EF's `error` code string, or null when it could not be recovered. */
+  readonly code: string | null
+  /** HTTP status of the EF response, when known. */
+  readonly status: number | null
+
+  constructor(code: string | null, status: number | null) {
+    super(code ?? 'GENERATE_QUIZ_FAILED')
+    this.name = 'GenerateQuizError'
+    this.code = code
+    this.status = status
+  }
+}
+
+/**
+ * Best-effort: pull the EF's `{ error }` string out of a failed
+ * `functions.invoke` result. On a non-2xx the supabase-js client surfaces a
+ * `FunctionsHttpError` whose original `Response` is on `error.context` — the
+ * JSON body (and thus the 400 error code) is only reachable from there.
+ */
+async function extractEfErrorCode(error: unknown): Promise<{
+  code: string | null
+  status: number | null
+}> {
+  const ctx = (error as { context?: unknown } | null)?.context
+  if (ctx instanceof Response) {
+    try {
+      const body = await ctx.clone().json()
+      const code = typeof body?.error === 'string' ? body.error : null
+      return { code, status: ctx.status }
+    } catch {
+      return { code: null, status: ctx.status }
+    }
+  }
+  return { code: null, status: null }
+}
+
+/**
  * Invoke ai-generate-quiz — the EF inserts a pending ai_jobs row, runs the
  * OpenAI pipeline in the background (EdgeRuntime.waitUntil), and returns
  * { jobId } at HTTP 202. An over-plan questionCount or file size is rejected
  * server-side with HTTP 400 (the client's plan checks are UX only).
+ *
+ * @throws {GenerateQuizError} carrying the EF's `error` code on failure.
  */
 export async function invokeGenerateQuiz(
   p: GenerateQuizPayload,
@@ -31,7 +77,12 @@ export async function invokeGenerateQuiz(
   const { data, error } = await supabase.functions.invoke('ai-generate-quiz', {
     body: p,
   })
-  if (error) throw error
+  if (error) {
+    // WR-02 / WR-03: surface the EF's error code so the wizard can show a
+    // specific, correctable message instead of a generic AI-failure card.
+    const { code, status } = await extractEfErrorCode(error)
+    throw new GenerateQuizError(code, status)
+  }
   return data as { jobId: string }
 }
 

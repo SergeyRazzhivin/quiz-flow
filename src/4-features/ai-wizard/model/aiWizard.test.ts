@@ -10,10 +10,29 @@ const invokeGenerateQuizMock = vi.fn()
 const fetchAiJobMock = vi.fn()
 const routerPushMock = vi.fn()
 
-vi.mock('@entities/ai-job/api', () => ({
-  invokeGenerateQuiz: (...a: unknown[]) => invokeGenerateQuizMock(...a),
-  fetchAiJob: (...a: unknown[]) => fetchAiJobMock(...a),
-}))
+// GenerateQuizError is a real class — the store uses `instanceof` to branch the
+// failure message (WR-02 / WR-03), so the mock must export a real class. It is
+// declared INSIDE the factory because vi.mock is hoisted above module scope.
+vi.mock('@entities/ai-job/api', () => {
+  class GenerateQuizError extends Error {
+    readonly code: string | null
+    readonly status: number | null
+    constructor(code: string | null, status: number | null) {
+      super(code ?? 'GENERATE_QUIZ_FAILED')
+      this.name = 'GenerateQuizError'
+      this.code = code
+      this.status = status
+    }
+  }
+  return {
+    invokeGenerateQuiz: (...a: unknown[]) => invokeGenerateQuizMock(...a),
+    fetchAiJob: (...a: unknown[]) => fetchAiJobMock(...a),
+    GenerateQuizError,
+  }
+})
+
+// Re-import the mocked class so tests can construct it.
+import { GenerateQuizError } from '@entities/ai-job/api'
 
 vi.mock('@shared/lib/file', () => ({
   fileToBase64: vi.fn().mockResolvedValue('YmFzZTY0'),
@@ -140,6 +159,56 @@ describe('useAiWizardStore — generation + polling', () => {
     s.form.sourceText = 'материал'
     await s.startGeneration()
     expect(s.generationStatus).toBe('failed')
+  })
+
+  it('a generic invoke failure leaves no correctable message (WR-02/WR-03)', async () => {
+    invokeGenerateQuizMock.mockRejectedValue(new Error('network down'))
+    const s = useAiWizardStore()
+    s.form.title = 'T'
+    s.form.sourceText = 'материал'
+    await s.startGeneration()
+    expect(s.generationStatus).toBe('failed')
+    expect(s.failureMessage).toBeNull()
+  })
+
+  it('a QUESTION_COUNT_EXCEEDED 400 surfaces a specific message (WR-02/WR-03)', async () => {
+    invokeGenerateQuizMock.mockRejectedValue(
+      new GenerateQuizError('QUESTION_COUNT_EXCEEDED: plan free allows 10', 400),
+    )
+    const s = useAiWizardStore()
+    s.form.title = 'T'
+    s.form.sourceText = 'материал'
+    await s.startGeneration()
+    expect(s.generationStatus).toBe('failed')
+    expect(s.failureCode).toContain('QUESTION_COUNT_EXCEEDED')
+    expect(s.failureMessage).toContain('вопросов')
+  })
+
+  it('a FILE_TOO_LARGE 400 surfaces a specific message (WR-02/WR-03)', async () => {
+    invokeGenerateQuizMock.mockRejectedValue(
+      new GenerateQuizError('FILE_TOO_LARGE', 400),
+    )
+    const s = useAiWizardStore()
+    s.form.title = 'T'
+    s.form.sourceText = 'материал'
+    await s.startGeneration()
+    expect(s.failureMessage).toContain('Файл')
+  })
+
+  it('retry clears a prior correctable failure message (WR-02/WR-03)', async () => {
+    invokeGenerateQuizMock.mockRejectedValueOnce(
+      new GenerateQuizError('FILE_TOO_LARGE', 400),
+    )
+    invokeGenerateQuizMock.mockResolvedValue({ jobId: 'job-9' })
+    fetchAiJobMock.mockResolvedValue({ id: 'job-9', status: 'pending', stage: 'reading', error: null, quiz_id: null })
+    const s = useAiWizardStore()
+    s.form.title = 'T'
+    s.form.sourceText = 'материал'
+    await s.startGeneration()
+    expect(s.failureMessage).not.toBeNull()
+    await s.retry()
+    expect(s.failureMessage).toBeNull()
+    expect(s.failureCode).toBeNull()
   })
 
   it('poll loop fails the wizard after the 90s deadline with no terminal status (WR-01)', async () => {

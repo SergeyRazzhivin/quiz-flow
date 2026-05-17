@@ -21,6 +21,15 @@ const STAGE_MESSAGES: Record<AiJobStage, string> = {
 const stageLine = computed(() =>
   store.currentStage ? STAGE_MESSAGES[store.currentStage] : 'Изучаю материал…',
 )
+
+// WR-02 / WR-03: when the failure is a client-correctable EF 400, show the
+// specific instruction instead of the generic "что-то пошло не так" copy.
+const failureBody = computed(
+  () =>
+    store.failureMessage ??
+    'Что-то пошло не так при обработке материала. Проверьте исходный текст ' +
+      'и попробуйте ещё раз — введённые данные сохранены.',
+)
 </script>
 
 <template>
@@ -33,8 +42,7 @@ const stageLine = computed(() =>
           Не удалось сгенерировать тест
         </h2>
         <p class="mt-2 text-sm text-neutral-400">
-          Что-то пошло не так при обработке материала. Проверьте исходный текст
-          и попробуйте ещё раз — введённые данные сохранены.
+          {{ failureBody }}
         </p>
         <div class="mt-6 flex justify-center gap-3">
           <Button @click="store.retry()">
