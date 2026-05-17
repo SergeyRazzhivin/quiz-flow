@@ -9,5 +9,9 @@ onMounted(() => authStore.init())
 
 <template>
   <RouterView />
-  <Toaster position="top-right" richColors />
+  <Toaster
+    position="top-right"
+    theme="dark"
+    rich-colors
+  />
 </template>

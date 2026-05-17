@@ -14,4 +14,32 @@
     background-color: #0a0a0a;
     color: #fafafa;
   }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #2e2e2e transparent;
+  }
+}
+
+/* Dark, subtle scrollbar (WebKit/Blink) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2e2e2e;
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f3f;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
