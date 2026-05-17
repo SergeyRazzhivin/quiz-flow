@@ -506,16 +506,45 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   }
 
   /**
-   * loadResult(t) — called by QuizResultPage on direct-URL arrival when store.result is unset.
-   * Invokes get-quiz-result with the stored guestToken + sessionId.
-   * On failure sets sessionStatus = 'invalid' for the graceful expired-session fallback.
+   * loadResult(quizToken) — called by QuizResultPage on direct-URL arrival when store.result
+   * is unset. The result page is a separate page from QuizTakingWidget, so on a cold reload
+   * the Pinia store is brand new (guestToken/sessionId null) and init() never ran here.
+   * This rehydrates the guest session from sessionStorage before calling get-quiz-result,
+   * so reloading /q/:token/result still shows the result while the 1h guest token is valid.
+   * On no stored session, or any EF failure (e.g. expired token → 401), sets
+   * sessionStatus = 'invalid' for the graceful "результат не найден / ссылка устарела" fallback.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function loadResult(quizToken: string): Promise<void> {
+    token.value = quizToken
+
+    // Cold load: store has no credentials — rehydrate from sessionStorage (qf_guest_{token}).
+    if (!guestToken.value) {
+      const stored = sessionStorage.getItem(storageKey(quizToken))
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as {
+            guestToken?: string
+            sessionId?: string
+          }
+          guestToken.value = parsed.guestToken ?? null
+          sessionId.value = parsed.sessionId ?? null
+        } catch {
+          // Corrupt storage — leave credentials null; handled below.
+        }
+      }
+    }
+
+    // No stored guest session at all → cannot fetch a result; show graceful fallback.
+    if (!guestToken.value) {
+      sessionStatus.value = 'invalid'
+      return
+    }
+
     try {
-      const res = await invokeGetResult(guestToken.value!, sessionId.value)
+      const res = await invokeGetResult(guestToken.value, sessionId.value)
       result.value = res
     } catch {
+      // Expired token (401) or any other failure → graceful expired-session fallback.
       sessionStatus.value = 'invalid'
     }
   }

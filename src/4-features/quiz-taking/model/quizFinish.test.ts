@@ -133,7 +133,11 @@ describe('useQuizTakingStore — 02-05 finishSession and loadResult', () => {
 
   // ── loadResult ────────────────────────────────────────────────────────────
   describe('loadResult', () => {
-    it('invokes get-quiz-result and populates store.result', async () => {
+    beforeEach(() => {
+      sessionStorage.clear()
+    })
+
+    it('invokes get-quiz-result and populates store.result when the store already has credentials', async () => {
       const mockGetResult = vi.mocked(invokeGetResult)
       mockGetResult.mockResolvedValue({
         score: 5,
@@ -155,6 +159,53 @@ describe('useQuizTakingStore — 02-05 finishSession and loadResult', () => {
         percentage: 50,
         label: 'Иван Иванов',
       })
+    })
+
+    it('rehydrates the guest session from sessionStorage on a cold load and fetches the result', async () => {
+      const mockGetResult = vi.mocked(invokeGetResult)
+      mockGetResult.mockResolvedValue({
+        score: 4,
+        totalQuestions: 8,
+        percentage: 50,
+        label: 'Пётр Петров',
+      })
+
+      // Simulate a finished session left in sessionStorage by finishSession().
+      sessionStorage.setItem(
+        'qf_guest_token-xyz',
+        JSON.stringify({
+          guestToken: 'stored-guest-tok',
+          sessionId: 'stored-sess-1',
+          currentQuestionIndex: 0,
+        }),
+      )
+
+      // Brand-new store — no credentials, as on a cold result-page reload.
+      const store = useQuizTakingStore()
+
+      await store.loadResult('token-xyz')
+
+      expect(mockGetResult).toHaveBeenCalledWith('stored-guest-tok', 'stored-sess-1')
+      expect(store.guestToken).toBe('stored-guest-tok')
+      expect(store.sessionId).toBe('stored-sess-1')
+      expect(store.result).toEqual({
+        score: 4,
+        totalQuestions: 8,
+        percentage: 50,
+        label: 'Пётр Петров',
+      })
+    })
+
+    it('sets sessionStatus=invalid without calling the EF when there is no stored session', async () => {
+      const mockGetResult = vi.mocked(invokeGetResult)
+
+      // Brand-new store AND empty sessionStorage.
+      const store = useQuizTakingStore()
+
+      await store.loadResult('token-xyz')
+
+      expect(mockGetResult).not.toHaveBeenCalled()
+      expect(store.sessionStatus).toBe('invalid')
     })
 
     it('routes to invalid state when loadResult fails (session expired graceful fallback)', async () => {
