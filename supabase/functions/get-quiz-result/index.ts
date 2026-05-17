@@ -30,6 +30,19 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
+    // CR-01: Enforce the access-link expiry — an expired link must not allow result reads.
+    const { data: accessExpiry } = await supabase
+      .from('quiz_access')
+      .select('expires_at')
+      .eq('id', payload.quiz_access_id)
+      .single()
+    if (accessExpiry?.expires_at && new Date(accessExpiry.expires_at) < new Date()) {
+      return new Response(JSON.stringify({ error: 'Срок действия ссылки истёк' }), {
+        status: 410,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // Fetch the finished session for this quiz_access_id.
     // If sessionId is provided, fetch that specific session.
     // If omitted, fetch the most recent finished session for this quiz_access_id.

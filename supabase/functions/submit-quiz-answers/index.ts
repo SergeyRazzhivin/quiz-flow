@@ -33,6 +33,19 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
+    // CR-01: Enforce the access-link expiry — an expired link must not allow scoring.
+    const { data: access } = await supabase
+      .from('quiz_access')
+      .select('expires_at')
+      .eq('id', payload.quiz_access_id)
+      .single()
+    if (access?.expires_at && new Date(access.expires_at) < new Date()) {
+      return new Response(JSON.stringify({ error: 'Срок действия ссылки истёк' }), {
+        status: 410,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // T-02-24 defense-in-depth: load the session and confirm quiz_access_id matches
     // the token payload before scoring. Prevents session-injection attacks.
     const { data: session, error: sessionError } = await supabase

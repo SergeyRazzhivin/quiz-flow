@@ -32,6 +32,22 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
+    // CR-01: Enforce the access-link expiry on every call, not just at the login gate.
+    // The guest token has its own 1h TTL, so a guest who logged in before the owner's
+    // expiry date could otherwise keep starting/resuming/retaking sessions after the
+    // link expired. Expiry is an authorization boundary — check it before session work.
+    const { data: access } = await supabase
+      .from('quiz_access')
+      .select('expires_at')
+      .eq('id', payload.quiz_access_id)
+      .single()
+    if (access?.expires_at && new Date(access.expires_at) < new Date()) {
+      return new Response(JSON.stringify({ error: 'Срок действия ссылки истёк' }), {
+        status: 410,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // Fetch the quiz + questions so a resumed taker (who never re-enters credentials)
     // can repopulate store.quiz / store.questions. The verified guestToken already
     // proves authentication — quiz_id is taken from the trusted token payload.
