@@ -29,8 +29,7 @@ const metaText = computed(() => {
         v-if="store.quiz?.cover_url"
         :src="store.quiz.cover_url"
         :alt="store.quiz?.title ?? 'Обложка теста'"
-        class="mb-6 w-full rounded-xl object-cover"
-        style="aspect-ratio: 16/9;"
+        class="mb-6 aspect-video w-full rounded-xl object-cover"
       />
 
       <!-- 2. Quiz title -->

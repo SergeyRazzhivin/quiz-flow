@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 import { useQuizEditorStore } from '@features/quiz-editor/model/useQuizEditorStore'
 import QuizEditorHeader from './QuizEditorHeader.vue'
-import QuizEditorFooter from './QuizEditorFooter.vue'
 import QuestionList from './QuestionList.vue'
 import QuizMetaForm from '@features/quiz-editor/ui/QuizMetaForm.vue'
 
@@ -23,14 +22,13 @@ onMounted(() => store.loadQuiz(props.quizId))
         </div>
       </div>
     </main>
-    <QuizEditorFooter />
   </div>
 </template>
 
 <style scoped>
 .quiz-editor-layout {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   overflow: hidden;
 }
 .editor-body {

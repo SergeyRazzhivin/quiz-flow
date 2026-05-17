@@ -38,11 +38,11 @@ function onDrop(e: DragEvent) {
     >
 
     <div v-if="store.quiz?.cover_url">
-      <div class="group relative h-48 w-full">
+      <div class="group relative aspect-video w-full">
         <img
           :src="store.quiz.cover_url"
           alt="Обложка теста"
-          class="h-48 w-full rounded-lg object-cover"
+          class="h-full w-full rounded-lg object-cover"
         >
         <button
           type="button"
@@ -65,7 +65,7 @@ function onDrop(e: DragEvent) {
 
     <div
       v-else-if="store.isUploadingCover"
-      class="flex h-48 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-neutral-700 bg-neutral-900"
+      class="flex aspect-video w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-neutral-700 bg-neutral-900"
     >
       <Loader2 class="h-8 w-8 animate-spin text-neutral-500" />
       <span class="mt-1 text-sm text-neutral-500">Загружается...</span>
@@ -73,7 +73,7 @@ function onDrop(e: DragEvent) {
 
     <div
       v-else
-      class="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-neutral-900 transition-colors"
+      class="flex aspect-video w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-neutral-900 transition-colors"
       :class="isDragOver ? 'border-orange-500 bg-orange-500/15' : 'border-neutral-700'"
       @click="openPicker"
       @dragover.prevent="isDragOver = true"
