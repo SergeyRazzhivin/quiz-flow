@@ -76,17 +76,8 @@ Deno.serve(async (req) => {
 
     if (answersError) throw answersError
 
-    // Load the answer_options BASE TABLE (service_role — this is the only place
-    // is_correct is read; Pitfall 4 / RESEARCH Open Question 3 / T-02-23).
-    // We only need options for questions that belong to this quiz.
-    const { data: allOptions, error: optionsError } = await supabase
-      .from('answer_options')
-      .select('id, question_id, is_correct')
-      .eq('quiz_id', session.quiz_id)
-
-    if (optionsError) throw optionsError
-
-    // Load the questions to get total count and build the correct_option_ids map.
+    // Load the questions for this quiz first — answer_options has no quiz_id
+    // column, so options are fetched by question_id below.
     const { data: questions, error: questionsError } = await supabase
       .from('questions')
       .select('id')
@@ -95,6 +86,17 @@ Deno.serve(async (req) => {
     if (questionsError) throw questionsError
 
     const totalQuestions = questions?.length ?? 0
+    const questionIds = (questions ?? []).map((q) => q.id)
+
+    // Load the answer_options BASE TABLE (service_role — this is the only place
+    // is_correct is read; Pitfall 4 / RESEARCH Open Question 3 / T-02-23).
+    // answer_options links to questions via question_id (no quiz_id column).
+    const { data: allOptions, error: optionsError } = await supabase
+      .from('answer_options')
+      .select('id, question_id, is_correct')
+      .in('question_id', questionIds)
+
+    if (optionsError) throw optionsError
 
     // Build a map: question_id → correct_option_ids[]
     const correctMap: Record<string, string[]> = {}
