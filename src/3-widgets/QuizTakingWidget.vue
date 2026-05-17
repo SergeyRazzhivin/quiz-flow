@@ -6,6 +6,7 @@ import { useQuizTakingStore } from '@features/quiz-taking/model/useQuizTakingSto
 import QuizIntroScreen from '@features/quiz-taking/ui/QuizIntroScreen.vue'
 import GracefulState from '@features/quiz-taking/ui/GracefulState.vue'
 import StopConfirmDialog from '@features/quiz-taking/ui/StopConfirmDialog.vue'
+import TimerExpiredNotice from '@features/quiz-taking/ui/TimerExpiredNotice.vue'
 import QuizTakingHeader from './QuizTakingHeader.vue'
 import QuestionTaker from '@features/quiz-taking/ui/QuestionTaker.vue'
 import NavigationControls from '@features/quiz-taking/ui/NavigationControls.vue'
@@ -47,6 +48,15 @@ const selectedOptionIds = computed<string[]>(() => {
 })
 
 const isFirstQuestion = computed<boolean>(() => store.currentQuestionIndex === 0)
+
+// D-08: show the TimerExpiredNotice overlay when the timer has hit zero and the auto-submit
+// is in flight. Manual stop does not trigger this (timer is still > 0 when confirmed).
+const showTimerExpiredNotice = computed<boolean>(
+  () =>
+    store.isSubmitting &&
+    store.timeLimitSec !== null &&
+    store.timeRemainingSeconds <= 0,
+)
 </script>
 
 <template>
@@ -110,6 +120,10 @@ const isFirstQuestion = computed<boolean>(() => store.currentQuestionIndex === 0
 
     <!-- Stop/finish confirmation dialog — shared between Стоп and Завершить (D-06) -->
     <StopConfirmDialog v-model:open="stopDialogOpen" />
+
+    <!-- D-08: Timer-expired overlay — non-dismissible, shown while auto-submit is in flight.
+         Only shown when isSubmitting + timer hit zero (not for manual Стоп confirm). -->
+    <TimerExpiredNotice v-if="showTimerExpiredNotice" />
   </div>
 </template>
 
