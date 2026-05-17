@@ -458,6 +458,15 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     optionId: string,
     type: 'single' | 'multiple',
   ): Promise<void> {
+    // WR-06: guard BEFORE the optimistic update. If guestToken/sessionId is null
+    // (a click landing before startSession resolves, or after a token-clear) the
+    // upsert EF returns 403 — but the optimistic map would already show the answer
+    // as saved while the DB has nothing, silently losing it on the next refresh.
+    if (!guestToken.value || !sessionId.value) {
+      toast.error('Сессия не готова. Попробуйте ещё раз.')
+      return
+    }
+
     // Optimistic update
     if (type === 'single') {
       answers.value[questionId] = [optionId]
