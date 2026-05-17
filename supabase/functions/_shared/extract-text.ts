@@ -51,22 +51,44 @@ function isDocx(fileName: string): boolean {
   return /\.docx$/i.test(fileName)
 }
 
+/**
+ * Decode the HTML/XML entities that can appear in a DOCX `word/document.xml`.
+ * WR-04: the named-entity set was incomplete — numeric (`&#1090;`) and hex
+ * (`&#x0442;`) entities are common in Cyrillic DOCX and previously leaked into
+ * the prompt verbatim. Decode all four forms. `&amp;` is decoded LAST so a
+ * decoded `&` cannot be re-interpreted as the start of another entity.
+ */
+function decodeXmlEntities(s: string): string {
+  return s
+    .replace(/&#x([0-9a-fA-F]+);/g, (_m, hex) =>
+      String.fromCodePoint(parseInt(hex, 16)),
+    )
+    .replace(/&#(\d+);/g, (_m, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
+}
+
 /** Extract text from a DOCX ZIP container by reading word/document.xml. */
 async function extractDocxText(bytes: Uint8Array): Promise<string> {
   const { entries } = await unzip(bytes.buffer as ArrayBuffer)
   const docEntry = entries['word/document.xml']
   if (!docEntry) throw new Error('DOCX: word/document.xml not found')
   const xml = await docEntry.text()
+  // WR-04: strip XML comments and CDATA sections BEFORE the generic tag strip.
+  // `<[^>]+>` stops at the first `>`, so a comment body or a CDATA payload
+  // (and any literal `>` inside them) would otherwise leak into the text.
+  const stripped = xml
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '')
   // Paragraph and break tags become newlines; all other tags are stripped.
-  return xml
+  const text = stripped
     .replace(/<\/w:p>/g, '\n')
     .replace(/<w:br\s*\/?>/g, '\n')
     .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
+  return decodeXmlEntities(text)
 }
 
 /** Extract text from a PDF using the serverless pdf.js build in unpdf. */
