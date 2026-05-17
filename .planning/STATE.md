@@ -33,10 +33,11 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 02 (quiz-taking-sharing) — EXECUTING
-Plan: 3 of 5 — ready to execute
+Plan: 3 of 5 — PAUSED at checkpoint:human-verify (Task 3 — deploy start-quiz-session + browser verify)
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
 **Phase 2 Plan 2:** COMPLETE — owner access-link slice (create-quiz-access EF, quiz-share store/UI, AccessLinksModal)
+**Phase 2 Plan 3:** IN PROGRESS — guest entry slice; Tasks 1+2 complete, Task 3 awaiting human-verify (deploy + browser test)
 
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
@@ -97,10 +98,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17T12:00:00.000Z
+**Last session:** 2026-05-17T14:00:00.000Z
 **Resume file:** None
-**Stopped at:** Completed 02-02-PLAN.md
-**Next action:** Execute plan 02-03 (guest entry slice — /q/:token routes, intro + login, start-quiz-session, allow_retake toggle).
+**Stopped at:** 02-03-PLAN.md — checkpoint:human-verify (Task 3) — awaiting deploy of start-quiz-session EF + browser verification
+**Next action:** Human deploys `npx supabase functions deploy start-quiz-session`, verifies 7 browser steps, then types "approved" to resume 02-03.
 
 ---
 
