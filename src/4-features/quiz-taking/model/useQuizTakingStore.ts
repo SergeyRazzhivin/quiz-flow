@@ -1,6 +1,7 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { toast } from 'vue-sonner'
+import { supabase } from '@shared/api/supabase'
 import { invokeVerifyAccess, invokeStartSession, invokeGetQuizMeta } from '@entities/quiz-session/api'
 import type { Quiz } from '@entities/quiz/model'
 import type { Question } from '@entities/question/model'
@@ -41,9 +42,124 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   // Result — populated by finishSession / loadResult in 02-05
   const result = ref<SessionResult | null>(null)
 
+  // Internal timer handle + visibility change listener (teardown in cleanup)
+  let timerInterval: ReturnType<typeof setInterval> | null = null
+  let onVisibilityChange: (() => void) | null = null
+
   // ── Helpers ───────────────────────────────────────────────────────────────
   function storageKey(t: string): string {
     return `qf_guest_${t}`
+  }
+
+  // ── Computeds ────────────────────────────────────────────────────────────
+
+  /** currentQuestion: the question at currentQuestionIndex, or null when out of range. */
+  const currentQuestion = computed<Question | null>(
+    () => questions.value[currentQuestionIndex.value] ?? null,
+  )
+
+  /** isLastQuestion: true when on the final question of the session. */
+  const isLastQuestion = computed<boolean>(
+    () =>
+      questions.value.length > 0 &&
+      currentQuestionIndex.value === questions.value.length - 1,
+  )
+
+  /**
+   * progressPercent: 0–100 percentage of questions completed.
+   * A question counts as "completed" once the user is past it (currentIndex + 1 denominator).
+   */
+  const progressPercent = computed<number>(() => {
+    if (questions.value.length === 0) return 0
+    return Math.round(((currentQuestionIndex.value + 1) / questions.value.length) * 100)
+  })
+
+  /**
+   * canGoBack: true when the quiz allows backward navigation and the taker is not on
+   * the first question (D-07 / quiz.settings.allow_back).
+   */
+  const canGoBack = computed<boolean>(() => {
+    if (!(quiz.value?.settings?.allow_back ?? false)) return false
+    return currentQuestionIndex.value > 0
+  })
+
+  /**
+   * canGoForward: false when the current question is required and has no answer (D-07).
+   * Always true otherwise (navigation logic handles last-question case).
+   */
+  const canGoForward = computed<boolean>(() => {
+    const q = currentQuestion.value
+    if (!q) return false
+    if (q.is_required) {
+      const selected = answers.value[q.id]
+      if (!selected || selected.length === 0) return false
+    }
+    return true
+  })
+
+  /**
+   * isTimerCritical: true when remaining time is ≤ 20% of the total limit (RESEARCH Pattern 4).
+   * Always false when no time limit is set (D-09).
+   */
+  const isTimerCritical = computed<boolean>(() => {
+    if (!timeLimitSec.value) return false
+    return timeRemainingSeconds.value <= timeLimitSec.value * 0.2
+  })
+
+  // ── Timer helpers ─────────────────────────────────────────────────────────
+
+  /**
+   * computeRemaining() — RESEARCH Pattern 4, server-anchored.
+   * Returns floor of (deadline - now) / 1000, clamped to 0.
+   * Returns 0 when timeLimitSec or startedAt is null.
+   */
+  function computeRemaining(): number {
+    if (!startedAt.value || !timeLimitSec.value) return 0
+    const deadline = new Date(startedAt.value).getTime() + timeLimitSec.value * 1000
+    return Math.max(0, Math.floor((deadline - Date.now()) / 1000))
+  }
+
+  function stopTimer(): void {
+    if (timerInterval !== null) {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
+    if (onVisibilityChange !== null) {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      onVisibilityChange = null
+    }
+  }
+
+  /**
+   * startTimer() — no-op when timeLimitSec is null (D-09).
+   * Sets up a 1s interval that recomputes timeRemainingSeconds from the server
+   * started_at anchor (RESEARCH Pattern 4). Calls finishSession() when time hits 0 (D-08).
+   * Registers a visibilitychange listener that corrects the timer when the tab regains focus.
+   */
+  function startTimer(): void {
+    if (!timeLimitSec.value) return // D-09
+
+    timeRemainingSeconds.value = computeRemaining()
+
+    timerInterval = setInterval(() => {
+      timeRemainingSeconds.value = computeRemaining()
+      if (timeRemainingSeconds.value <= 0) {
+        stopTimer()
+        void finishSession()
+      }
+    }, 1000)
+
+    onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        timeRemainingSeconds.value = computeRemaining()
+        // If timer expired while in background, finalize now
+        if (timeRemainingSeconds.value <= 0) {
+          stopTimer()
+          void finishSession()
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────
@@ -216,6 +332,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
       }
 
       sessionStatus.value = 'active'
+      startTimer()
     } catch {
       toast.error('Ошибка запуска теста. Проверьте соединение и попробуйте снова.')
     } finally {
@@ -224,14 +341,81 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   }
 
   /**
+   * selectAnswer(questionId, optionId, type) — RESEARCH Pattern 5.
+   * Optimistic local update first, then immediately upserts via the EF.
+   * Single-type: replaces; multiple-type: toggles.
+   * Merges into the existing answers map — never resets it (D-04).
+   */
+  async function selectAnswer(
+    questionId: string,
+    optionId: string,
+    type: 'single' | 'multiple',
+  ): Promise<void> {
+    // Optimistic update
+    if (type === 'single') {
+      answers.value[questionId] = [optionId]
+    } else {
+      const cur = answers.value[questionId] ?? []
+      answers.value[questionId] = cur.includes(optionId)
+        ? cur.filter((id) => id !== optionId)
+        : [...cur, optionId]
+    }
+
+    // Immediate persist — never accumulate for a final-only submit (Pitfall 2)
+    try {
+      const { error } = await supabase.functions.invoke('upsert-session-answer', {
+        body: {
+          guestToken: guestToken.value,
+          sessionId: sessionId.value,
+          questionId,
+          selectedOptionIds: answers.value[questionId],
+        },
+      })
+      if (error) toast.error('Ошибка сохранения ответа. Проверьте соединение.')
+    } catch {
+      toast.error('Ошибка сохранения ответа. Проверьте соединение.')
+    }
+  }
+
+  /**
+   * goForward() — advances to the next question when canGoForward is true.
+   */
+  function goForward(): void {
+    if (!canGoForward.value) return
+    if (currentQuestionIndex.value < questions.value.length - 1) {
+      currentQuestionIndex.value++
+    }
+  }
+
+  /**
+   * goBack() — goes to the previous question when canGoBack is true.
+   */
+  function goBack(): void {
+    if (!canGoBack.value) return
+    if (currentQuestionIndex.value > 0) {
+      currentQuestionIndex.value--
+    }
+  }
+
+  /**
+   * finishSession() — placeholder stub (02-05 implements the real submit).
+   * Stops the timer so the timer-expiry path (D-08) is wired correctly.
+   */
+  async function finishSession(): Promise<void> {
+    stopTimer()
+    // 02-05 replaces this body with actual submit logic
+  }
+
+  /**
    * cleanup() — called on widget unmount.
-   * Timer teardown and other side-effect cleanup added in plan 02-04.
+   * Tears down the interval and the visibilitychange listener.
    */
   function cleanup(): void {
-    // Placeholder — 02-04 fills in timer teardown and event listener removal
+    stopTimer()
   }
 
   return {
+    // State refs
     sessionStatus,
     token,
     guestToken,
@@ -247,9 +431,24 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     timeLimitSec,
     timeRemainingSeconds,
     result,
+    // Computeds
+    currentQuestion,
+    isLastQuestion,
+    progressPercent,
+    canGoBack,
+    canGoForward,
+    isTimerCritical,
+    // Actions
     init,
     verifyAccess,
     startSession,
+    selectAnswer,
+    goForward,
+    goBack,
+    finishSession,
+    computeRemaining,
+    startTimer,
+    stopTimer,
     cleanup,
   }
 })
