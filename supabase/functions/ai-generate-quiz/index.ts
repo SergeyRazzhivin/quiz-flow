@@ -71,44 +71,70 @@ async function persistQuiz(
   if (quizError || !quizRow) throw quizError ?? new Error('quizzes insert failed')
   const quizId = quizRow.id as string
 
-  // Pitfall 5: re-index questions deterministically before insert.
-  const questionRows = quiz.questions.map((q, i) => ({
-    quiz_id: quizId,
-    body: q.body,
-    type: q.type,
-    order_index: i,
-    is_required: q.is_required,
-  }))
-
-  const { data: insertedQuestions, error: questionError } = await supabase
-    .from('questions')
-    .insert(questionRows)
-    .select('id, order_index')
-
-  if (questionError || !insertedQuestions) {
-    throw questionError ?? new Error('questions insert failed')
-  }
-
-  // Map each inserted question back to its source by order_index, then re-index answers.
-  const questionIdByOrder = new Map<number, string>()
-  for (const row of insertedQuestions) {
-    questionIdByOrder.set(row.order_index as number, row.id as string)
-  }
-
-  const answerRows = quiz.questions.flatMap((q, qi) => {
-    const questionId = questionIdByOrder.get(qi)!
-    return q.answers.map((a, ai) => ({
-      question_id: questionId,
-      body: a.body,
-      is_correct: a.is_correct,
-      order_index: ai, // Pitfall 5: deterministic 0..n-1 per answer array
+  // WR-07: the three inserts below (questions, answer_options) are not transactional
+  // with the quizzes insert above. If any later step fails, the quizzes row — and
+  // any questions already inserted — would be left orphaned in the owner's /my list,
+  // violating D-03 ("the quizzes row exists ONLY after a successful generation").
+  // Wrap the remaining work so that, on ANY failure, the just-created quizzes row is
+  // deleted before re-throwing; the FK ON DELETE CASCADE removes its questions and
+  // answer_options, restoring the all-or-nothing invariant without a DB-side RPC.
+  try {
+    // Pitfall 5: re-index questions deterministically before insert.
+    const questionRows = quiz.questions.map((q, i) => ({
+      quiz_id: quizId,
+      body: q.body,
+      type: q.type,
+      order_index: i,
+      is_required: q.is_required,
     }))
-  })
 
-  const { error: answerError } = await supabase.from('answer_options').insert(answerRows)
-  if (answerError) throw answerError
+    const { data: insertedQuestions, error: questionError } = await supabase
+      .from('questions')
+      .insert(questionRows)
+      .select('id, order_index')
 
-  return quizId
+    if (questionError || !insertedQuestions) {
+      throw questionError ?? new Error('questions insert failed')
+    }
+
+    // Map each inserted question back to its source by order_index, then re-index answers.
+    const questionIdByOrder = new Map<number, string>()
+    for (const row of insertedQuestions) {
+      questionIdByOrder.set(row.order_index as number, row.id as string)
+    }
+
+    const answerRows = quiz.questions.flatMap((q, qi) => {
+      const questionId = questionIdByOrder.get(qi)!
+      return q.answers.map((a, ai) => ({
+        question_id: questionId,
+        body: a.body,
+        is_correct: a.is_correct,
+        order_index: ai, // Pitfall 5: deterministic 0..n-1 per answer array
+      }))
+    })
+
+    const { error: answerError } = await supabase
+      .from('answer_options')
+      .insert(answerRows)
+    if (answerError) throw answerError
+
+    return quizId
+  } catch (err) {
+    // WR-07: roll back the orphaned quizzes row (cascade removes questions/answers).
+    // Best-effort — if the cleanup delete itself fails, log it but still surface the
+    // original error so runGeneration marks the job 'failed'.
+    const { error: cleanupError } = await supabase
+      .from('quizzes')
+      .delete()
+      .eq('id', quizId)
+    if (cleanupError) {
+      console.error(
+        `persistQuiz: failed to clean up orphan quiz ${quizId}:`,
+        serializeError(cleanupError),
+      )
+    }
+    throw err
+  }
 }
 
 /**
