@@ -39,23 +39,15 @@ export async function invokeGenerateQuiz(
  * Poll a single ai_jobs row. The owner-SELECT RLS (012) scopes the read to the
  * caller — an owner can only read their own jobs.
  *
- * Note: `ai_jobs` (migration 012, plan 03-01) is not yet in the generated
- * `database.types.ts`, so the client is widened to untyped for this read.
+ * `ai_jobs` is part of the generated `database.types.ts` (regenerated after
+ * migration 012), so the normally-typed client is used here — no cast widening.
  */
 export async function fetchAiJob(jobId: string): Promise<AiJob> {
-  const { data, error } = await (supabase as unknown as {
-    from: (t: string) => {
-      select: (c: string) => {
-        eq: (col: string, v: string) => {
-          single: () => Promise<{ data: unknown; error: unknown }>
-        }
-      }
-    }
-  })
+  const { data, error } = await supabase
     .from('ai_jobs')
     .select('id, status, stage, error, quiz_id')
     .eq('id', jobId)
     .single()
   if (error) throw error
-  return data as AiJob
+  return data
 }
