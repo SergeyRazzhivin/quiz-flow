@@ -318,13 +318,20 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
       // Persist merged state (sessionId may have been missing from stored value)
       persistSession()
 
-      if (state === 'active') {
-        // D-04: in-progress session — check if it has expired while the guest was away.
+      if (state === 'expired') {
+        // WR-04: the server reported the session's timer has already elapsed.
+        // D-08: auto-submit with the restored answers — finishSession() invokes
+        // submit-quiz-answers then routes to the result page. The server is now
+        // the source of truth for timer expiry; this is no longer a client-only check.
+        sessionStatus.value = 'active' // set active so guards inside finishSession pass
+        await finishSession()
+      } else if (state === 'active') {
+        // D-04: in-progress session — also check client-side as a defence-in-depth
+        // backstop (clock skew, or a server that did not flag expiry).
         // computeRemaining uses the newly set startedAt + timeLimitSec.
         const remaining = computeRemaining()
         if (remaining <= 0 && timeLimitSec.value !== null) {
           // D-08: session expired while away → auto-submit with the restored answers.
-          // finishSession() invokes submit-quiz-answers then routes to the result page.
           sessionStatus.value = 'active' // set active so guards inside finishSession pass
           await finishSession()
         } else {

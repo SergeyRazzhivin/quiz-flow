@@ -101,12 +101,26 @@ Deno.serve(async (req) => {
         .select('question_id, selected_option_ids')
         .eq('session_id', existing.id)
 
+      // WR-04: the server, not the client, is the source of truth for timer expiry.
+      // If the quiz has a time_limit_sec and started_at + time_limit_sec is already
+      // in the past, do NOT report the session as 'active' — a client that ignores
+      // the timer (or a direct API call) could otherwise keep submitting answers to
+      // a session that should be closed. Report 'expired' so the store finalizes it.
+      const timeLimitSec = (quizMeta as { time_limit_sec?: number | null }).time_limit_sec
+      let sessionState: 'active' | 'expired' = 'active'
+      if (timeLimitSec) {
+        const deadline = new Date(existing.started_at).getTime() + timeLimitSec * 1000
+        if (deadline < Date.now()) {
+          sessionState = 'expired'
+        }
+      }
+
       return Response.json(
         {
           sessionId: existing.id,
           started_at: existing.started_at,
           resumed: true,
-          sessionState: 'active',
+          sessionState,
           answers: savedAnswers ?? [],
           quiz: quizMeta,
           questions,

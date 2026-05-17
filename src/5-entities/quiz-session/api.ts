@@ -37,8 +37,10 @@ export interface StartSessionResponse {
   // sessionState discriminates the D-04 branches:
   //   'new'      — a fresh session was just created
   //   'active'   — an open (not expired) session was resumed
+  //   'expired'  — an open session whose server-side timer has already elapsed
+  //                (WR-04 — the store must finalize it rather than resume taking)
   //   'finished' — a previously finished session was found (no new session created)
-  sessionState?: 'new' | 'active' | 'finished'
+  sessionState?: 'new' | 'active' | 'expired' | 'finished'
   answers:      { question_id: string; selected_option_ids: string[] }[]
   quiz:         Record<string, unknown>
   questions:    Record<string, unknown>[]
