@@ -63,7 +63,20 @@ Deno.serve(async (req) => {
 
     return Response.json({ ok: true }, { headers: corsHeaders })
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
+    // Postgrest/Supabase errors are plain objects, not Error instances —
+    // String(err) would produce a useless "[object Object]". Surface the
+    // real message (and code, when present) instead.
+    let message: string
+    if (err instanceof Error) {
+      message = err.message
+    } else if (err && typeof err === 'object') {
+      const e = err as { message?: unknown; code?: unknown }
+      const base = typeof e.message === 'string' ? e.message : JSON.stringify(err)
+      message = typeof e.code === 'string' ? `${e.code}: ${base}` : base
+    } else {
+      message = String(err)
+    }
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
