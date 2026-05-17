@@ -617,7 +617,7 @@ formatShortDateTime(row.finished_at)  // → "17 мая, 14:32"
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`totalQuestions` for avgScore display**
    - What we know: `score` in `quiz_sessions` is a `numeric` (fractional). `get_quiz_stats` returns `avgScore` as a number.
