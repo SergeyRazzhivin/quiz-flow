@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 04
-status: verifying
-stopped_at: Phase 4 Plan 1 complete (04-01-SUMMARY.md)
-last_updated: "2026-05-17T21:30:47.265Z"
+status: ready_to_plan
+stopped_at: Phase 04 complete (2/2) — ready to discuss Phase 5
+last_updated: 2026-05-17T22:21:05.966Z
 progress:
   total_phases: 5
   completed_phases: 4
@@ -17,8 +17,8 @@ progress:
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
-**Current Phase:** 04
-**Status:** Phase complete — ready for verification
+**Current Phase:** 5
+**Status:** Ready to plan
 
 ---
 
@@ -27,14 +27,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 04 — statistics
+**Current focus:** Phase 5 — billing
 
 ---
 
 ## Current Position
 
 Phase: 04 (statistics) — EXECUTING
-Plan: 2 of 2
+Plan: Not started
 **Phase 4 Plan 1:** COMPLETE — Statistics data layer (migration 013 get_quiz_stats + get_quiz_accuracy RPCs, format helpers, ProgressBar size prop; STATS-01–03)
 **Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
 **Phase 3 Plan 2:** COMPLETE — AI-wizard frontend slice (ai-job entity, useAiWizardStore 4-step machine + poll loop, 4 step components/stepper/widget/page, /ai-wizard route; AI-01–04, AI-06–07)
