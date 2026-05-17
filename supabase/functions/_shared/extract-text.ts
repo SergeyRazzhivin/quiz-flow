@@ -130,5 +130,17 @@ export async function extractDocumentText(
     throw new Error(`UNSUPPORTED_FILE_TYPE: only PDF and DOCX are supported (${fileName})`)
   }
 
-  return capText(raw)
+  // IN-05: a scanned/image-only PDF or an empty DOCX yields no extractable
+  // text. Reject it here with a client-correctable code instead of letting the
+  // EF call OpenAI with an empty `--- ИСХОДНЫЙ МАТЕРИАЛ ---` (the model would
+  // refuse or hallucinate a quiz from nothing — an opaque AI failure to the
+  // user). The pasted-text path is already guarded by its own trim() check.
+  const result = capText(raw)
+  if (!result.text.trim()) {
+    throw new Error(
+      `EMPTY_DOCUMENT: no extractable text found in ${fileName}`,
+    )
+  }
+
+  return result
 }

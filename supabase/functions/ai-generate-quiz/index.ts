@@ -289,10 +289,14 @@ Deno.serve(async (req) => {
         source = extracted.text
       } catch (err) {
         const message = serializeError(err)
-        // FILE_TOO_LARGE / UNSUPPORTED_FILE_TYPE are client-correctable → 400.
+        // FILE_TOO_LARGE / UNSUPPORTED_FILE_TYPE / EMPTY_DOCUMENT are all
+        // client-correctable → 400. IN-05: EMPTY_DOCUMENT covers a scanned or
+        // empty file with no extractable text — the user can re-upload a
+        // text-based document instead of seeing an opaque AI failure.
         if (
           message.startsWith('FILE_TOO_LARGE') ||
-          message.startsWith('UNSUPPORTED_FILE_TYPE')
+          message.startsWith('UNSUPPORTED_FILE_TYPE') ||
+          message.startsWith('EMPTY_DOCUMENT')
         ) {
           return json({ error: message }, 400)
         }
