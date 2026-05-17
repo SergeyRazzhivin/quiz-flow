@@ -21,7 +21,7 @@ vi.mock('@shared/api/supabase', () => ({
   },
 }))
 
-import { invokeGenerateQuiz, fetchAiJob } from './api'
+import { invokeGenerateQuiz, fetchAiJob, GenerateQuizError } from './api'
 import { fileToBase64 } from '@shared/lib/file'
 
 describe('ai-job api — invokeGenerateQuiz', () => {
@@ -42,7 +42,8 @@ describe('ai-job api — invokeGenerateQuiz', () => {
     }))
   })
 
-  it('throws when the EF returns an error', async () => {
+  // WR-03: invokeGenerateQuiz always throws a GenerateQuizError on failure.
+  it('throws a GenerateQuizError when the EF returns an error', async () => {
     invokeMock.mockResolvedValue({ data: null, error: new Error('boom') })
     await expect(
       invokeGenerateQuiz({
@@ -51,7 +52,32 @@ describe('ai-job api — invokeGenerateQuiz', () => {
         questionCount: 5,
         difficulty: 'easy',
       }),
-    ).rejects.toThrow('boom')
+    ).rejects.toBeInstanceOf(GenerateQuizError)
+  })
+
+  // WR-02 / WR-03: a non-2xx response carries the EF's error code on the
+  // FunctionsHttpError `context` Response — invokeGenerateQuiz must recover it.
+  it('surfaces the EF error code from the FunctionsHttpError context', async () => {
+    const httpError = Object.assign(new Error('non-2xx'), {
+      context: new Response(JSON.stringify({ error: 'QUESTION_COUNT_EXCEEDED' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    })
+    invokeMock.mockResolvedValue({ data: null, error: httpError })
+    try {
+      await invokeGenerateQuiz({
+        title: 'T',
+        clarifyingPrompt: 'f',
+        questionCount: 999,
+        difficulty: 'easy',
+      })
+      throw new Error('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(GenerateQuizError)
+      expect((err as GenerateQuizError).code).toBe('QUESTION_COUNT_EXCEEDED')
+      expect((err as GenerateQuizError).status).toBe(400)
+    }
   })
 })
 
