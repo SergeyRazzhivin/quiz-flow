@@ -25,6 +25,13 @@ const store = useQuizEditorStore()
         />
         <span class="text-sm text-neutral-200">Показывать кнопку «Стоп»</span>
       </label>
+      <label class="flex items-center gap-3">
+        <Switch
+          :model-value="store.settings.allow_retake"
+          @update:model-value="store.updateSettings({ allow_retake: $event })"
+        />
+        <span class="text-sm text-neutral-200">Разрешить повторное прохождение</span>
+      </label>
     </div>
   </div>
 </template>
