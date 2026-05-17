@@ -27,8 +27,11 @@ ALTER TABLE answer_options ENABLE ROW LEVEL SECURITY;
 
 CREATE INDEX ON answer_options (question_id);
 
--- SECURITY DEFINER view: anon reads answer_options WITHOUT is_correct
--- (prevents correct answers leaking to quiz-takers — Phase 2 concern, created now for schema completeness)
+-- Plain view exposing answer_options WITHOUT is_correct so guest-facing reads
+-- never see the correct answers (Phase 2 concern, created now for schema completeness).
+-- Note: this is a plain CREATE VIEW (no security_invoker/security_definer clause) —
+-- guest protection comes from answer_options having no anon RLS policy plus this
+-- column-restricted view, not from view security mode.
 CREATE VIEW answer_options_public AS
   SELECT id, question_id, body, order_index
   FROM answer_options;

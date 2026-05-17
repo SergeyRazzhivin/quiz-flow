@@ -88,7 +88,7 @@ This project uses [GSD (Get Shit Done)](https://github.com/get-shit-done/get-shi
 
 - Timer drift: compute from server `started_at`, not client-side decrement
 - Answer loss on refresh: upsert each answer immediately on selection
-- `is_correct` and `password_hash` must never reach anon-role clients (column-level grants)
+- `is_correct` and `password_hash` must never reach anon-role clients — `answer_options` and `quiz_access` have no `anon` RLS policy at all (anon cannot read those tables), and guest reads of options go through the `answer_options_public` view (no `is_correct` column). Edge Functions use `service_role` and must hand-filter sensitive columns.
 - Array index as DnD key: always use entity UUID
 - `order_index` not persisted after drag: batch upsert in `@end` handler
 - ЮKassa webhook idempotency: check `yookassa_payment_id` before processing

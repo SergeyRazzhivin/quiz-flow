@@ -3,6 +3,8 @@
 // verify_jwt = true (omitted from config.toml) — Supabase enforces owner JWT automatically.
 // T-02-07: verifies quiz ownership before insert.
 // T-02-09: password_hash never returned to client — plaintext password shown once only (D-15).
+// quiz_access has no anon RLS policy (anon cannot read the table at all); this EF runs as
+// service_role and hand-filters sensitive columns out of every select list.
 // T-02-10: credentials generated via crypto.getRandomValues, not Math.random.
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
