@@ -87,8 +87,16 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
   const planMaxQuestions = computed(() => PLAN_MAX_QUESTIONS[plan.value])
   const planMaxFileBytes = computed(() => PLAN_MAX_FILE_BYTES[plan.value])
 
-  // Module-scoped poll handle — explicitly torn down on completed/failed/cleanup/retry.
-  let pollTimer: ReturnType<typeof setInterval> | null = null
+  // WR-09: self-scheduling poll handle. A setInterval with an async callback
+  // could fire a second fetchAiJob before the first resolved (overlapping
+  // requests on a slow connection) and a stale late-resolving poll could
+  // revert the UI stage after the job already finished. The next tick is now
+  // scheduled only AFTER the current fetchAiJob settles.
+  let pollTimer: ReturnType<typeof setTimeout> | null = null
+  // WR-09: monotonically-incrementing token identifying the current poll run.
+  // A poll whose token no longer matches `pollToken` is stale (stopPolling /
+  // a new run happened mid-fetch) and its result must be discarded.
+  let pollToken = 0
 
   // ── Plan read ───────────────────────────────────────────────────────────────
   // Read profiles.plan once so the wizard can apply D-06/D-07 limit values as UX.
@@ -185,7 +193,16 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     stopPolling()
     // WR-01: track when polling started so the loop can give up on an orphaned job.
     const pollStartedAt = Date.now()
-    pollTimer = setInterval(async () => {
+    // WR-09: claim a token for this run. Every fetch result is checked against
+    // it so a poll that resolves after stopPolling (or a new run) is ignored.
+    const token = ++pollToken
+
+    // WR-09: one poll tick — fetch, apply the result only if still current,
+    // then schedule the NEXT tick (so two fetches can never overlap).
+    const tick = async (): Promise<void> => {
+      // The run was torn down (stopPolling / retry / cleanup) before this tick.
+      if (token !== pollToken) return
+
       // WR-01: a job stuck at 'pending' (evicted EF isolate) never reaches a
       // terminal status — bail out past the hard deadline and fail the wizard.
       if (Date.now() - pollStartedAt >= POLL_DEADLINE_MS) {
@@ -193,26 +210,42 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
         generationStatus.value = 'failed'
         return
       }
+
       try {
         const job = await fetchAiJob(id)
+        // WR-09: a stale poll (stopPolling ran while this fetch was in flight)
+        // must not write to currentStage / generationStatus.
+        if (token !== pollToken) return
         currentStage.value = job.stage
         if (job.status === 'completed' && job.quiz_id) {
           stopPolling()
           generationStatus.value = 'done'
           await router.push('/editor/' + job.quiz_id)
+          return
         } else if (job.status === 'failed') {
           stopPolling()
           generationStatus.value = 'failed'
+          return
         }
       } catch {
         // A transient poll error is non-fatal — the next tick retries.
       }
-    }, POLL_INTERVAL_MS)
+
+      // WR-09: schedule the next tick ONLY after this one settled, and only if
+      // the run is still current (not torn down by a terminal status above).
+      if (token === pollToken) {
+        pollTimer = setTimeout(tick, POLL_INTERVAL_MS)
+      }
+    }
+
+    pollTimer = setTimeout(tick, POLL_INTERVAL_MS)
   }
 
   function stopPolling(): void {
+    // WR-09: invalidate any in-flight fetch so its result is discarded.
+    pollToken++
     if (pollTimer !== null) {
-      clearInterval(pollTimer)
+      clearTimeout(pollTimer)
       pollTimer = null
     }
   }

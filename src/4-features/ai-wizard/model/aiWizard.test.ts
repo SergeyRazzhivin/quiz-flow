@@ -211,6 +211,59 @@ describe('useAiWizardStore — generation + polling', () => {
     expect(s.failureCode).toBeNull()
   })
 
+  it('poll loop does not overlap fetches — next tick waits for the current one (WR-09)', async () => {
+    invokeGenerateQuizMock.mockResolvedValue({ jobId: 'job-1' })
+    // Each fetchAiJob takes 5s to resolve — longer than the 2s poll interval.
+    fetchAiJobMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ id: 'job-1', status: 'pending', stage: 'reading', error: null, quiz_id: null })
+          }, 5000)
+        }),
+    )
+    const s = useAiWizardStore()
+    s.form.title = 'T'
+    s.form.sourceText = 'материал'
+    await s.startGeneration()
+    // After 2s the first tick fires; its fetch is still in flight at 4s.
+    await vi.advanceTimersByTimeAsync(4000)
+    expect(fetchAiJobMock.mock.calls.length).toBe(1)
+    // The first fetch resolves at ~7s; only THEN is the next tick scheduled —
+    // a setInterval would already have fired several overlapping fetches here.
+    await vi.advanceTimersByTimeAsync(4000)
+    expect(fetchAiJobMock.mock.calls.length).toBe(1)
+    // ~2s after the first resolve the second tick fires.
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(fetchAiJobMock.mock.calls.length).toBe(2)
+    s.cleanup()
+  })
+
+  it('a poll resolving after stopPolling does not write stale state (WR-09)', async () => {
+    invokeGenerateQuizMock.mockResolvedValue({ jobId: 'job-1' })
+    // The fetch resolves 'completed' but takes 5s — cleanup runs before it.
+    fetchAiJobMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ id: 'job-1', status: 'completed', stage: 'done', error: null, quiz_id: 'quiz-x' })
+          }, 5000)
+        }),
+    )
+    const s = useAiWizardStore()
+    s.form.title = 'T'
+    s.form.sourceText = 'материал'
+    await s.startGeneration()
+    // First tick dispatches its fetch at 2s.
+    await vi.advanceTimersByTimeAsync(3000)
+    // Tear the run down while the fetch is still in flight.
+    s.cleanup()
+    // The stale fetch now resolves — its result must be discarded.
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(s.generationStatus).toBe('pending')
+    expect(routerPushMock).not.toHaveBeenCalled()
+  })
+
   it('poll loop fails the wizard after the 90s deadline with no terminal status (WR-01)', async () => {
     invokeGenerateQuizMock.mockResolvedValue({ jobId: 'job-1' })
     // The job stays 'pending' forever — an orphaned ai_jobs row.
