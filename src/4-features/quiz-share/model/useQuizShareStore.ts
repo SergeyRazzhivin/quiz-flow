@@ -33,8 +33,13 @@ export const useQuizShareStore = defineStore('quiz-share', () => {
     }
     isCreating.value = true
     try {
+      // WR-01: the date <Input> yields a bare YYYY-MM-DD, which a timestamptz
+      // column stores as 00:00:00 — the link would expire at the *start* of the
+      // chosen day. Persist it as end-of-day so the link is valid through the
+      // displayed "до DD.MM.YYYY" date (inclusive contract).
+      const expiresAtEod = expiresAt ? `${expiresAt}T23:59:59` : undefined
       const { data, error } = await supabase.functions.invoke('create-quiz-access', {
-        body: { quizId, label, expiresAt },
+        body: { quizId, label, expiresAt: expiresAtEod },
       })
       if (error) throw error
       // D-15: plaintext password stored in lastCreated only — never persisted
@@ -49,7 +54,9 @@ export const useQuizShareStore = defineStore('quiz-share', () => {
         token: data.token,
         login: data.login,
         label,
-        expires_at: expiresAt ?? null,
+        // Mirror the end-of-day value actually persisted so the optimistic row
+        // and a reloaded row agree (WR-01).
+        expires_at: expiresAtEod ?? null,
       })
       toast.success('Ссылка создана.')
     } catch {
