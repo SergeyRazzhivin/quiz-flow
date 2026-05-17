@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 02
 status: executing
-last_updated: "2026-05-17T11:00:00.000Z"
+last_updated: "2026-05-17T11:05:08.818Z"
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 4
+  completed_plans: 5
   percent: 20
 ---
 
@@ -33,13 +33,13 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 02 (quiz-taking-sharing) — EXECUTING
-Plan: 1 of 5 — PAUSED AT CHECKPOINT (Task 4: human-verify, gate=blocking-human)
+Plan: 2 of 5 — ready to start
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
-**Phase 2 Plan 1:** Tasks 1–3 complete, awaiting human verification before resuming
+**Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
 
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
-Phase 2 [▒         ] paused at 02-01 checkpoint
+Phase 2 [▓▓        ] 1/5 plans complete
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
@@ -49,10 +49,10 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 4 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓)
-**Plans created:** 4 (Phase 1)
-**Requirements shipped:** 20 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02)
-**Requirements planned:** 20 / 48 (Phase 1)
+**Plans completed:** 5 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓)
+**Plans created:** 9 (Phase 1: 4, Phase 2: 5)
+**Requirements shipped:** 24 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–03, EXT-04)
+**Requirements planned:** 33 / 48 (Phase 1 + Phase 2)
 **Phases completed:** 1 / 5
 
 ---
@@ -70,6 +70,9 @@ Phase 5 [          ] 0%
 - FSD linter (steiger) runs in CI from day one to prevent layer violations
 - steiger fsd/typo-in-layer-name disabled for numeric FSD prefix dirs (1-app…6-shared) — Open Question 1 resolved
 - shadcn-vue CLI broken on Node 20 (vue-metamorph/magic-string ESM bug); components hand-crafted with radix-vue + CVA instead
+- bcryptjs VERIFIED in the Supabase Deno runtime (probe-bcrypt returned hashValid:true) — no PBKDF2 fallback needed for guest password hashing
+- Supabase Edge Function names cannot start with `_` — probe function renamed `_probe-bcrypt` → `probe-bcrypt`
+- Guest token signed with a dedicated `GUEST_JWT_SECRET` (not `SUPABASE_JWT_SECRET`), jose HS256, 1h TTL
 
 ### Open Questions
 
@@ -90,9 +93,9 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17T11:00:00.000Z
-**Resume file:** .planning/phases/02-quiz-taking-sharing/02-01-PLAN.md
-**Next action:** Human checkpoint — apply migration 009, verify bcrypt probe, deploy verify-quiz-access. Type "approved" to resume.
+**Last session:** 2026-05-17T11:05:08.808Z
+**Resume file:** None
+**Next action:** Execute plan 02-02 (`/gsd:execute-phase 2`).
 
 ---
 
