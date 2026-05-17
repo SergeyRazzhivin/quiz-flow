@@ -184,6 +184,25 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     step.value = 3
   }
 
+  // D-02 — the wizard always creates a new quiz. The store is a Pinia singleton,
+  // so every (re)entry to /ai-wizard must reset it to the initial state, else the
+  // stale completed step-4 state from a prior run is shown.
+  function resetWizard(): void {
+    stopPolling()
+    step.value = 1
+    form.title = ''
+    form.sourceMode = 'text'
+    form.sourceText = ''
+    form.file = null
+    form.clarifyingPrompt = ''
+    form.questionCount = 10
+    form.difficulty = 'medium'
+    form.difficultyPrompt = ''
+    generationStatus.value = 'idle'
+    currentStage.value = null
+    jobId.value = null
+  }
+
   return {
     step,
     form,
@@ -200,6 +219,7 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     startGeneration,
     retry,
     backToParams,
+    resetWizard,
     cleanup,
   }
 })

@@ -40,6 +40,9 @@ function onBeforeUnload(e: BeforeUnloadEvent): void {
 }
 
 onMounted(() => {
+  // D-02 — the wizard always creates a new quiz. The store is a Pinia singleton,
+  // so reset it on every entry to /ai-wizard to drop any stale completed state.
+  store.resetWizard()
   window.addEventListener('beforeunload', onBeforeUnload)
 })
 

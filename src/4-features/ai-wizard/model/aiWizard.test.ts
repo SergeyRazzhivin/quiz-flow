@@ -167,4 +167,35 @@ describe('useAiWizardStore — generation + polling', () => {
     expect(s.form.title).toBe('Сохранён')
     expect(invokeGenerateQuizMock).toHaveBeenCalled()
   })
+
+  it('resetWizard returns the store to its initial state after a generation (D-02)', () => {
+    const s = useAiWizardStore()
+    // Simulate a completed generation run.
+    s.step = 4
+    s.form.title = 'Старый тест'
+    s.form.sourceMode = 'file'
+    s.form.sourceText = 'материал'
+    s.form.clarifyingPrompt = 'фокус'
+    s.form.questionCount = 42
+    s.form.difficulty = 'hard'
+    s.form.difficultyPrompt = 'сложнее'
+    s.generationStatus = 'done'
+    s.currentStage = 'done'
+    s.jobId = 'job-old'
+
+    s.resetWizard()
+
+    expect(s.step).toBe(1)
+    expect(s.form.title).toBe('')
+    expect(s.form.sourceMode).toBe('text')
+    expect(s.form.sourceText).toBe('')
+    expect(s.form.file).toBeNull()
+    expect(s.form.clarifyingPrompt).toBe('')
+    expect(s.form.questionCount).toBe(10)
+    expect(s.form.difficulty).toBe('medium')
+    expect(s.form.difficultyPrompt).toBe('')
+    expect(s.generationStatus).toBe('idle')
+    expect(s.currentStage).toBeNull()
+    expect(s.jobId).toBeNull()
+  })
 })
