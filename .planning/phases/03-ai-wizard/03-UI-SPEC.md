@@ -60,14 +60,16 @@ Exceptions:
 
 ## Typography
 
-Three roles + display — matches the editor (`text-2xl font-semibold` titles, `text-sm` body, `text-base` empty-state). Two weights only: `400` regular and `600` semibold.
+Three roles + display — matches the editor (`text-2xl font-semibold` titles, `text-sm` body, `text-base` empty-state). Exactly two weights: `400` regular and `600` semibold.
 
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
-| Body | 14px (`text-sm`) | 400 | 1.5 |
-| Label | 14px (`text-sm`) | 500 (`font-medium` — the only third weight, used solely on field labels and tab triggers, consistent with `Button`/`TabsTrigger`) | 1.4 |
+| Body | 14px (`text-sm`) | 400 (`font-normal`) | 1.5 |
+| Label | 14px (`text-sm`) | 600 (`font-semibold`) — field labels and tab-trigger text; uses semibold (not medium) so the wizard's type contract stays at exactly two weights | 1.4 |
 | Heading | 20px (`text-xl`) | 600 (`font-semibold`) | 1.3 — step titles ("Шаг 1. Название теста") |
 | Display | 24px (`text-2xl`) | 600 (`font-semibold`) | 1.2 — the wizard's top-level title and the step-4 status headline |
+
+The shared `Button.vue` and `TabsTrigger.vue` components carry their own `font-medium` (500) internally; the wizard reuses them verbatim and does not restyle them. That 500 weight is a pre-existing design-system property of those components, not a weight the wizard introduces — the wizard's own type contract above declares exactly two weights (`400` + `600`).
 
 Helper text and validation messages: 12px (`text-xs`), weight 400, color `neutral-500` (helper) / `red-400` (error). Mirrors `Button` `sm` (`text-xs`) and the editor's helper labels.
 
