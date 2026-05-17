@@ -88,6 +88,7 @@ Deno.serve(async (req) => {
           sessionId: existing.id,
           started_at: existing.started_at,
           resumed: true,
+          sessionState: 'active',
           answers: savedAnswers ?? [],
           quiz: quizMeta,
           questions,
@@ -96,7 +97,37 @@ Deno.serve(async (req) => {
       )
     }
 
-    // No open session — insert a new one.
+    // D-04: Check for a finished session (finished_at IS NOT NULL) for this quiz_access_id.
+    // The store's state machine needs to know if a finished session exists so it can:
+    //   - single-attempt quiz: show result directly
+    //   - allow_retake quiz: offer a new attempt (state machine handles the routing/clearing)
+    const { data: finished } = await supabase
+      .from('quiz_sessions')
+      .select('id, started_at, finished_at, score')
+      .eq('quiz_access_id', payload.quiz_access_id)
+      .not('finished_at', 'is', null)
+      .order('finished_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (finished) {
+      // Return the finished session — the store's D-04 machine decides what to do next.
+      // No session_answers needed here: if allow_retake → clear answers anyway; if single-attempt → show result.
+      return Response.json(
+        {
+          sessionId: finished.id,
+          started_at: finished.started_at,
+          resumed: false,
+          sessionState: 'finished',
+          answers: [],
+          quiz: quizMeta,
+          questions,
+        },
+        { headers: corsHeaders },
+      )
+    }
+
+    // No open or finished session — insert a new one.
     const { data: session, error } = await supabase
       .from('quiz_sessions')
       .insert({ quiz_access_id: payload.quiz_access_id, quiz_id: payload.quiz_id })
@@ -110,6 +141,7 @@ Deno.serve(async (req) => {
         sessionId: session.id,
         started_at: session.started_at,
         resumed: false,
+        sessionState: 'new',
         answers: [],
         quiz: quizMeta,
         questions,

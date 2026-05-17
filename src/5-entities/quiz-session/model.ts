@@ -17,9 +17,11 @@ export interface SessionAnswer {
 }
 
 // Shape of data returned by get-quiz-result EF (02-05)
+// label is optional because submit-quiz-answers does not return it;
+// it is populated by loadResult (which calls get-quiz-result).
 export interface SessionResult {
   score:          number
   totalQuestions: number
   percentage:     number
-  label:          string  // quiz_access.label (taker name)
+  label?:         string  // quiz_access.label (taker name) — set by loadResult
 }

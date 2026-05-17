@@ -29,13 +29,19 @@ export type GetQuizMetaResponse =
 // Shape returned by start-quiz-session
 // quiz + questions are included so a resumed session (where the guest never
 // re-enters credentials) can repopulate the store. Same shape as VerifyAccessResponse.
+// D-04: sessionState distinguishes the four cases the store state machine needs to handle.
 export interface StartSessionResponse {
-  sessionId:  string
-  started_at: string
-  resumed:    boolean
-  answers:    { question_id: string; selected_option_ids: string[] }[]
-  quiz:       Record<string, unknown>
-  questions:  Record<string, unknown>[]
+  sessionId:    string
+  started_at:   string
+  resumed:      boolean
+  // sessionState discriminates the D-04 branches:
+  //   'new'      — a fresh session was just created
+  //   'active'   — an open (not expired) session was resumed
+  //   'finished' — a previously finished session was found (no new session created)
+  sessionState?: 'new' | 'active' | 'finished'
+  answers:      { question_id: string; selected_option_ids: string[] }[]
+  quiz:         Record<string, unknown>
+  questions:    Record<string, unknown>[]
 }
 
 /**
@@ -84,5 +90,50 @@ export async function invokeStartSession(guestToken: string): Promise<StartSessi
   return data as StartSessionResponse
 }
 
-// NOTE: Additional wrappers for upsert-session-answer, submit-quiz-answers, and get-quiz-result
-// will be added in plans 02-04 and 02-05.
+// Shape returned by submit-quiz-answers
+export interface SubmitAnswersResponse {
+  score:          number
+  totalQuestions: number
+  percentage:     number
+}
+
+// Shape returned by get-quiz-result
+export interface GetResultResponse {
+  score:          number
+  totalQuestions: number
+  percentage:     number
+  label:          string
+}
+
+/**
+ * Invoke submit-quiz-answers — finalizes the session with server-side partial-credit scoring.
+ * The client never submits a score value (T-02-22 — score tampering prevention).
+ * Returns score, totalQuestions, and percentage.
+ * Idempotent: an already-finished session returns its stored score without re-scoring (T-02-25).
+ */
+export async function invokeSubmitAnswers(
+  guestToken: string,
+  sessionId: string,
+): Promise<SubmitAnswersResponse> {
+  const { data, error } = await supabase.functions.invoke('submit-quiz-answers', {
+    body: { guestToken, sessionId },
+  })
+  if (error) throw error
+  return data as SubmitAnswersResponse
+}
+
+/**
+ * Invoke get-quiz-result — returns the result of a finished quiz session.
+ * Used by the result page on direct-URL arrival (store.result is unset).
+ * Never returns is_correct or password_hash (T-02-23, D-11).
+ */
+export async function invokeGetResult(
+  guestToken: string,
+  sessionId?: string | null,
+): Promise<GetResultResponse> {
+  const { data, error } = await supabase.functions.invoke('get-quiz-result', {
+    body: { guestToken, sessionId },
+  })
+  if (error) throw error
+  return data as GetResultResponse
+}

@@ -1,8 +1,15 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { toast } from 'vue-sonner'
+import { useRouter } from 'vue-router'
 import { supabase } from '@shared/api/supabase'
-import { invokeVerifyAccess, invokeStartSession, invokeGetQuizMeta } from '@entities/quiz-session/api'
+import {
+  invokeVerifyAccess,
+  invokeStartSession,
+  invokeGetQuizMeta,
+  invokeSubmitAnswers,
+  invokeGetResult,
+} from '@entities/quiz-session/api'
 import type { Quiz } from '@entities/quiz/model'
 import type { Question } from '@entities/question/model'
 import type { SessionResult } from '@entities/quiz-session/model'
@@ -17,6 +24,8 @@ import type { SessionResult } from '@entities/quiz-session/model'
 type SessionStatus = 'idle' | 'intro' | 'active' | 'finished' | 'not_ready' | 'invalid'
 
 export const useQuizTakingStore = defineStore('quiz-taking', () => {
+  const router = useRouter()
+
   // ── State refs ────────────────────────────────────────────────────────────
   const sessionStatus   = ref<SessionStatus>('idle')
   const token           = ref<string | null>(null)
@@ -33,6 +42,9 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   const isLoading       = ref(false)
   // isStarting guards against double-invocation of startSession (T-02-13 + D-02)
   const isStarting      = ref(false)
+  // isSubmitting guards against double-submission of finishSession (T-02-25)
+  // timer-expiry path and manual Стоп/Завершить path cannot both submit
+  const isSubmitting    = ref(false)
 
   // Timer refs — populated by startSession / init resume; timer logic added in 02-04
   const startedAt        = ref<string | null>(null)
@@ -206,8 +218,17 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
    * init(t) — called on widget mount.
    * Checks sessionStorage for a stored guestToken. If none: load the intro meta
    * (D-01) so the pre-login intro card is populated, then go idle.
-   * If present: calls start-quiz-session to drive the D-04 resume state machine.
+   * If present: calls start-quiz-session to drive the complete D-04 state machine:
+   *
+   *   D-04 branches (keyed off sessionState from start-quiz-session):
+   *   - 'active'  (in-progress, not expired):  restore answers → resume timer → 'active'
+   *   - 'active'  (in-progress, but expired):  restore answers → call finishSession() (D-08)
+   *   - 'finished' + allow_retake === false:    loadResult → route to result page
+   *   - 'finished' + allow_retake === true:     clear sessionId + answers → 'intro'
+   *   - 'new'     (no prior session):           start fresh → 'active'
+   *
    * Populates answers BEFORE setting sessionStatus = 'active' (D-04 — see PLAN note).
+   * Does NOT remove or weaken the answer-restoration step from 02-03 (D-04 resume).
    */
   async function init(t: string) {
     token.value = t
@@ -236,63 +257,78 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     try {
       const res = await invokeStartSession(storedGuestToken)
 
-      // On resume the guest never re-enters credentials, so verifyAccess never runs.
-      // start-quiz-session now returns quiz + questions — repopulate the store from
-      // them here, otherwise the active UI renders "Вопрос 1 из 0" with no question.
-      if (res.resumed) {
-        // D-04: restore answers FIRST so D-07 canGoForward gate isn't falsely tripped
-        const restoredAnswers: Record<string, string[]> = {}
-        for (const row of res.answers) {
-          restoredAnswers[row.question_id] = row.selected_option_ids
+      // Repopulate quiz + questions — always needed since verifyAccess is skipped on resume.
+      // Must happen BEFORE sessionStatus becomes 'active' so the header renders correctly.
+      guestToken.value = storedGuestToken
+      sessionId.value = res.sessionId
+      startedAt.value = res.started_at
+      quiz.value = res.quiz as unknown as Quiz
+      questions.value = res.questions as unknown as Question[]
+      questionCount.value = questions.value.length
+      timeLimitSec.value = quiz.value?.time_limit_sec ?? null
+
+      // ── D-04 state machine ──────────────────────────────────────────────────
+      const state = res.sessionState ?? (res.resumed ? 'active' : 'new')
+
+      if (state === 'finished') {
+        // Finished session — check allow_retake to decide next action.
+        const allowRetake = (quiz.value?.settings as { allow_retake?: boolean })?.allow_retake ?? false
+
+        if (!allowRetake) {
+          // D-04: finished + single-attempt → show the existing result.
+          // loadResult fetches the score from the EF and then we route to the result page.
+          await loadResult(t)
+          if (sessionStatus.value !== 'invalid') {
+            await router.push(`/q/${t}/result`)
+          }
+        } else {
+          // D-04: finished + allow_retake → offer a fresh attempt.
+          // Clear the stored sessionId and answers so "Начать" creates a new quiz_session.
+          sessionId.value = null
+          answers.value = {}
+          sessionStorage.setItem(
+            storageKey(t),
+            JSON.stringify({ guestToken: storedGuestToken, sessionId: null, currentQuestionIndex: 0 }),
+          )
+          sessionStatus.value = 'intro'
         }
-        answers.value = restoredAnswers
+        return
+      }
 
-        guestToken.value = storedGuestToken
-        sessionId.value = res.sessionId
-        startedAt.value = res.started_at
+      // Active session (in-progress) — restore answers FIRST so D-07 canGoForward gate
+      // isn't falsely tripped on already-answered required questions.
+      const restoredAnswers: Record<string, string[]> = {}
+      for (const row of res.answers) {
+        restoredAnswers[row.question_id] = row.selected_option_ids
+      }
+      answers.value = restoredAnswers
 
-        // Repopulate quiz + questions (set by verifyAccess on the login path,
-        // skipped on resume) — must happen BEFORE sessionStatus becomes 'active'.
-        quiz.value = res.quiz as unknown as Quiz
-        questions.value = res.questions as unknown as Question[]
-        questionCount.value = questions.value.length
-        timeLimitSec.value = quiz.value?.time_limit_sec ?? null
+      // Restore the taker's last question position (clamped against a stale index)
+      const savedIndex = parsed.currentQuestionIndex ?? 0
+      currentQuestionIndex.value = Math.min(
+        Math.max(0, savedIndex),
+        Math.max(0, questions.value.length - 1),
+      )
 
-        // Restore the taker's last question position (clamped against a stale index)
-        const savedIndex = parsed.currentQuestionIndex ?? 0
-        currentQuestionIndex.value = Math.min(
-          Math.max(0, savedIndex),
-          Math.max(0, questions.value.length - 1),
-        )
+      // Persist merged state (sessionId may have been missing from stored value)
+      persistSession()
 
-        // Persist merged state (sessionId may have been missing from stored value)
-        persistSession()
-
-        sessionStatus.value = 'active'
-        startTimer()
+      if (state === 'active') {
+        // D-04: in-progress session — check if it has expired while the guest was away.
+        // computeRemaining uses the newly set startedAt + timeLimitSec.
+        const remaining = computeRemaining()
+        if (remaining <= 0 && timeLimitSec.value !== null) {
+          // D-08: session expired while away → auto-submit with the restored answers.
+          // finishSession() invokes submit-quiz-answers then routes to the result page.
+          sessionStatus.value = 'active' // set active so guards inside finishSession pass
+          await finishSession()
+        } else {
+          // Resume normally — answers restored, timer continues.
+          sessionStatus.value = 'active'
+          startTimer()
+        }
       } else {
-        // A brand-new session was created during init — rare edge case (token was stored
-        // but session was missing from DB). Treat same as active start.
-        guestToken.value = storedGuestToken
-        sessionId.value = res.sessionId
-        startedAt.value = res.started_at
-        answers.value = {}
-
-        // Same repopulation as the resume branch — the guest has no login step here either.
-        quiz.value = res.quiz as unknown as Quiz
-        questions.value = res.questions as unknown as Question[]
-        questionCount.value = questions.value.length
-        timeLimitSec.value = quiz.value?.time_limit_sec ?? null
-
-        // Restore the taker's last question position (clamped against a stale index)
-        const savedIndex = parsed.currentQuestionIndex ?? 0
-        currentQuestionIndex.value = Math.min(
-          Math.max(0, savedIndex),
-          Math.max(0, questions.value.length - 1),
-        )
-
-        persistSession()
-
+        // 'new' — a fresh session was just created (stored token but no DB session).
         sessionStatus.value = 'active'
         startTimer()
       }
@@ -444,12 +480,44 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   }
 
   /**
-   * finishSession() — placeholder stub (02-05 implements the real submit).
-   * Stops the timer so the timer-expiry path (D-08) is wired correctly.
+   * finishSession() — submits the session and navigates to the result page.
+   * T-02-25: isSubmitting guard prevents double-submission from timer-expiry + manual stop
+   * racing. The submit-quiz-answers EF is also idempotent as a server-side backstop.
+   * TAKE-06 / TAKE-08 / TAKE-10.
    */
   async function finishSession(): Promise<void> {
+    // Double-submit guard (T-02-25)
+    if (isSubmitting.value) return
+    if (!guestToken.value || !sessionId.value || !token.value) return
+
+    isSubmitting.value = true
     stopTimer()
-    // 02-05 replaces this body with actual submit logic
+
+    try {
+      const res = await invokeSubmitAnswers(guestToken.value, sessionId.value)
+      result.value = res
+      sessionStatus.value = 'finished'
+      await router.push(`/q/${token.value}/result`)
+    } catch {
+      toast.error('Ошибка отправки теста. Проверьте соединение и попробуйте снова.')
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  /**
+   * loadResult(t) — called by QuizResultPage on direct-URL arrival when store.result is unset.
+   * Invokes get-quiz-result with the stored guestToken + sessionId.
+   * On failure sets sessionStatus = 'invalid' for the graceful expired-session fallback.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function loadResult(quizToken: string): Promise<void> {
+    try {
+      const res = await invokeGetResult(guestToken.value!, sessionId.value)
+      result.value = res
+    } catch {
+      sessionStatus.value = 'invalid'
+    }
   }
 
   /**
@@ -473,6 +541,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     currentQuestionIndex,
     isLoading,
     isStarting,
+    isSubmitting,
     startedAt,
     timeLimitSec,
     timeRemainingSeconds,
@@ -492,6 +561,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     goForward,
     goBack,
     finishSession,
+    loadResult,
     computeRemaining,
     startTimer,
     stopTimer,

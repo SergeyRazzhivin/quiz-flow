@@ -4,7 +4,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import type { MockInstance } from 'vitest'
 
 // ── Module mocks ──────────────────────────────────────────────────────────────
 vi.mock('@entities/quiz-session/api', () => ({
