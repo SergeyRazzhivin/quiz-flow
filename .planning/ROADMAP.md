@@ -10,7 +10,7 @@
 
 - [x] **Phase 1: Foundation, Auth & Quiz Editor** — Owner can register, log in, create and fully edit a quiz with DnD question ordering
 - [x] **Phase 2: Quiz Taking & Sharing** — Guest can open a quiz by token link, authenticate, take it with a live timer, and see their score; owner can generate and manage per-person access links (completed 2026-05-17)
-- [ ] **Phase 3: AI Wizard** — Owner can generate a complete quiz from uploaded text in 4 steps via an async Edge Function + OpenAI pipeline
+- [x] **Phase 3: AI Wizard** — Owner can generate a complete quiz from uploaded text in 4 steps via an async Edge Function + OpenAI pipeline (completed 2026-05-17)
 - [ ] **Phase 4: Statistics** — Owner can view attempt totals and per-person results (Free) and per-question accuracy (Pro)
 - [ ] **Phase 5: Billing** — Owner can subscribe to Pro via YooKassa; freemium limits are enforced at DB/Edge Function level
 
@@ -98,7 +98,7 @@
 - [x] 03-02-PLAN.md — AI-wizard frontend slice: ai-job entity, 4-step wizard store + polling, step UI, /ai-wizard route, editor redirect (AI-01–04, AI-06–07)
 
 **Wave 3**
-- [ ] 03-03-PLAN.md — Entry-point buttons (/my + editor header) and the AI-SPEC §5 evals harness (AI-01)
+- [x] 03-03-PLAN.md — Entry-point buttons (/my + editor header) and the AI-SPEC §5 evals harness (AI-01)
 
 **UI hint**: yes
 
@@ -135,6 +135,6 @@
 |-------|----------------|--------|-----------|
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
 | 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
-| 3. AI Wizard | 2/3 | In Progress|  |
+| 3. AI Wizard | 3/3 | Complete   | 2026-05-17 |
 | 4. Statistics | 0/? | Not started | - |
 | 5. Billing | 0/? | Not started | - |

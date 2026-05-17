@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 03
 status: executing
-stopped_at: Phase 3 Plan 02 complete — AI-wizard frontend slice
-last_updated: "2026-05-17T17:09:45.192Z"
+stopped_at: Phase 3 Plan 03 complete — AI-wizard entry points + evals harness
+last_updated: "2026-05-17T21:55:00.000Z"
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 11
-  percent: 50
+  completed_plans: 12
+  percent: 58
 ---
 
 # State: Quiz Flow
@@ -33,10 +33,11 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 
 ## Current Position
 
-Phase: 03 (ai-wizard) — EXECUTING
+Phase: 03 (ai-wizard) — COMPLETE
 Plan: 3 of 3
 **Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
 **Phase 3 Plan 2:** COMPLETE — AI-wizard frontend slice (ai-job entity, useAiWizardStore 4-step machine + poll loop, 4 step components/stepper/widget/page, /ai-wizard route; AI-01–04, AI-06–07)
+**Phase 3 Plan 3:** COMPLETE — D-02 entry-point buttons (/my, /my empty state, editor header) + AI-SPEC §5 evals harness scaffold (AI-01)
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
 **Phase:** 2 — Quiz Taking & Sharing — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
@@ -48,7 +49,7 @@ Plan: 3 of 3
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
-Phase 3 [▓▓▓▓▓▓▓   ] 67% (2/3 plans)
+Phase 3 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
 ```
@@ -57,11 +58,11 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 11 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓, 03-02 ✓)
+**Plans completed:** 12 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓, 03-02 ✓, 03-03 ✓)
 **Plans created:** 12 (Phase 1: 4, Phase 2: 5, Phase 3: 3)
 **Requirements shipped:** 41 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-01–07)
 **Requirements planned:** 41 / 48 (Phase 1 + Phase 2 + Phase 3)
-**Phases completed:** 2 / 5
+**Phases completed:** 3 / 5
 
 ---
 
@@ -104,10 +105,14 @@ Phase 5 [          ] 0%
 - AiWizardPage intentionally omits AppHeader — the 03-UI-SPEC prescribes the wizard's own full-viewport (100dvh) shell as the authoritative visual contract
 - The wizard store runs resetWizard() on every /ai-wizard entry so a second visit opens a fresh step 1 (D-02 — the wizard always creates a new quiz, never mutates an existing one)
 - fetchAiJob widens the supabase client to an untyped shape for the ai_jobs read — ai_jobs is absent from the stale generated database.types.ts (migration 012 shipped without a type regen)
+- D-02 AI-wizard entry points: three `Создать с ИИ` buttons (on /my, the /my empty state, editor header); the editor-header button is outline/sm and passes no quiz id so the wizard always creates a fresh quiz
+- promptfoo is CI-only — intentionally NOT a devDependency; its native dep better-sqlite3 needs a Python build toolchain absent locally, so adding it would break `npm install` for the team. The D4-D6 Promptfoo LLM-judge gate runs in CI; package.json keeps only the `eval` script
+- AI-SPEC §5 evals harness scaffolded with an empty dataset — the 15-case reference dataset + Russian judge prompts are filled incrementally (flywheel), so the D1-D3 Vitest suite ships green with it.todo placeholders
 
 ### Open Questions
 
 - Follow-up (03-02): regenerate database.types.ts (`npx supabase gen types`) so ai_jobs is typed, then drop the untyped-client widening in fetchAiJob
+- Follow-up (03-03): populate evals/dataset/ with the 15-case AI-SPEC §5 reference dataset and evals/judge-prompts/ with the Russian-language LLM-judge prompts so the D1-D6 eval gates have data to assert against
 - File parsing strategy for AI wizard RESOLVED (03-01): unpdf for PDF, unzipit for DOCX — both run inside the Edge Function
 - EF request-body limit for a Pro 5 MB base64 file (~6.7 MB encoded) — deferred to phase verification / human UAT; base64-in-JSON is the chosen transport, Storage-upload remains the documented contingency if a live test shows a 413 (RESEARCH Open Question 2 / Assumption A3)
 - shuffle_answers RESOLVED: added to quizzes.settings JSONB default in migration 002
@@ -126,10 +131,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17T17:09:45.192Z
-**Resume file:** .planning/phases/03-ai-wizard/03-02-SUMMARY.md
-**Stopped at:** Phase 3 Plan 02 complete — AI-wizard frontend slice
-**Next action:** Execute Phase 3 Plan 03
+**Last session:** 2026-05-17T21:55:00.000Z
+**Resume file:** .planning/phases/03-ai-wizard/03-03-SUMMARY.md
+**Stopped at:** Phase 3 Plan 03 complete — AI-wizard entry points + evals harness
+**Next action:** Verify Phase 3 (`/gsd:verify-work 3`), then plan Phase 4 (Statistics)
 
 ---
 
