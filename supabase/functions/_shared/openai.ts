@@ -41,6 +41,38 @@ function maxTokensFor(count: number): number {
 }
 
 /**
+ * IN-02: a non-retryable terminal failure. The 2-attempt loop must only retry
+ * TRANSIENT classes (truncation, JSON parse, network / 5xx) where a fresh
+ * sampling can plausibly fix a one-off bad generation. A model `refusal` is
+ * deterministic — a retry will almost certainly refuse again — and a Zod
+ * `count mismatch` is usually a systematic prompt problem; retrying either just
+ * burns an OpenAI call and ~10s of latency. Throwing this subclass tells the
+ * loop to fail fast.
+ */
+export class TerminalGenerationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'TerminalGenerationError'
+  }
+}
+
+/**
+ * Decide whether a thrown error is worth a second attempt. Only transient
+ * failures are retryable; a TerminalGenerationError (refusal / count mismatch)
+ * is not. An OpenAI 4xx (auth, quota, bad request) is also terminal — a retry
+ * cannot fix it. A 5xx, a network/timeout error, or a JSON parse failure is
+ * transient and worth one more attempt.
+ */
+function isRetryable(err: unknown): boolean {
+  if (err instanceof TerminalGenerationError) return false
+  // openai@4 surfaces HTTP errors with a numeric `status`. 4xx is terminal;
+  // 5xx (and anything without a status — network/timeout/parse) is transient.
+  const status = (err as { status?: unknown })?.status
+  if (typeof status === 'number') return status >= 500
+  return true
+}
+
+/**
  * Generate a quiz from source text via OpenAI Structured Outputs.
  * Runs at most 2 attempts (D-11); the second runs only if the first throws.
  * After 2 failures it re-throws — the caller marks ai_jobs.status='failed'.
@@ -79,20 +111,26 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQu
       const choice = completion.choices[0]
 
       // Pitfall 3: check `refusal` BEFORE JSON.parse — a refusal has null content.
+      // IN-02: a refusal is deterministic — terminal, no retry.
       if (choice.message.refusal) {
-        throw new Error(`refusal: ${choice.message.refusal}`)
+        throw new TerminalGenerationError(`refusal: ${choice.message.refusal}`)
       }
-      // Pitfall 2: a `length` finish_reason is silent truncation — treat as a failure.
+      // Pitfall 2: a `length` finish_reason is silent truncation — treat as a
+      // failure. IN-02: truncation is transient (a fresh sampling may fit), so
+      // it is thrown as a plain Error and remains retryable.
       if (choice.finish_reason !== 'stop') {
         throw new Error(`finish_reason: ${choice.finish_reason}`)
       }
 
-      // Zod re-validation gate (D1 + D2): shape + semantic correct-answer-count rules.
+      // Zod re-validation gate (D1 + D2): shape + semantic correct-answer-count
+      // rules. A JSON parse or Zod shape error is transient (plain Error → retry).
       const quiz = QuizSchema.parse(JSON.parse(choice.message.content!))
 
-      // D3: OpenAI strict mode cannot constrain array length — check count explicitly.
+      // D3: OpenAI strict mode cannot constrain array length — check count
+      // explicitly. IN-02: a count mismatch is usually a systematic prompt
+      // problem — terminal, no retry.
       if (quiz.questions.length !== input.count) {
-        throw new Error(
+        throw new TerminalGenerationError(
           `count mismatch: got ${quiz.questions.length}, want ${input.count}`,
         )
       }
@@ -108,8 +146,11 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQu
       lastError = err
       // AI-SPEC §7 monitoring signal: log every attempt failure with its reason.
       console.error(`generateQuiz attempt ${attempt} failed:`, serializeError(err))
-      if (attempt === 2) throw err // both attempts failed → caller marks ai_jobs failed
-      // else loop once more — a fresh sampling usually fixes a one-off bad generation
+      // IN-02: fail fast on a terminal (non-transient) failure — a refusal, a
+      // count mismatch, or an OpenAI 4xx will not be fixed by a retry. Only a
+      // transient failure (truncation / JSON parse / network / 5xx) loops once
+      // more, since a fresh sampling usually fixes a one-off bad generation.
+      if (attempt === 2 || !isRetryable(err)) throw err
     }
   }
 
