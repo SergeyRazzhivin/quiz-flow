@@ -43,9 +43,11 @@ BEGIN
     -- RESEARCH open question #1: include totalQuestions so client can render "X из Y"
     'totalQuestions',   (SELECT COUNT(*) FROM questions WHERE quiz_id = p_quiz_id),
     -- D-02: per-person table — one row per taker, their latest finished attempt
+    -- CR-02: COALESCE so a quiz with zero finished sessions returns [] not NULL.
     'perPerson',        (
-      SELECT jsonb_agg(row_to_json(t)) FROM (
+      SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb) FROM (
         SELECT DISTINCT ON (qs.quiz_access_id)
+          qs.quiz_access_id,
           qa.label         AS name,
           qs.score,
           qs.finished_at
@@ -85,35 +87,44 @@ BEGIN
     RAISE EXCEPTION 'unauthorized';
   END IF;
 
+  -- CR-02: COALESCE so a quiz with no questions / no finished sessions returns [] not NULL.
   RETURN (
-    SELECT jsonb_agg(row_to_json(t)) FROM (
+    SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb) FROM (
       SELECT
         q.id             AS question_id,
         q.body,
         q.order_index,
-        -- D-04: % of latest-per-taker finished sessions that answered correctly
+        -- D-04: % of takers who answered this question correctly.
+        -- CR-01: correctness is aggregated to ONE boolean per (question, taker)
+        -- inside the LATERAL below, so each taker contributes exactly one row to
+        -- the count regardless of how many options they selected. Denominator is
+        -- "takers who answered this question" (COUNT of per_taker rows).
         ROUND(
-          100.0 * COUNT(CASE WHEN correct_answers.is_correct THEN 1 END)
-               / NULLIF(COUNT(DISTINCT latest.quiz_access_id), 0),
+          100.0 * COUNT(*) FILTER (WHERE per_taker.is_correct)
+               / NULLIF(COUNT(per_taker.quiz_access_id), 0),
           1
         ) AS accuracy_percent
       FROM questions q
-      -- Latest finished session per taker for this quiz
+      -- One row per taker who answered this question, with a single correctness
+      -- boolean — the unnest fan-out is fully contained inside this subquery.
       LEFT JOIN LATERAL (
-        SELECT DISTINCT ON (quiz_access_id) id AS session_id, quiz_access_id
-        FROM quiz_sessions
-        WHERE quiz_id = p_quiz_id AND finished_at IS NOT NULL
-        ORDER BY quiz_access_id, finished_at DESC
-      ) latest ON true
-      -- Their answers to this question
-      LEFT JOIN session_answers sa
-        ON sa.session_id = latest.session_id AND sa.question_id = q.id
-      -- Whether any selected option is correct (is_correct stays server-side)
-      LEFT JOIN LATERAL (
-        SELECT bool_or(ao.is_correct) AS is_correct
-        FROM unnest(sa.selected_option_ids) AS sel_id
-        JOIN answer_options ao ON ao.id = sel_id
-      ) correct_answers ON true
+        SELECT
+          latest.quiz_access_id,
+          bool_or(ao.is_correct) AS is_correct
+        FROM (
+          -- Latest finished session per taker for this quiz
+          SELECT DISTINCT ON (quiz_access_id) id AS session_id, quiz_access_id
+          FROM quiz_sessions
+          WHERE quiz_id = p_quiz_id AND finished_at IS NOT NULL
+          ORDER BY quiz_access_id, finished_at DESC
+        ) latest
+        JOIN session_answers sa
+          ON sa.session_id = latest.session_id AND sa.question_id = q.id
+        -- Whether any selected option is correct (is_correct stays server-side)
+        LEFT JOIN LATERAL unnest(sa.selected_option_ids) AS sel_id ON true
+        LEFT JOIN answer_options ao ON ao.id = sel_id
+        GROUP BY latest.quiz_access_id
+      ) per_taker ON true
       WHERE q.quiz_id = p_quiz_id
       GROUP BY q.id, q.body, q.order_index
       ORDER BY q.order_index
