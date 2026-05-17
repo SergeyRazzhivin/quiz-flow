@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { Image, Pencil, Trash2 } from 'lucide-vue-next'
+import { BarChart3, Image, Pencil, Trash2 } from 'lucide-vue-next'
 import type { Quiz } from '../model'
 import { formatDuration } from '@shared/lib/format'
 import Button from '@shared/ui/Button.vue'
@@ -72,6 +72,15 @@ const router = useRouter()
         >
           <Pencil class="h-3.5 w-3.5" />
           Изменить
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          class="flex-1"
+          @click="router.push(`/quiz/${quiz.id}/stats`)"
+        >
+          <BarChart3 class="h-3.5 w-3.5" />
+          Статистика
         </Button>
         <Button
           variant="ghost"
