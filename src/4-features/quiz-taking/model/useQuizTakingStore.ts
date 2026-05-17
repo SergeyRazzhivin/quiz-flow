@@ -201,14 +201,13 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
    */
   async function loadIntroMeta(t: string): Promise<void> {
     try {
+      // WR-08: get-quiz-meta only ever resolves with { state: 'ready' }. An
+      // invalid/expired token returns HTTP 404/410, which supabase.functions.invoke
+      // surfaces as a thrown error — handled by the catch below, not a return value.
       const res = await invokeGetQuizMeta(t)
-      if (res.state === 'ready') {
-        quiz.value = res.quiz as unknown as Quiz
-        questionCount.value = res.questionCount
-        sessionStatus.value = 'idle'
-      } else {
-        sessionStatus.value = 'invalid'
-      }
+      quiz.value = res.quiz as unknown as Quiz
+      questionCount.value = res.questionCount
+      sessionStatus.value = 'idle'
     } catch {
       // 404/410 (invalid or expired token) → graceful invalid state
       sessionStatus.value = 'invalid'

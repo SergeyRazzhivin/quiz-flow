@@ -21,10 +21,13 @@ export interface QuizMeta {
   time_limit_sec: number | null
 }
 
-// Shape returned by get-quiz-meta
+// Shape returned by get-quiz-meta.
+// WR-08: only the 'ready' shape ever reaches `data`. get-quiz-meta returns
+// HTTP 404/410 for invalid/expired tokens, and supabase.functions.invoke
+// surfaces any non-2xx as a thrown error (populating `error`, not `data`) —
+// so invalid tokens always arrive as a thrown error, never as a value here.
 export type GetQuizMetaResponse =
   | { state: 'ready'; quiz: QuizMeta; questionCount: number }
-  | { state: 'invalid' }
 
 // Shape returned by start-quiz-session
 // quiz + questions are included so a resumed session (where the guest never
