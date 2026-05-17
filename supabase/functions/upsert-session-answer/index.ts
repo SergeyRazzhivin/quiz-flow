@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
     // sessionId is used to write answers to another taker's session.
     const { data: session, error: sessionError } = await supabase
       .from('quiz_sessions')
-      .select('id, quiz_access_id')
+      .select('id, quiz_access_id, quiz_id, finished_at')
       .eq('id', sessionId)
       .maybeSingle()
 
@@ -43,6 +43,35 @@ Deno.serve(async (req) => {
     if (!session || session.quiz_access_id !== payload.quiz_access_id) {
       return new Response(JSON.stringify({ error: 'Session not found or access denied' }), {
         status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // CR-02: Reject writes to an already-finished session. The score is locked by
+    // submit-quiz-answers' idempotency, but the underlying answer rows are still
+    // mutable — a late upsert would corrupt the owner's Phase-4 statistics view.
+    if (session.finished_at !== null) {
+      return new Response(JSON.stringify({ error: 'Session already finished' }), {
+        status: 409,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // CR-02: Validate that the question belongs to this session's quiz. The FK only
+    // guarantees questionId is *some* valid question; without this check a forged
+    // request could create session_answers rows referencing an unrelated quiz.
+    const { data: question, error: questionError } = await supabase
+      .from('questions')
+      .select('id')
+      .eq('id', questionId)
+      .eq('quiz_id', session.quiz_id)
+      .maybeSingle()
+
+    if (questionError) throw questionError
+
+    if (!question) {
+      return new Response(JSON.stringify({ error: 'Question does not belong to this quiz' }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
