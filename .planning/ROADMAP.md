@@ -111,7 +111,13 @@
 1. A Free-tier owner can open any quiz's statistics page and see total attempts, completion rate (%), and average score
 2. A Free-tier owner can see a table of individual results: taker name, score, and completion timestamp
 3. A Pro owner can see per-question accuracy (% of takers who answered correctly) for every question; a Free owner sees this section blurred with an upgrade CTA
-**Plans**: TBD
+**Plans**: 2 plans across 2 waves
+
+**Wave 1**
+- [ ] 04-01-PLAN.md — Migration 013 stats RPCs (get_quiz_stats, get_quiz_accuracy) + shared format/ProgressBar helpers
+
+**Wave 2**
+- [ ] 04-02-PLAN.md — quiz-stats feature slice: store, summary cards, results table, Pro-gated accuracy section, page/route, entry buttons
 **UI hint**: yes
 
 ### Phase 5: Billing
@@ -136,5 +142,5 @@
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
 | 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
 | 3. AI Wizard | 3/3 | Complete   | 2026-05-17 |
-| 4. Statistics | 0/? | Not started | - |
+| 4. Statistics | 0/2 | Planned | - |
 | 5. Billing | 0/? | Not started | - |
