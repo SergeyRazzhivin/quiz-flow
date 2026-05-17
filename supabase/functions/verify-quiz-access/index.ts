@@ -85,10 +85,18 @@ Deno.serve(async (req) => {
     // 6. Fetch quiz with questions + answer options (NO is_correct — use the public view)
     // D-19: no publication filter — access is independent of publication state
     // Pitfall 4: query answer_options_public view, not the answer_options table directly
+    // Order questions and their answer options by order_index so the taker sees
+    // the exact same order as the editor (which orders by order_index). Without an
+    // explicit ORDER BY, Postgres returns rows in arbitrary order.
+    // Nested ordering: referencedTable form for the questions array, dotted form
+    // for answer_options_public nested within each question. Kept consistent with
+    // start-quiz-session/index.ts.
     const { data: quiz, error: quizErr } = await supabase
       .from('quizzes')
       .select('*, questions(*, answer_options_public(*))')
       .eq('id', access.quiz_id)
+      .order('order_index', { referencedTable: 'questions', ascending: true })
+      .order('order_index', { referencedTable: 'questions.answer_options_public', ascending: true })
       .single()
 
     if (quizErr || !quiz) {
