@@ -1140,27 +1140,31 @@ npx supabase functions deploy verify-quiz-access                   # deploy to p
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`bcryptjs` vs alternative in Deno**
    - What we know: `bcryptjs` is pure JS and works in Deno npm compat; `bcrypt` needs native bindings (not supported)
    - What's unclear: Whether `npm:bcryptjs@2` has been tested against Supabase's specific Deno runtime version (Deno 1.x inside Supabase CLI v2.98.2)
    - Recommendation: Wave 1 task includes a verification step — write a stub EF that calls `bcrypt.hash('test', 10)` and confirm it returns a valid hash. Fallback: PBKDF2 via `crypto.subtle.deriveBits`.
+   - **RESOLVED:** Verified by the `_probe-bcrypt` Wave-1 task in plan 02-01 (blocking human checkpoint); if the probe fails the executor switches all password hashing to the documented `crypto.subtle` PBKDF2 fallback.
 
 2. **`SUPABASE_JWT_SECRET` availability on this project**
    - What we know: Supabase is migrating to asymmetric keys; legacy HS256 secret may not be set on new projects created after the migration
    - What's unclear: Whether this project (created during Phase 1 in 2026) has the legacy secret available
    - Recommendation: Use a project-specific `GUEST_JWT_SECRET` env var instead of `SUPABASE_JWT_SECRET`. Add it to `supabase/functions/.env` and Supabase Dashboard before any EF development begins.
+   - **RESOLVED:** Use a dedicated `GUEST_JWT_SECRET` env var; `_shared/jwt.ts` reads it exclusively and never touches `SUPABASE_JWT_SECRET` (plan 02-01).
 
 3. **`answer_options_public` view — SECURITY DEFINER status**
    - What we know: Migration 003 created `answer_options_public` as a plain view (no `SECURITY DEFINER`); `supabase functions` query via `service_role` client can read it
    - What's unclear: Whether `service_role` can JOIN through the view or must query the base table directly
    - Recommendation: In EFs that need `is_correct` (scoring), query `answer_options` base table directly (service_role sees all). In guest-facing EFs, query via `answer_options_public` as a safety net even though service_role could bypass it — defense in depth.
+   - **RESOLVED:** The scoring EF (`submit-quiz-answers`, plan 02-05) queries the `answer_options` base table directly via service_role; guest-facing EFs query the `answer_options_public` view.
 
 4. **Score display format for fractional scores (D-18)**
    - What we know: D-18 says "X.X из N"; D-17 says total = sum of per-question fractions (0…N)
    - What's unclear: Should "X.X" always show one decimal, or only when the score is fractional (e.g., show "8 из 10" not "8.0 из 10")? 
    - Recommendation: Claude's discretion — show `score % 1 === 0 ? score.toFixed(0) : score.toFixed(1)` for clean formatting.
+   - **RESOLVED:** Score is stored and handled as `numeric` per D-18; the result page renders `Number.isInteger(score) ? score : score.toFixed(1)` (plan 02-05).
 
 ---
 
