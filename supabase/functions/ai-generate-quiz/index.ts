@@ -1,0 +1,302 @@
+// supabase/functions/ai-generate-quiz/index.ts
+// Owner-authenticated Edge Function for AI quiz generation (AI-05).
+// verify_jwt = true (omitted from config.toml) — Supabase enforces the owner JWT;
+// the handler additionally re-verifies via supabase.auth.getUser because the
+// service_role client bypasses RLS (threat T-03-01).
+//
+// Core pattern: "fast ACK + background generation + poll" (AI-SPEC §4).
+//   1. Authenticate the owner.
+//   2. Read profiles.plan; enforce plan-aware file-size + question-count limits (D-06/D-07).
+//   3. Insert an ai_jobs row in status='pending'.
+//   4. EdgeRuntime.waitUntil(runGeneration(...)) — NEVER awaited.
+//   5. Return { jobId } at HTTP 202 in <200 ms.
+//
+// This EF imports the OWNER auth pattern from create-quiz-access — it does NOT use the
+// guest token helper, which is for anonymous quiz-takers only (RESEARCH Pitfall 1).
+
+import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
+import { corsHeaders } from '../_shared/cors.ts'
+import { GENERIC_500_MESSAGE, serializeError } from '../_shared/errors.ts'
+import { extractDocumentText } from '../_shared/extract-text.ts'
+import { generateQuiz } from '../_shared/openai.ts'
+import type { GeneratedQuiz } from '../_shared/quiz-schema.ts'
+
+const JSON_HEADERS = { ...corsHeaders, 'Content-Type': 'application/json' }
+
+// D-06 / D-07: plan-aware server-side limits (threats T-03-05 / T-03-06, constraint #4).
+const PLAN_LIMITS = {
+  free: { maxFileBytes: 1 * 1024 * 1024, maxQuestions: 10 },
+  pro: { maxFileBytes: 5 * 1024 * 1024, maxQuestions: 100 },
+} as const
+
+function json(body: unknown, status: number): Response {
+  return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS })
+}
+
+interface GenerationInput {
+  ownerId: string
+  title: string
+  source: string
+  clarifyingPrompt: string
+  count: number
+  difficulty: string
+  difficultyPrompt?: string
+}
+
+/**
+ * Persist a generated quiz into the standard quizzes/questions/answer_options tables.
+ * - quizzes.owner_id is set from the verified caller id, NEVER the request body (Pitfall 6).
+ * - order_index is re-indexed deterministically 0..n-1 — the model's order_index is not
+ *   trusted (Pitfall 5; mirrors useQuizEditorStore's forEach((x,i)=>x.order_index=i)).
+ * @returns the new quizzes.id
+ */
+async function persistQuiz(
+  supabase: SupabaseClient,
+  ownerId: string,
+  quiz: GeneratedQuiz,
+): Promise<string> {
+  const { data: quizRow, error: quizError } = await supabase
+    .from('quizzes')
+    .insert({
+      owner_id: ownerId, // Pitfall 6: ownership from the verified caller, never the body
+      title: quiz.title,
+      description: quiz.description,
+      time_limit_sec: quiz.time_limit_sec,
+      is_published: false,
+    })
+    .select('id')
+    .single()
+
+  if (quizError || !quizRow) throw quizError ?? new Error('quizzes insert failed')
+  const quizId = quizRow.id as string
+
+  // Pitfall 5: re-index questions deterministically before insert.
+  const questionRows = quiz.questions.map((q, i) => ({
+    quiz_id: quizId,
+    body: q.body,
+    type: q.type,
+    order_index: i,
+    is_required: q.is_required,
+  }))
+
+  const { data: insertedQuestions, error: questionError } = await supabase
+    .from('questions')
+    .insert(questionRows)
+    .select('id, order_index')
+
+  if (questionError || !insertedQuestions) {
+    throw questionError ?? new Error('questions insert failed')
+  }
+
+  // Map each inserted question back to its source by order_index, then re-index answers.
+  const questionIdByOrder = new Map<number, string>()
+  for (const row of insertedQuestions) {
+    questionIdByOrder.set(row.order_index as number, row.id as string)
+  }
+
+  const answerRows = quiz.questions.flatMap((q, qi) => {
+    const questionId = questionIdByOrder.get(qi)!
+    return q.answers.map((a, ai) => ({
+      question_id: questionId,
+      body: a.body,
+      is_correct: a.is_correct,
+      order_index: ai, // Pitfall 5: deterministic 0..n-1 per answer array
+    }))
+  })
+
+  const { error: answerError } = await supabase.from('answer_options').insert(answerRows)
+  if (answerError) throw answerError
+
+  return quizId
+}
+
+/**
+ * Background task — drives ai_jobs.stage for the D-10 progress UI and persists the result.
+ * On any thrown error: ai_jobs.status='failed', no quizzes row is created (D-03).
+ */
+async function runGeneration(
+  supabase: SupabaseClient,
+  jobId: string,
+  input: GenerationInput,
+): Promise<void> {
+  const startedAt = Date.now()
+  try {
+    await supabase
+      .from('ai_jobs')
+      .update({ stage: 'generating', updated_at: new Date().toISOString() })
+      .eq('id', jobId)
+
+    const result = await generateQuiz({
+      sourceText: input.source,
+      clarifyingPrompt: input.clarifyingPrompt,
+      count: input.count,
+      difficulty: input.difficulty,
+      difficultyPrompt: input.difficultyPrompt,
+    })
+
+    await supabase
+      .from('ai_jobs')
+      .update({ stage: 'saving', updated_at: new Date().toISOString() })
+      .eq('id', jobId)
+
+    const quizId = await persistQuiz(supabase, input.ownerId, result.quiz)
+
+    // AI-SPEC §7: record monitoring fields on the completed job.
+    await supabase
+      .from('ai_jobs')
+      .update({
+        status: 'completed',
+        stage: 'done',
+        quiz_id: quizId,
+        attempt_count: result.attempts,
+        finish_reason: result.finishReason,
+        prompt_tokens: result.promptTokens,
+        completion_tokens: result.completionTokens,
+        duration_ms: Date.now() - startedAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', jobId)
+  } catch (err) {
+    // D-11: both attempts failed (or persist failed). Record a generic error code so
+    // the client can show "Повторить"; no quizzes row exists on this path (D-03).
+    console.error(`ai_job ${jobId} failed:`, serializeError(err))
+    await supabase
+      .from('ai_jobs')
+      .update({
+        status: 'failed',
+        error: 'AI_GENERATION_FAILED',
+        failure_reason: serializeError(err).slice(0, 500),
+        duration_ms: Date.now() - startedAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', jobId)
+  }
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return json({ error: 'Missing authorization header' }, 401)
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    )
+
+    // Resolve the calling user from the Bearer token (threat T-03-01).
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    if (userError || !user) {
+      return json({ error: 'Unauthorized' }, 401)
+    }
+
+    const {
+      title,
+      sourceText,
+      fileBase64,
+      fileName,
+      clarifyingPrompt,
+      questionCount,
+      difficulty,
+      difficultyPrompt,
+    } = await req.json()
+
+    // ── Plan-aware server-side limits (D-06 / D-07, threats T-03-05 / T-03-06) ──
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      return json({ error: 'Profile not found' }, 404)
+    }
+
+    const plan: keyof typeof PLAN_LIMITS = profile.plan === 'pro' ? 'pro' : 'free'
+    const limits = PLAN_LIMITS[plan]
+
+    const count = Number(questionCount)
+    if (!Number.isInteger(count) || count < 1) {
+      return json({ error: 'questionCount must be a positive integer' }, 400)
+    }
+    // D-07: reject an over-plan question count server-side.
+    if (count > limits.maxQuestions) {
+      return json(
+        {
+          error: `QUESTION_COUNT_EXCEEDED: plan '${plan}' allows at most ${limits.maxQuestions} questions`,
+        },
+        400,
+      )
+    }
+
+    // ── Resolve the source text (extract a file server-side if one was uploaded) ──
+    let source: string
+    if (fileBase64) {
+      if (!fileName) {
+        return json({ error: 'fileName is required when fileBase64 is provided' }, 400)
+      }
+      try {
+        // extractDocumentText enforces the D-06 plan size limit before extraction.
+        const extracted = await extractDocumentText(
+          fileBase64,
+          fileName,
+          limits.maxFileBytes,
+        )
+        source = extracted.text
+      } catch (err) {
+        const message = serializeError(err)
+        // FILE_TOO_LARGE / UNSUPPORTED_FILE_TYPE are client-correctable → 400.
+        if (
+          message.startsWith('FILE_TOO_LARGE') ||
+          message.startsWith('UNSUPPORTED_FILE_TYPE')
+        ) {
+          return json({ error: message }, 400)
+        }
+        throw err
+      }
+    } else if (typeof sourceText === 'string' && sourceText.trim()) {
+      source = sourceText
+    } else {
+      return json({ error: 'Either sourceText or fileBase64 is required' }, 400)
+    }
+
+    // ── Insert the ai_jobs row — this is what the owner polls ──
+    const { data: job, error: jobError } = await supabase
+      .from('ai_jobs')
+      .insert({ owner_id: user.id, status: 'pending', stage: 'reading' })
+      .select('id')
+      .single()
+
+    if (jobError || !job) {
+      throw jobError ?? new Error('ai_jobs insert failed')
+    }
+
+    // ── Hand the slow work to a background task and RETURN IMMEDIATELY (<200 ms) ──
+    // Never await this promise (AI-SPEC §4b — awaiting blocks the 202 response).
+    EdgeRuntime.waitUntil(
+      runGeneration(supabase, job.id, {
+        ownerId: user.id,
+        title: typeof title === 'string' ? title : '',
+        source,
+        clarifyingPrompt: typeof clarifyingPrompt === 'string' ? clarifyingPrompt : '',
+        count,
+        difficulty: typeof difficulty === 'string' ? difficulty : 'средний',
+        difficultyPrompt:
+          typeof difficultyPrompt === 'string' ? difficultyPrompt : undefined,
+      }),
+    )
+
+    // 202 Accepted — the client now polls ai_jobs directly via owner-SELECT RLS.
+    return json({ jobId: job.id }, 202)
+  } catch (err) {
+    // Log the real detail server-side; return a generic message (threat T-03-08).
+    console.error('ai-generate-quiz error:', serializeError(err))
+    return json({ error: GENERIC_500_MESSAGE }, 500)
+  }
+})
