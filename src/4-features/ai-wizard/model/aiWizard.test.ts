@@ -142,6 +142,25 @@ describe('useAiWizardStore — generation + polling', () => {
     expect(s.generationStatus).toBe('failed')
   })
 
+  it('poll loop fails the wizard after the 90s deadline with no terminal status (WR-01)', async () => {
+    invokeGenerateQuizMock.mockResolvedValue({ jobId: 'job-1' })
+    // The job stays 'pending' forever — an orphaned ai_jobs row.
+    fetchAiJobMock.mockResolvedValue({ id: 'job-1', status: 'pending', stage: 'reading', error: null, quiz_id: null })
+    const s = useAiWizardStore()
+    s.form.title = 'T'
+    s.form.sourceText = 'материал'
+    await s.startGeneration()
+    // Before the deadline the wizard is still pending.
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(s.generationStatus).toBe('pending')
+    // Past the 90s hard cap the wizard transitions to failed and polling stops.
+    await vi.advanceTimersByTimeAsync(35_000)
+    expect(s.generationStatus).toBe('failed')
+    const calls = fetchAiJobMock.mock.calls.length
+    await vi.advanceTimersByTimeAsync(10_000)
+    expect(fetchAiJobMock.mock.calls.length).toBe(calls)
+  })
+
   it('cleanup stops the poll interval', async () => {
     invokeGenerateQuizMock.mockResolvedValue({ jobId: 'job-1' })
     fetchAiJobMock.mockResolvedValue({ id: 'job-1', status: 'pending', stage: 'reading', error: null, quiz_id: null })

@@ -21,6 +21,12 @@ const ACCEPTED_FILE_MIME = [
 ]
 
 const POLL_INTERVAL_MS = 2000
+// WR-01: hard client-side poll deadline. An ai_jobs row can be orphaned at
+// status='pending' if the Edge Function isolate is evicted mid-generation; the
+// poll loop would otherwise spin forever with no failure UI. After this cap with
+// no terminal status the wizard transitions to 'failed' so the user gets the
+// step-4 recovery actions.
+const POLL_DEADLINE_MS = 90_000
 
 type GenerationStatus = 'idle' | 'pending' | 'failed' | 'done'
 type SourceMode = 'text' | 'file'
@@ -136,7 +142,16 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
 
   function startPolling(id: string): void {
     stopPolling()
+    // WR-01: track when polling started so the loop can give up on an orphaned job.
+    const pollStartedAt = Date.now()
     pollTimer = setInterval(async () => {
+      // WR-01: a job stuck at 'pending' (evicted EF isolate) never reaches a
+      // terminal status — bail out past the hard deadline and fail the wizard.
+      if (Date.now() - pollStartedAt >= POLL_DEADLINE_MS) {
+        stopPolling()
+        generationStatus.value = 'failed'
+        return
+      }
       try {
         const job = await fetchAiJob(id)
         currentStage.value = job.stage
