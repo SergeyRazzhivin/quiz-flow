@@ -7,6 +7,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { verifyGuestToken } from '../_shared/jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { GENERIC_500_MESSAGE, serializeError } from '../_shared/errors.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -192,18 +193,9 @@ Deno.serve(async (req) => {
       { headers: corsHeaders },
     )
   } catch (err) {
-    // Serialize real error messages (never String(err) on plain objects — yields [object Object])
-    let message: string
-    if (err instanceof Error) {
-      message = err.message
-    } else if (err && typeof err === 'object') {
-      const e = err as { message?: unknown; code?: unknown }
-      const base = typeof e.message === 'string' ? e.message : JSON.stringify(err)
-      message = typeof e.code === 'string' ? `${e.code}: ${base}` : base
-    } else {
-      message = String(err)
-    }
-    return new Response(JSON.stringify({ error: message }), {
+    // WR-05: log the real detail server-side; return a generic message to the client.
+    console.error('start-quiz-session error:', serializeError(err))
+    return new Response(JSON.stringify({ error: GENERIC_500_MESSAGE }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

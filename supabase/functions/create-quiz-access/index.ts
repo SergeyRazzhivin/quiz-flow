@@ -10,6 +10,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import bcrypt from 'npm:bcryptjs@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { GENERIC_500_MESSAGE, serializeError } from '../_shared/errors.ts'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
@@ -115,7 +116,10 @@ Deno.serve(async (req) => {
       { headers: corsHeaders },
     )
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
+    // WR-05: log the real detail server-side; return a generic message to the client
+    // so internal details (table/constraint names, connection errors) never leak.
+    console.error('create-quiz-access error:', serializeError(err))
+    return new Response(JSON.stringify({ error: GENERIC_500_MESSAGE }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

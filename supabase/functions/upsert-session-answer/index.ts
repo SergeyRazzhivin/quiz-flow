@@ -6,6 +6,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { verifyGuestToken } from '../_shared/jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { GENERIC_500_MESSAGE, serializeError } from '../_shared/errors.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -92,20 +93,9 @@ Deno.serve(async (req) => {
 
     return Response.json({ ok: true }, { headers: corsHeaders })
   } catch (err) {
-    // Postgrest/Supabase errors are plain objects, not Error instances —
-    // String(err) would produce a useless "[object Object]". Surface the
-    // real message (and code, when present) instead.
-    let message: string
-    if (err instanceof Error) {
-      message = err.message
-    } else if (err && typeof err === 'object') {
-      const e = err as { message?: unknown; code?: unknown }
-      const base = typeof e.message === 'string' ? e.message : JSON.stringify(err)
-      message = typeof e.code === 'string' ? `${e.code}: ${base}` : base
-    } else {
-      message = String(err)
-    }
-    return new Response(JSON.stringify({ error: message }), {
+    // WR-05: log the real detail server-side; return a generic message to the client.
+    console.error('upsert-session-answer error:', serializeError(err))
+    return new Response(JSON.stringify({ error: GENERIC_500_MESSAGE }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

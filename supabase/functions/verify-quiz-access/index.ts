@@ -16,6 +16,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import bcrypt from 'npm:bcryptjs@2'
 import { signGuestToken } from '../_shared/jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { GENERIC_500_MESSAGE, serializeError } from '../_shared/errors.ts'
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -135,8 +136,11 @@ Deno.serve(async (req) => {
       { headers: corsHeaders },
     )
   } catch (err) {
+    // WR-05: log the real detail server-side; return a generic message to the
+    // unauthenticated guest so internal details (table/constraint names) never leak.
+    console.error('verify-quiz-access error:', serializeError(err))
     return new Response(
-      JSON.stringify({ error: String(err) }),
+      JSON.stringify({ error: GENERIC_500_MESSAGE }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }
