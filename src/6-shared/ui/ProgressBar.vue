@@ -1,8 +1,13 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
+import { computed } from 'vue'
+
+const props = withDefaults(defineProps<{
   value: number // 0–100 percent
   size?: 'sm' | 'md'
 }>(), { size: 'sm' })
+
+// WR-06: clamp to the 0–100 track so the fill never overflows or goes negative.
+const clampedValue = computed(() => Math.max(0, Math.min(100, props.value)))
 </script>
 
 <template>
@@ -10,7 +15,7 @@ withDefaults(defineProps<{
   <div :class="['w-full rounded-full bg-neutral-800', size === 'md' ? 'h-2' : 'h-1']">
     <div
       :class="['rounded-full bg-orange-500 transition-all duration-300', size === 'md' ? 'h-2' : 'h-1']"
-      :style="{ width: `${value}%` }"
+      :style="{ width: `${clampedValue}%` }"
     />
   </div>
 </template>
