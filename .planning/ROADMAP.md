@@ -68,7 +68,7 @@
 - [x] 02-01-PLAN.md — Migration 009 + Edge Function foundation: cors/jwt helpers, bcrypt probe, verify-quiz-access (TAKE-01–03)
 
 **Wave 2**
-- [ ] 02-02-PLAN.md — Owner access-link slice: create-quiz-access EF, quiz-share store/UI, editor modal (SHARE-01–03)
+- [x] 02-02-PLAN.md — Owner access-link slice: create-quiz-access EF, quiz-share store/UI, editor modal (SHARE-01–03)
 - [ ] 02-03-PLAN.md — Guest entry slice: /q/:token routes, intro + login, start-quiz-session, allow_retake toggle (TAKE-01–03, EXT-04)
 
 **Wave 3**
@@ -124,7 +124,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
-| 2. Quiz Taking & Sharing | 1/5 | In Progress|  |
+| 2. Quiz Taking & Sharing | 2/5 | In Progress|  |
 | 3. AI Wizard | 0/? | Not started | - |
 | 4. Statistics | 0/? | Not started | - |
 | 5. Billing | 0/? | Not started | - |

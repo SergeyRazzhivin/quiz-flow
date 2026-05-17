@@ -9,8 +9,8 @@ progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 5
-  percent: 20
+  completed_plans: 6
+  percent: 22
 ---
 
 # State: Quiz Flow
@@ -33,14 +33,14 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 02 (quiz-taking-sharing) — EXECUTING
-Plan: 2 of 5 — PAUSED at checkpoint:human-verify (gate: blocking)
+Plan: 3 of 5 — ready to execute
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
-**Phase 2 Plan 2:** PAUSED — owner access-link slice; awaiting human verify (deploy + browser test)
+**Phase 2 Plan 2:** COMPLETE — owner access-link slice (create-quiz-access EF, quiz-share store/UI, AccessLinksModal)
 
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
-Phase 2 [▓▓        ] 1/5 plans complete
+Phase 2 [▓▓▓▓      ] 2/5 plans complete
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
@@ -50,9 +50,9 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 5 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓)
+**Plans completed:** 6 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓)
 **Plans created:** 9 (Phase 1: 4, Phase 2: 5)
-**Requirements shipped:** 24 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–03, EXT-04)
+**Requirements shipped:** 27 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–03, SHARE-01–03, EXT-04)
 **Requirements planned:** 33 / 48 (Phase 1 + Phase 2)
 **Phases completed:** 1 / 5
 
@@ -74,6 +74,9 @@ Phase 5 [          ] 0%
 - bcryptjs VERIFIED in the Supabase Deno runtime (probe-bcrypt returned hashValid:true) — no PBKDF2 fallback needed for guest password hashing
 - Supabase Edge Function names cannot start with `_` — probe function renamed `_probe-bcrypt` → `probe-bcrypt`
 - Guest token signed with a dedicated `GUEST_JWT_SECRET` (not `SUPABASE_JWT_SECRET`), jose HS256, 1h TTL
+- Owner-authenticated Edge Functions stay out of `config.toml` so `verify_jwt` defaults to true; they still re-verify quiz ownership in-handler because the service_role client bypasses RLS
+- Access-link credentials (8-char login, 16-char password) auto-generated server-side via `crypto.getRandomValues`; plaintext password shown exactly once at creation, only a bcrypt cost-10 hash persists (D-14, D-15)
+- `quiz_access` table needed a `created_at` column (migration 010) — migration 004 omitted it, breaking the `created_at`-ordered link list
 
 ### Open Questions
 
@@ -96,8 +99,8 @@ None.
 
 **Last session:** 2026-05-17T12:00:00.000Z
 **Resume file:** None
-**Stopped at:** checkpoint:human-verify in plan 02-02 (Task 3)
-**Next action:** Deploy create-quiz-access Edge Function, verify modal end-to-end in browser, type "approved" to resume.
+**Stopped at:** Completed 02-02-PLAN.md
+**Next action:** Execute plan 02-03 (guest entry slice — /q/:token routes, intro + login, start-quiz-session, allow_retake toggle).
 
 ---
 

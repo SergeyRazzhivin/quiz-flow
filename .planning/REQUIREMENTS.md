@@ -51,9 +51,9 @@
 
 ### Quiz Sharing (Pro)
 
-- [ ] **SHARE-01**: Пользователь (Pro) может создать индивидуальную ссылку доступа с логином, паролем и именем тестируемого
-- [ ] **SHARE-02**: Пользователь (Pro) может установить срок действия ссылки
-- [ ] **SHARE-03**: Пользователь (Pro) может просматривать и удалять ссылки доступа
+- [x] **SHARE-01**: Пользователь (Pro) может создать индивидуальную ссылку доступа с логином, паролем и именем тестируемого
+- [x] **SHARE-02**: Пользователь (Pro) может установить срок действия ссылки
+- [x] **SHARE-03**: Пользователь (Pro) может просматривать и удалять ссылки доступа
 
 ### Quiz Taking (Guest)
 
@@ -152,9 +152,9 @@
 | TAKE-08 | Phase 2 | Pending |
 | TAKE-09 | Phase 2 | Pending |
 | TAKE-10 | Phase 2 | Pending |
-| SHARE-01 | Phase 2 | Pending |
-| SHARE-02 | Phase 2 | Pending |
-| SHARE-03 | Phase 2 | Pending |
+| SHARE-01 | Phase 2 | Complete |
+| SHARE-02 | Phase 2 | Complete |
+| SHARE-03 | Phase 2 | Complete |
 | AI-01 | Phase 3 | Pending |
 | AI-02 | Phase 3 | Pending |
 | AI-03 | Phase 3 | Pending |
