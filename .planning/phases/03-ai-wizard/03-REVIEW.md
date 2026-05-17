@@ -36,8 +36,8 @@ findings:
   total: 17
   critical_open: 0
   warning_open: 0
-  info_open: 6
-status: issues_found
+  info_open: 0
+status: resolved
 ---
 
 # Phase 3: Code Review Report
@@ -67,8 +67,7 @@ narrative.
 
 ## Resolution (2026-05-17)
 
-All 2 Critical and all 9 Warning findings have been fixed and committed. The 6 Info
-findings (IN-01..IN-06) remain open as tracked low-priority debt.
+All 17 findings (2 Critical, 9 Warning, 6 Info) have been fixed and committed.
 
 | Finding | Commit |
 |---------|--------|
@@ -82,8 +81,14 @@ findings (IN-01..IN-06) remain open as tracked low-priority debt.
 | WR-07 | `ca8b9f1` |
 | WR-08 | `50496c4` |
 | WR-09 | `6ad6f2f` |
+| IN-01 | `b465cd1` |
+| IN-02 | `5ec7249` |
+| IN-03 | `500c7ba` |
+| IN-04 | `cfccba9` |
+| IN-05 | `f1476f6` |
+| IN-06 | `30eb6ad` |
 
-Post-fix verification: `vitest` 90 passed, `vue-tsc` clean, `steiger` clean, `npm run build` clean.
+Post-fix verification: `vitest` 102 passed, `vue-tsc` clean, `steiger` clean, `npm run build` clean.
 Note: the Edge Function fixes (CR-01/CR-02/WR-04/WR-05/WR-06/WR-07) require
 `npx supabase functions deploy ai-generate-quiz` to take effect in production.
 
