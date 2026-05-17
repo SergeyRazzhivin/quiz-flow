@@ -2,23 +2,23 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
+current_phase: 03
 status: executing
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-05-17T17:06:15.732Z"
+stopped_at: Phase 3 Plan 01 complete — AI generation backend
+last_updated: "2026-05-17T17:09:45.192Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 12
-  completed_plans: 9
-  percent: 40
+  completed_plans: 10
+  percent: 43
 ---
 
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
-**Current Phase:** 3
-**Status:** Ready to execute
+**Current Phase:** 03
+**Status:** Executing Phase 03
 
 ---
 
@@ -27,14 +27,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 3 — ai wizard
+**Current focus:** Phase 03 — ai-wizard
 
 ---
 
 ## Current Position
 
-Phase: 02 (quiz-taking-sharing) — COMPLETE
-Plan: Not started
+Phase: 03 (ai-wizard) — EXECUTING
+Plan: 2 of 3
+**Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
 **Phase:** 2 — Quiz Taking & Sharing — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
@@ -46,7 +47,7 @@ Plan: Not started
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
-Phase 3 [          ] 0%
+Phase 3 [▓▓▓       ] 33% (1/3 plans)
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
 ```
@@ -55,10 +56,10 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 9 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓)
-**Plans created:** 9 (Phase 1: 4, Phase 2: 5)
-**Requirements shipped:** 34 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04)
-**Requirements planned:** 34 / 48 (Phase 1 + Phase 2)
+**Plans completed:** 10 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓)
+**Plans created:** 12 (Phase 1: 4, Phase 2: 5, Phase 3: 3)
+**Requirements shipped:** 35 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-05)
+**Requirements planned:** 41 / 48 (Phase 1 + Phase 2 + Phase 3)
 **Phases completed:** 2 / 5
 
 ---
@@ -92,10 +93,18 @@ Phase 5 [          ] 0%
 - D-02 SUPERSEDED (02-05): the product owner removed the intro/"Начать" preview screen; the quiz now starts immediately after a successful login (verifyAccess chains into startSession; the 'intro' session state was deleted). D-01 still holds
 - start-quiz-session accepts a newAttempt flag and server-enforces allow_retake, creating a fresh quiz_sessions row for retakes (idempotent submit otherwise returned the stale score)
 - Result page rehydrates guestToken/sessionId from sessionStorage on a cold direct-URL load before invoking get-quiz-result
+- AI wizard collapses to ONE new Edge Function: `ai-job-status` is NOT created — the client polls `ai_jobs` directly via owner-SELECT RLS (RESEARCH Assumption A2 / Pattern 2); deliberate deviation from AI-SPEC §3
+- ai-generate-quiz uses the fast-ACK pattern: auth → plan limits → insert ai_jobs(pending) → EdgeRuntime.waitUntil(runGeneration) → 202 {jobId} in <200 ms; OpenAI call + persist run in the background, never awaited
+- D-03: the quizzes row is created only after a successful generation — a failed job (after the D-11 single retry) sets ai_jobs.status='failed' and creates no quizzes row
+- Plan-aware limits enforced server-side in ai-generate-quiz: file size (D-06 Free 1 MB / Pro 5 MB) and question count (D-07 Free ≤10 / Pro ≤100), HTTP 400 on overage (threats T-03-05 / T-03-06)
+- OpenAI pinned to v4 SDK (openai@4.104.0) — AI-SPEC §4b code is v4-only; hand-written QUIZ_JSON_SCHEMA strict + Zod QuizSchema.parse re-validation gate before any DB insert (no openai/helpers/zod)
+- PDF/DOCX text extraction runs inside the Edge Function: unpdf (serverless pdf.js, Deno-safe) for PDF, unzipit for DOCX (read word/document.xml, strip tags); recovered text capped at 12000 chars
+- ai_jobs writes are service_role-only — owner-only SELECT RLS, no anon policy, no authenticated INSERT/UPDATE policy (threat T-03-02)
 
 ### Open Questions
 
-- File parsing strategy for AI wizard (PDF/DOCX in Deno Edge Function) — LOW confidence, decision required before Phase 3 planning
+- File parsing strategy for AI wizard RESOLVED (03-01): unpdf for PDF, unzipit for DOCX — both run inside the Edge Function
+- EF request-body limit for a Pro 5 MB base64 file (~6.7 MB encoded) — deferred to phase verification / human UAT; base64-in-JSON is the chosen transport, Storage-upload remains the documented contingency if a live test shows a 413 (RESEARCH Open Question 2 / Assumption A3)
 - shuffle_answers RESOLVED: added to quizzes.settings JSONB default in migration 002
 - Supabase Storage RLS for cover images RESOLVED: covers/{owner_id}/{quiz_id}/{uuid}.{ext} path in migration 007 comment
 
@@ -112,10 +121,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17T16:33:45.920Z
-**Resume file:** .planning/phases/03-ai-wizard/03-UI-SPEC.md
-**Stopped at:** Phase 3 UI-SPEC approved
-**Next action:** Run /gsd:verify-work 2, then /gsd:plan-phase 3 (AI Wizard)
+**Last session:** 2026-05-17T17:09:45.192Z
+**Resume file:** .planning/phases/03-ai-wizard/03-01-SUMMARY.md
+**Stopped at:** Phase 3 Plan 01 complete — AI generation backend
+**Next action:** Execute Phase 3 Plan 02
 
 ---
 
