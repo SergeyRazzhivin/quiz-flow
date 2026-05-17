@@ -11,6 +11,7 @@ import { useAuthStore } from '@features/auth/model/useAuthStore'
 // --- Domain types -----------------------------------------------------------
 
 export interface PerPersonRow {
+  quiz_access_id: string
   name: string | null
   score: number | null
   finished_at: string
@@ -48,11 +49,14 @@ export const useQuizStatsStore = defineStore('quiz-stats', () => {
       isPro.value = false
       return
     }
-    const { data } = await supabase
+    const { data, error: subError } = await supabase
       .from('subscriptions')
       .select('plan, status')
       .eq('user_id', authStore.user.id)
       .maybeSingle()
+    // WR-04: a failed query (network/RLS) must NOT silently downgrade a Pro
+    // owner to Free — surface it to the outer catch instead of swallowing.
+    if (subError) throw subError
     // Pitfall 5: optional chaining handles null row without error
     isPro.value = data?.plan === 'pro' && data?.status === 'active'
   }
@@ -72,7 +76,10 @@ export const useQuizStatsStore = defineStore('quiz-stats', () => {
         p_quiz_id: quizId,
       })
       if (statsError) throw statsError
-      stats.value = statsData as QuizStats
+      // CR-02: defend against a SQL NULL perPerson (older payloads) so the
+      // PerPersonRow[] contract always holds for consumers.
+      const parsedStats = statsData as QuizStats
+      stats.value = { ...parsedStats, perPerson: parsedStats.perPerson ?? [] }
 
       // D-06: accuracy fetched only for Pro owners
       if (isPro.value) {
@@ -81,11 +88,14 @@ export const useQuizStatsStore = defineStore('quiz-stats', () => {
           p_quiz_id: quizId,
         })
         if (accError) throw accError
-        accuracy.value = accData as AccuracyRow[]
+        // CR-02: coalesce a SQL NULL accuracy payload to an empty array.
+        accuracy.value = (accData as AccuracyRow[] | null) ?? []
       } else {
         accuracy.value = null
       }
-    } catch {
+    } catch (e) {
+      // WR-05: keep the real error for diagnosability instead of discarding it.
+      console.error('loadStats failed', e)
       error.value = 'Не удалось загрузить статистику. Проверьте подключение и попробуйте обновить страницу.'
       toast.error('Не удалось загрузить статистику. Проверьте подключение и попробуйте обновить страницу.')
     } finally {
