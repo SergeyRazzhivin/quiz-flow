@@ -134,13 +134,41 @@ Deno.serve(async (req) => {
       })
     }
 
+    // WR-02: the finished_at IS NULL read above and this UPDATE form a TOCTOU
+    // window — two concurrent submits (timer-expiry + manual stop across tabs)
+    // could both pass the read and both score+write. Make the UPDATE conditional
+    // with .is('finished_at', null) so only the first writer wins; a zero-row
+    // result means we lost the race and must re-read the stored score.
     // score column is numeric (migration 009) — fractional values are stored faithfully.
-    const { error: updateError } = await supabase
+    const { data: updated, error: updateError } = await supabase
       .from('quiz_sessions')
       .update({ finished_at: new Date().toISOString(), score: totalScore })
       .eq('id', sessionId)
+      .is('finished_at', null)
+      .select('score')
 
     if (updateError) throw updateError
+
+    if (!updated || updated.length === 0) {
+      // Lost the race — another request finalized the session first. Re-read the
+      // stored score so this caller still gets a consistent, idempotent result.
+      const { data: finalSession, error: rereadError } = await supabase
+        .from('quiz_sessions')
+        .select('score')
+        .eq('id', sessionId)
+        .single()
+
+      if (rereadError) throw rereadError
+
+      const storedScore = finalSession?.score ?? 0
+      const racePercentage =
+        totalQuestions > 0 ? Math.round((storedScore / totalQuestions) * 100) : 0
+
+      return Response.json(
+        { score: storedScore, totalQuestions, percentage: racePercentage },
+        { headers: corsHeaders },
+      )
+    }
 
     const percentage = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0
 
