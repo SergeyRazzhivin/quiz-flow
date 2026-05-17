@@ -22,7 +22,7 @@ const router = useRouter()
   <div
     class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition duration-150 hover:border-orange-500/50 hover:shadow-[0_0_18px_-2px_rgba(249,115,22,0.25)]"
   >
-    <div class="relative aspect-video shrink-0 bg-neutral-800">
+    <div class="relative h-40 shrink-0 bg-neutral-800">
       <img
         v-if="quiz.cover_url"
         :src="quiz.cover_url"
@@ -56,7 +56,7 @@ const router = useRouter()
       </p>
       <p
         v-if="quiz.time_limit_sec"
-        class="mt-1 text-xs text-neutral-500"
+        class="mt-1 mb-2 text-xs text-neutral-500"
       >
         {{ formatDuration(quiz.time_limit_sec) }}
       </p>
