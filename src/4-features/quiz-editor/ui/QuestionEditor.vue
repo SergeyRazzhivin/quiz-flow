@@ -115,7 +115,7 @@ defineExpose({ focus })
       v-model="localBody"
       rows="2"
       placeholder="Введите текст вопроса..."
-      class="mt-3 min-h-[80px] w-full resize-none rounded-2xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-base text-neutral-50 placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+      class="mt-3 min-h-[80px] w-full resize-none rounded-2xl border border-neutral-800 bg-[#101010] px-3 py-2 text-base text-neutral-50 placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
       @input="autoResize"
       @blur="saveBody"
     />

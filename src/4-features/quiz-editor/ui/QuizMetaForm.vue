@@ -34,7 +34,7 @@ function onTimeLimitInput(e: Event) {
       v-model="store.description"
       rows="5"
       placeholder="Описание теста (необязательно)"
-      class="mt-2 w-full resize-none rounded-2xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm shadow-sm placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+      class="mt-2 w-full resize-none rounded-2xl border border-neutral-800 bg-[#101010] px-3 py-2 text-sm shadow-sm placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
     />
 
     <div class="mt-2 flex items-center gap-2">
