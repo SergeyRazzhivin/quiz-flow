@@ -114,7 +114,7 @@
 **Plans**: 2 plans across 2 waves
 
 **Wave 1**
-- [ ] 04-01-PLAN.md — Migration 013 stats RPCs (get_quiz_stats, get_quiz_accuracy) + shared format/ProgressBar helpers
+- [x] 04-01-PLAN.md — Migration 013 stats RPCs (get_quiz_stats, get_quiz_accuracy) + shared format/ProgressBar helpers
 
 **Wave 2**
 - [ ] 04-02-PLAN.md — quiz-stats feature slice: store, summary cards, results table, Pro-gated accuracy section, page/route, entry buttons
@@ -142,5 +142,5 @@
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
 | 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
 | 3. AI Wizard | 3/3 | Complete   | 2026-05-17 |
-| 4. Statistics | 0/2 | Planned | - |
+| 4. Statistics | 1/2 | In Progress|  |
 | 5. Billing | 0/? | Not started | - |
