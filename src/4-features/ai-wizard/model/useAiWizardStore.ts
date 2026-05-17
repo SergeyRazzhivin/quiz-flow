@@ -44,6 +44,10 @@ const CORRECTABLE_FAILURE_MESSAGES: Record<string, string> = {
     'Файл слишком большой для вашего тарифа. Загрузите файл меньшего размера на шаге 2.',
   UNSUPPORTED_FILE_TYPE:
     'Неподдерживаемый тип файла. Загрузите документ PDF или DOCX на шаге 2.',
+  // IN-05: the uploaded file had no extractable text (a scanned/image-only PDF
+  // or an empty document). The user can re-upload a text-based file on step 2.
+  EMPTY_DOCUMENT:
+    'Не удалось извлечь текст из файла. Загрузите документ с текстом (не скан) на шаге 2.',
 }
 
 /** Resolve a known EF error code to its correctable Russian message, if any. */
@@ -87,6 +91,16 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
   const planMaxQuestions = computed(() => PLAN_MAX_QUESTIONS[plan.value])
   const planMaxFileBytes = computed(() => PLAN_MAX_FILE_BYTES[plan.value])
 
+  // IN-01: `loadPlan()` runs un-awaited at store construction; until it
+  // resolves `plan` is still 'free'. A Pro user would briefly see Free caps
+  // (10 questions / 1 MB) on steps 2-3, and a fast Pro-sized input could be
+  // rejected by `isStepValid` before the real plan is known. `planLoaded`
+  // gates the upper-bound checks: while the plan read is in flight the wizard
+  // does not hard-reject on a limit. The EF re-validates regardless
+  // (constraint #4), so this only removes the UX flicker — it never widens
+  // what is actually allowed.
+  const planLoaded = ref(false)
+
   // WR-09: self-scheduling poll handle. A setInterval with an async callback
   // could fire a second fetchAiJob before the first resolved (overlapping
   // requests on a slow connection) and a stale late-resolving poll could
@@ -114,6 +128,11 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
       if (data.plan === 'pro' || data.plan === 'free') plan.value = data.plan
     } catch {
       // Non-fatal — the free-tier defaults stay; the EF still enforces limits.
+    } finally {
+      // IN-01: mark the plan read settled (success OR failure) so the limit
+      // checks below stop deferring. On failure the free-tier defaults apply,
+      // which is the correct conservative fallback.
+      planLoaded.value = true
     }
   }
   void loadPlan()
@@ -122,7 +141,12 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
   const isFileValid = computed(() => {
     const f = form.file
     if (!f) return false
-    return f.size <= planMaxFileBytes.value && ACCEPTED_FILE_MIME.includes(f.type)
+    if (!ACCEPTED_FILE_MIME.includes(f.type)) return false
+    // IN-01: defer the plan-aware size cap until the plan read has settled, so
+    // a Pro user is not briefly blocked by the Free 1 MB default. The EF
+    // re-checks the size regardless (constraint #4).
+    if (!planLoaded.value) return true
+    return f.size <= planMaxFileBytes.value
   })
 
   // Per-step "Далее" gate (standard wizard behaviour).
@@ -134,7 +158,12 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
         if (form.sourceMode === 'text') return form.sourceText.trim().length > 0
         return isFileValid.value
       case 3:
-        return form.questionCount >= 1 && form.questionCount <= planMaxQuestions.value
+        if (form.questionCount < 1) return false
+        // IN-01: defer the plan-aware upper cap until the plan read has
+        // settled — a Pro user must not be briefly blocked by the Free max of
+        // 10. The EF re-validates the count regardless (constraint #4).
+        if (!planLoaded.value) return true
+        return form.questionCount <= planMaxQuestions.value
       default:
         return true // step 4 has no gate
     }
@@ -307,6 +336,7 @@ export const useAiWizardStore = defineStore('ai-wizard', () => {
     failureCode,
     failureMessage,
     plan,
+    planLoaded,
     planMaxQuestions,
     planMaxFileBytes,
     isFileValid,

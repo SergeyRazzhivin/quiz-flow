@@ -95,14 +95,31 @@ describe('useAiWizardStore — step state machine', () => {
     expect(s.isStepValid).toBe(true)
   })
 
-  it('step 3 is invalid when questionCount is out of plan range', () => {
+  it('step 3 is invalid when questionCount is out of plan range', async () => {
     const s = useAiWizardStore()
+    // IN-01: the plan-aware upper cap is only enforced once the plan read has
+    // settled — wait for loadPlan() before asserting the over-plan rejection.
+    await flush()
     s.step = 3
     s.form.questionCount = 0
     expect(s.isStepValid).toBe(false)
     s.form.questionCount = 5
     expect(s.isStepValid).toBe(true)
     s.form.questionCount = 999
+    expect(s.isStepValid).toBe(false)
+  })
+
+  it('IN-01: defers the over-plan rejection until the plan read settles', async () => {
+    const s = useAiWizardStore()
+    s.step = 3
+    // Before loadPlan() resolves, planLoaded is false — a Pro-sized count is
+    // not hard-rejected (the EF re-validates regardless).
+    expect(s.planLoaded).toBe(false)
+    s.form.questionCount = 50
+    expect(s.isStepValid).toBe(true)
+    // Once the free-plan read settles the Free cap of 10 applies.
+    await flush()
+    expect(s.planLoaded).toBe(true)
     expect(s.isStepValid).toBe(false)
   })
 })
