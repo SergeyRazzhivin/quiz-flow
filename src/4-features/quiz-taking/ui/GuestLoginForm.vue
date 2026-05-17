@@ -16,7 +16,8 @@ async function onStart() {
   isSubmitting.value = true
   try {
     await store.verifyAccess(login.value, password.value)
-    // On success: store sets sessionStatus='intro'; fields remain populated (not cleared)
+    // On success: verifyAccess starts the session and the store goes straight to
+    // sessionStatus='active' — the quiz begins immediately (supersedes D-02).
   } catch {
     // Wrong credentials — show toast, do NOT clear fields (UI-SPEC section 1)
     toast.error('Неверный логин или пароль.')

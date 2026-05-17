@@ -15,13 +15,14 @@ import type { Question } from '@entities/question/model'
 import type { SessionResult } from '@entities/quiz-session/model'
 
 // Session state machine states:
-//   idle       — no credentials yet; shows login form
-//   intro      — credentials verified; shows "Начать" button (D-01/D-02)
-//   active     — session started; taking questions
+//   idle       — no credentials yet; shows the intro card + login form (D-01)
+//   active     — session started; taking questions. Entered directly on a
+//                successful login — there is no intermediate "Начать" screen
+//                (supersedes D-02; product-owner override 2026-05-17).
 //   finished   — submitted; redirects to result page
 //   not_ready  — quiz has zero questions (D-19)
 //   invalid    — expired/invalid link or token
-type SessionStatus = 'idle' | 'intro' | 'active' | 'finished' | 'not_ready' | 'invalid'
+type SessionStatus = 'idle' | 'active' | 'finished' | 'not_ready' | 'invalid'
 
 export const useQuizTakingStore = defineStore('quiz-taking', () => {
   const router = useRouter()
@@ -224,7 +225,8 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
    *   - 'active'  (in-progress, not expired):  restore answers → resume timer → 'active'
    *   - 'active'  (in-progress, but expired):  restore answers → call finishSession() (D-08)
    *   - 'finished' + allow_retake === false:    loadResult → route to result page
-   *   - 'finished' + allow_retake === true:     clear sessionId + answers → 'intro'
+   *   - 'finished' + allow_retake === true:     clear sessionId + answers → start a
+   *                                             fresh session immediately → 'active'
    *   - 'new'     (no prior session):           start fresh → 'active'
    *
    * Populates answers BEFORE setting sessionStatus = 'active' (D-04 — see PLAN note).
@@ -282,15 +284,18 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
             await router.push(`/q/${t}/result`)
           }
         } else {
-          // D-04: finished + allow_retake → offer a fresh attempt.
-          // Clear the stored sessionId and answers so "Начать" creates a new quiz_session.
+          // D-04: finished + allow_retake → give the guest a fresh attempt.
+          // Clear the stale sessionId/answers/index, then start a brand-new
+          // quiz_session immediately — no intro screen (supersedes D-02).
+          // guestToken.value is already set above, so startSession()'s guard passes.
           sessionId.value = null
           answers.value = {}
+          currentQuestionIndex.value = 0
           sessionStorage.setItem(
             storageKey(t),
             JSON.stringify({ guestToken: storedGuestToken, sessionId: null, currentQuestionIndex: 0 }),
           )
-          sessionStatus.value = 'intro'
+          await startSession()
         }
         return
       }
@@ -342,9 +347,15 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
 
   /**
    * verifyAccess(login, password) — called by GuestLoginForm on submit.
-   * On success: stores guestToken + quiz + questions, sets sessionStatus = 'intro' (D-01).
+   * On success: stores guestToken + quiz + questions, then immediately starts the
+   * session — the quiz goes straight to 'active', with no intermediate "Начать"
+   * screen (supersedes D-02; product-owner override 2026-05-17).
    * On not_ready: sets sessionStatus = 'not_ready' (D-19).
    * On 401/410: rethrows so GuestLoginForm can show the toast; does NOT change sessionStatus.
+   *
+   * isLoading stays true across both invokeVerifyAccess and startSession (startSession
+   * is awaited inside this try block, before the finally clears isLoading) so the login
+   * button keeps its loading state until the question-taking screen is shown.
    */
   async function verifyAccess(login: string, password: string): Promise<void> {
     if (!token.value) return
@@ -368,7 +379,10 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         // both are still null/0 pre-start, which is the correct initial state).
         persistSession()
 
-        sessionStatus.value = 'intro'
+        // Start the session immediately — guestToken.value is set just above so
+        // startSession()'s guard passes. startSession() creates the server-anchored
+        // session, sets sessionStatus = 'active', and starts the timer.
+        await startSession()
       }
     } catch (err) {
       // Rethrow 401/410 errors — GuestLoginForm shows the toast (preserves field values)
@@ -379,8 +393,9 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   }
 
   /**
-   * startSession() — called by the "Начать" button (D-02).
-   * Creates the server-anchored session; timer start anchor is set here.
+   * startSession() — called from verifyAccess (fresh login) and init (D-04
+   * allow_retake fresh attempt / 'new' session). Creates the server-anchored
+   * session; the timer start anchor is set here. Sets sessionStatus = 'active'.
    * Guarded by isStarting against double-invocation (T-02-13).
    */
   async function startSession(): Promise<void> {

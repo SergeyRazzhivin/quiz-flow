@@ -38,7 +38,12 @@ vi.mock('vue-router', async () => {
 
 // ── Imports ───────────────────────────────────────────────────────────────────
 import { useQuizTakingStore } from './useQuizTakingStore'
-import { invokeSubmitAnswers, invokeGetResult } from '@entities/quiz-session/api'
+import {
+  invokeSubmitAnswers,
+  invokeGetResult,
+  invokeVerifyAccess,
+  invokeStartSession,
+} from '@entities/quiz-session/api'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function makeQuiz(overrides: Record<string, unknown> = {}) {
@@ -128,6 +133,75 @@ describe('useQuizTakingStore — 02-05 finishSession and loadResult', () => {
 
       expect(toast.error).toHaveBeenCalled()
       expect(mockRouterPush).not.toHaveBeenCalled()
+    })
+  })
+
+  // ── verifyAccess ──────────────────────────────────────────────────────────
+  // Supersedes D-02: a successful login now starts the session immediately and
+  // the store goes straight to 'active' — there is no intermediate 'intro' state.
+  describe('verifyAccess', () => {
+    beforeEach(() => {
+      sessionStorage.clear()
+    })
+
+    it('on a ready response starts the session immediately and goes to active', async () => {
+      const mockVerify = vi.mocked(invokeVerifyAccess)
+      mockVerify.mockResolvedValue({
+        state: 'ready',
+        guestToken: 'guest-tok',
+        quiz: makeQuiz() as Record<string, unknown>,
+        questions: [{ id: 'q1' }],
+      })
+
+      const mockStart = vi.mocked(invokeStartSession)
+      mockStart.mockResolvedValue({
+        sessionId: 'sess-1',
+        started_at: new Date().toISOString(),
+        resumed: false,
+        sessionState: 'new',
+        answers: [],
+        quiz: makeQuiz() as Record<string, unknown>,
+        questions: [{ id: 'q1' }],
+      })
+
+      const store = useQuizTakingStore()
+      store.token = 'abc'
+
+      await store.verifyAccess('login', 'password')
+
+      expect(mockVerify).toHaveBeenCalledWith('abc', 'login', 'password')
+      // verifyAccess must drive the session start itself (no 'intro' screen).
+      expect(mockStart).toHaveBeenCalledWith('guest-tok')
+      expect(store.sessionStatus).toBe('active')
+      expect(store.sessionId).toBe('sess-1')
+      expect(store.isLoading).toBe(false)
+    })
+
+    it('on a not_ready response sets sessionStatus=not_ready and does not start a session', async () => {
+      const mockVerify = vi.mocked(invokeVerifyAccess)
+      mockVerify.mockResolvedValue({ state: 'not_ready' })
+
+      const mockStart = vi.mocked(invokeStartSession)
+
+      const store = useQuizTakingStore()
+      store.token = 'abc'
+
+      await store.verifyAccess('login', 'password')
+
+      expect(store.sessionStatus).toBe('not_ready')
+      expect(mockStart).not.toHaveBeenCalled()
+    })
+
+    it('rethrows on a 401/410 error and leaves sessionStatus unchanged', async () => {
+      const mockVerify = vi.mocked(invokeVerifyAccess)
+      mockVerify.mockRejectedValue(new Error('401'))
+
+      const store = useQuizTakingStore()
+      store.token = 'abc'
+
+      await expect(store.verifyAccess('login', 'wrong')).rejects.toThrow()
+      expect(store.sessionStatus).toBe('idle')
+      expect(store.isLoading).toBe(false)
     })
   })
 

@@ -60,10 +60,8 @@ const showTimerExpiredNotice = computed<boolean>(
 </script>
 
 <template>
-  <!-- idle/intro → intro+login on one screen (D-01) -->
-  <QuizIntroScreen
-    v-if="store.sessionStatus === 'idle' || store.sessionStatus === 'intro'"
-  />
+  <!-- idle → intro card + login form on one screen (D-01) -->
+  <QuizIntroScreen v-if="store.sessionStatus === 'idle'" />
 
   <!-- not_ready → quiz has zero questions (D-19) -->
   <GracefulState

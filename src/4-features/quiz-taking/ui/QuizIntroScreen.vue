@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Loader2 } from 'lucide-vue-next'
-import Button from '@shared/ui/Button.vue'
 import { formatDuration } from '@shared/lib/format'
 import { useQuizTakingStore } from '@features/quiz-taking/model/useQuizTakingStore'
 import GuestLoginForm from './GuestLoginForm.vue'
@@ -56,20 +54,9 @@ const metaText = computed(() => {
       <!-- 5. Divider -->
       <div class="mb-6 mt-4 border-t border-neutral-800" />
 
-      <!-- 6a. Login form when sessionStatus === 'idle' (D-01 — intro + login on one screen) -->
-      <GuestLoginForm v-if="store.sessionStatus === 'idle'" />
-
-      <!-- 6b. "Начать" button when sessionStatus === 'intro' (D-02 — explicit session start) -->
-      <Button
-        v-else-if="store.sessionStatus === 'intro'"
-        variant="default"
-        class="w-full"
-        :disabled="store.isStarting"
-        @click="store.startSession()"
-      >
-        <Loader2 v-if="store.isStarting" class="mr-2 h-4 w-4 animate-spin" />
-        Начать
-      </Button>
+      <!-- 6. Login form — the quiz starts immediately on a successful login (D-01;
+           supersedes D-02 — no intermediate "Начать" screen). -->
+      <GuestLoginForm />
 
     </div>
   </div>
