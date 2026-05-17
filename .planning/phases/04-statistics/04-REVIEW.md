@@ -21,7 +21,21 @@ findings:
   warning: 6
   info: 4
   total: 12
-status: issues_found
+status: fixes_applied
+resolved:
+  - CR-01
+  - CR-02
+  - WR-01
+  - WR-02
+  - WR-03
+  - WR-04
+  - WR-05
+  - WR-06
+unresolved:
+  - IN-01
+  - IN-02
+  - IN-03
+  - IN-04
 ---
 
 # Phase 4: Code Review Report
