@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: QuizSettings = {
   show_stop_button: true,
   shuffle_questions: false,
   shuffle_answers: false,
+  allow_retake: false,
 }
 
 const SAVE_ERROR = 'Ошибка сохранения. Проверьте соединение и попробуйте снова.'

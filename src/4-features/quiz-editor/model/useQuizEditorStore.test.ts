@@ -36,6 +36,7 @@ function makeQuiz(overrides: Partial<Quiz> = {}): Quiz {
       show_stop_button: true,
       shuffle_questions: false,
       shuffle_answers: false,
+      allow_retake: false,
     },
     created_at: '2026-05-17T00:00:00Z',
     updated_at: '2026-05-17T00:00:00Z',
