@@ -9,7 +9,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation, Auth & Quiz Editor** — Owner can register, log in, create and fully edit a quiz with DnD question ordering
-- [ ] **Phase 2: Quiz Taking & Sharing** — Guest can open a quiz by token link, authenticate, take it with a live timer, and see their score; owner can generate and manage per-person access links
+- [x] **Phase 2: Quiz Taking & Sharing** — Guest can open a quiz by token link, authenticate, take it with a live timer, and see their score; owner can generate and manage per-person access links (completed 2026-05-17)
 - [ ] **Phase 3: AI Wizard** — Owner can generate a complete quiz from uploaded text in 4 steps via an async Edge Function + OpenAI pipeline
 - [ ] **Phase 4: Statistics** — Owner can view attempt totals and per-person results (Free) and per-question accuracy (Pro)
 - [ ] **Phase 5: Billing** — Owner can subscribe to Pro via YooKassa; freemium limits are enforced at DB/Edge Function level
@@ -75,7 +75,7 @@
 - [x] 02-04-PLAN.md — Quiz-taking slice: answering, immediate upsert, server-anchored timer, navigation (TAKE-04–07, TAKE-09–10)
 
 **Wave 4**
-- [ ] 02-05-PLAN.md — Submit + scoring + result slice: partial-credit scoring, result page, D-04 re-entry (TAKE-06, TAKE-08, TAKE-10, EXT-04)
+- [x] 02-05-PLAN.md — Submit + scoring + result slice: partial-credit scoring, result page, D-04 re-entry (TAKE-06, TAKE-08, TAKE-10, EXT-04)
 
 **UI hint**: yes
 
@@ -124,7 +124,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
-| 2. Quiz Taking & Sharing | 4/5 | In Progress|  |
+| 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
 | 3. AI Wizard | 0/? | Not started | - |
 | 4. Statistics | 0/? | Not started | - |
 | 5. Billing | 0/? | Not started | - |

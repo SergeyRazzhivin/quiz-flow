@@ -3,21 +3,21 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 02
-status: executing
-last_updated: "2026-05-17T18:00:00.000Z"
+status: phase-complete
+last_updated: "2026-05-17T21:00:00.000Z"
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 8
-  percent: 36
+  completed_plans: 9
+  percent: 40
 ---
 
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
 **Current Phase:** 02
-**Status:** Executing Phase 02
+**Status:** Phase 02 complete — ready to plan Phase 03
 
 ---
 
@@ -32,18 +32,19 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 
 ## Current Position
 
-Phase: 02 (quiz-taking-sharing) — EXECUTING
-Plan: 5 of 5 — PAUSED AT CHECKPOINT (human-verify)
+Phase: 02 (quiz-taking-sharing) — COMPLETE
+Plan: 5 of 5 — COMPLETE
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
+**Phase:** 2 — Quiz Taking & Sharing — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
 **Phase 2 Plan 2:** COMPLETE — owner access-link slice (create-quiz-access EF, quiz-share store/UI, AccessLinksModal)
 **Phase 2 Plan 3:** COMPLETE — guest entry slice (start-quiz-session EF, quiz-session entity, useQuizTakingStore, guest UI, allow_retake toggle, get-quiz-meta EF)
 **Phase 2 Plan 4:** COMPLETE — active quiz-taking slice (upsert-session-answer EF, timer/answer/navigation store actions, ProgressBar/TimerDisplay, QuestionTaker/NavigationControls/StopConfirmDialog, QuizTakingHeader, migration 011)
-**Phase 2 Plan 5:** PAUSED — submit + scoring + result slice; all code committed; awaiting deploy of submit-quiz-answers + get-quiz-result EFs and human verification
+**Phase 2 Plan 5:** COMPLETE — submit + scoring + result slice (_shared/scoring.ts D-17 partial credit, submit-quiz-answers + get-quiz-result EFs, finishSession/loadResult, D-04 re-entry machine, TimerExpiredNotice, QuizResultPage)
 
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
-Phase 2 [▓▓▓▓▓▓▓▓  ] 4/5 plans complete
+Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
@@ -53,11 +54,11 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 8 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓)
+**Plans completed:** 9 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓)
 **Plans created:** 9 (Phase 1: 4, Phase 2: 5)
-**Requirements shipped:** 33 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–07, TAKE-09–10, SHARE-01–03, EXT-04)
-**Requirements planned:** 33 / 48 (Phase 1 + Phase 2)
-**Phases completed:** 1 / 5
+**Requirements shipped:** 34 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04)
+**Requirements planned:** 34 / 48 (Phase 1 + Phase 2)
+**Phases completed:** 2 / 5
 
 ---
 
@@ -85,6 +86,11 @@ Phase 5 [          ] 0%
 - session_answers needed a unique index on (session_id, question_id) — migration 011 — for the answer upsert ON CONFLICT to work (Postgres 42P10)
 - start-quiz-session returns the full quiz + ordered questions (answer_options_public) so a browser reload fully rehydrates the active session; currentQuestionIndex is persisted to sessionStorage so reload resumes the same question
 - Timer is server-anchored: timeRemainingSeconds recomputed from started_at + time_limit_sec every tick and on visibilitychange; isTimerCritical at <=20%; finishSession() stub stops the timer (02-05 owns the real submit)
+- D-17 partial-credit scoring computed server-side in submit-quiz-answers: max(0, (correctSelected - incorrectSelected) / totalCorrect); the client never submits a score; is_correct is read only inside the EF from the answer_options base table via service_role
+- submit-quiz-answers is idempotent on an already-finished session (returns the stored score without re-scoring) — backstops the timer-expiry vs manual-stop double-submit race
+- D-02 SUPERSEDED (02-05): the product owner removed the intro/"Начать" preview screen; the quiz now starts immediately after a successful login (verifyAccess chains into startSession; the 'intro' session state was deleted). D-01 still holds
+- start-quiz-session accepts a newAttempt flag and server-enforces allow_retake, creating a fresh quiz_sessions row for retakes (idempotent submit otherwise returned the stale score)
+- Result page rehydrates guestToken/sessionId from sessionStorage on a cold direct-URL load before invoking get-quiz-result
 
 ### Open Questions
 
@@ -105,10 +111,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17T18:00:00.000Z
+**Last session:** 2026-05-17T21:00:00.000Z
 **Resume file:** None
-**Stopped at:** 02-05 Task 3 checkpoint:human-verify — all code committed; awaiting Edge Function deploy + manual verification
-**Next action:** Deploy submit-quiz-answers and get-quiz-result EFs, then type "approved" to complete 02-05
+**Stopped at:** Completed 02-05-PLAN.md — Phase 2 complete (all 5 plans done)
+**Next action:** Run /gsd:verify-work 2, then /gsd:plan-phase 3 (AI Wizard)
 
 ---
 
@@ -120,3 +126,11 @@ None.
 - Walking Skeleton → quiz lists → editor shell → question editor
 - Mid-phase UI overhaul: dark theme + orange accent, PrimeVue ToggleSwitch
 - Notable incidents: handle_new_user search_path, vue-sonner CSS, storage policies (migration 008), router-guard refresh race
+
+### Phase 2 — Quiz Taking & Sharing (complete 2026-05-17)
+
+- 5 plans, 14 requirements shipped (TAKE-01–10, SHARE-01–03, EXT-04)
+- Server foundation → owner access links → guest entry → active taking → submit/scoring/result
+- 7 guest-facing Edge Functions (verify-quiz-access, create-quiz-access, start-quiz-session, get-quiz-meta, upsert-session-answer, submit-quiz-answers, get-quiz-result); custom guest JWT; server-anchored timer; D-17 partial-credit scoring
+- D-02 superseded mid-phase (02-05): intro/"Начать" screen removed, quiz starts immediately after login
+- Notable 02-05 checkpoint fixes: answer_options queried by question_id (42703), cold-load sessionStorage rehydration, fresh quiz_sessions row for retakes

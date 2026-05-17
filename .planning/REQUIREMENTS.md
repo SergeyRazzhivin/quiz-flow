@@ -64,7 +64,7 @@
 - [x] **TAKE-05**: Тестируемый видит прогресс прохождения (Вопрос X из Y) и оставшееся время
 - [x] **TAKE-06**: Тестируемый может завершить тест досрочно
 - [x] **TAKE-07**: Ответы сохраняются немедленно при выборе (upsert в session_answers), не только при финальном сабмите
-- [ ] **TAKE-08**: После завершения тестируемый видит страницу результата (счёт, процент)
+- [x] **TAKE-08**: После завершения тестируемый видит страницу результата (счёт, процент)
 - [x] **TAKE-09**: Таймер основан на серверном `started_at` — вычисляется от сервера, не декрементируется клиентом
 - [x] **TAKE-10**: Тест автоматически отправляется по истечении времени
 
@@ -149,7 +149,7 @@
 | TAKE-05 | Phase 2 | Complete |
 | TAKE-06 | Phase 2 | Complete |
 | TAKE-07 | Phase 2 | Complete |
-| TAKE-08 | Phase 2 | Pending |
+| TAKE-08 | Phase 2 | Complete |
 | TAKE-09 | Phase 2 | Complete |
 | TAKE-10 | Phase 2 | Complete |
 | SHARE-01 | Phase 2 | Complete |
@@ -178,4 +178,4 @@
 
 ---
 *Requirements defined: 2026-05-16*
-*Last updated: 2026-05-16 — traceability updated to 5-phase roadmap*
+*Last updated: 2026-05-17 — TAKE-08 complete; Phase 2 fully delivered (all TAKE/SHARE/EXT-04 requirements)*

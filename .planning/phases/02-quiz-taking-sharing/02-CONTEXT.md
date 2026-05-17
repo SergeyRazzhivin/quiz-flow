@@ -21,7 +21,7 @@ Phase 2 delivers two surfaces:
 
 ### Guest Entry & Intro
 - **D-01:** `/q/:token` shows the quiz intro (title, description, cover, question count, time limit) AND the login/password form together on one screen — the guest sees what the test is while entering credentials.
-- **D-02:** The `quiz_session` and the timer start on an explicit "Начать" button after the intro — not on successful login.
+- **D-02:** ~~The `quiz_session` and the timer start on an explicit "Начать" button after the intro — not on successful login.~~ **SUPERSEDED (02-05):** the product owner overrode this during 02-05 execution. The intermediate intro/"Начать" preview screen was removed entirely — the quiz now starts immediately after a successful login (`verifyAccess` chains into `startSession()`; the `'intro'` session state was deleted). D-01 (intro card shown together with the login form) still holds; D-04 retake semantics are unchanged.
 - **D-03:** One attempt vs multiple attempts is **owner-configurable per quiz** — a new flag in `quizzes.settings` JSONB (`allow_retake`), surfaced as a toggle in the editor's navigation/settings panel. This pulls **EXT-04** (a v2 requirement) into Phase 2 scope.
 - **D-04:** Re-opening `/q/:token` behavior:
   - In-progress session, time not expired → **resume** that session (saved answers intact, timer continues from server `started_at`).
