@@ -1,8 +1,8 @@
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
-**Current Phase:** 1 — Foundation, Auth & Quiz Editor
-**Status:** Executing — Plan 01-03 complete; Plan 01-04 next
+**Current Phase:** 1 — Foundation, Auth & Quiz Editor (COMPLETE)
+**Status:** Phase 1 complete — ready for Phase 2
 
 ---
 
@@ -11,18 +11,18 @@
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 1 Plan 04 — Question editor (CRUD, DnD reorder, publish validation)
+**Current focus:** Phase 1 complete — Phase 2 (Quiz Taking & Sharing) is next
 
 ---
 
 ## Current Position
 
-**Phase:** 1 — Foundation, Auth & Quiz Editor
-**Plan:** 01-04 (Question editor) — next
-**Status:** Plan 01-03 complete
+**Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
+**Plan:** all 4 plans done and verified
+**Status:** Phase 1 complete
 
 ```
-Phase 1 [▓▓▓▓▓▓▓▓▓ ] executing (Plans 01-03 done, Plan 04 next)
+Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [          ] 0%
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
@@ -33,11 +33,11 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 3 (01-01 ✓, 01-02 ✓, 01-03 ✓)
+**Plans completed:** 4 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓)
 **Plans created:** 4 (Phase 1)
-**Requirements shipped:** 14 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-08, NAV-01–02)
+**Requirements shipped:** 20 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02)
 **Requirements planned:** 20 / 48 (Phase 1)
-**Phases completed:** 0 / 5
+**Phases completed:** 1 / 5
 
 ---
 
@@ -74,12 +74,16 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17 — Plans 01-01/02/03 complete and verified; UI design-review tweaks applied; moving to Plan 01-04
-**Resume file:** .planning/phases/01-foundation-auth-and-quiz-editor/01-04-PLAN.md
-**Next action:** Execute Plan 01-04 — question editor (question/option CRUD, DnD reorder, publish validation)
+**Last session:** 2026-05-17 — Phase 1 complete: all 4 plans executed and verified end-to-end; app re-skinned to a dark/orange theme
+**Resume file:** .planning/ROADMAP.md
+**Next action:** Plan Phase 2 — Quiz Taking & Sharing (`/gsd:plan-phase 2`)
 
 ---
 
 ## Phase History
 
-(none yet — Phase 1 in progress)
+### Phase 1 — Foundation, Auth & Quiz Editor (complete 2026-05-17)
+- 4 plans, 20 requirements shipped (AUTH, QUIZ, EDIT, NAV)
+- Walking Skeleton → quiz lists → editor shell → question editor
+- Mid-phase UI overhaul: dark theme + orange accent, PrimeVue ToggleSwitch
+- Notable incidents: handle_new_user search_path, vue-sonner CSS, storage policies (migration 008), router-guard refresh race

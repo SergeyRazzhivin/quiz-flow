@@ -8,7 +8,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation, Auth & Quiz Editor** — Owner can register, log in, create and fully edit a quiz with DnD question ordering
+- [x] **Phase 1: Foundation, Auth & Quiz Editor** — Owner can register, log in, create and fully edit a quiz with DnD question ordering
 - [ ] **Phase 2: Quiz Taking & Sharing** — Guest can open a quiz by token link, authenticate, take it with a live timer, and see their score; owner can generate and manage per-person access links
 - [ ] **Phase 3: AI Wizard** — Owner can generate a complete quiz from uploaded text in 4 steps via an async Edge Function + OpenAI pipeline
 - [ ] **Phase 4: Statistics** — Owner can view attempt totals and per-person results (Free) and per-question accuracy (Pro)
@@ -32,16 +32,16 @@
 **Plans**: 4 plans across 4 waves
 
 **Wave 1**
-- [ ] 01-01-PLAN.md — Walking Skeleton: scaffold + 7 migrations + RLS + auth slice (AUTH-01–03) *(autonomous: no)*
+- [x] 01-01-PLAN.md — Walking Skeleton: scaffold + 7 migrations + RLS + auth slice (AUTH-01–03)
 
-**Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 01-02-PLAN.md — Quiz lists: home /, my quizzes /my, create/delete, app header (QUIZ-04–06, NAV-01)
+**Wave 2**
+- [x] 01-02-PLAN.md — Quiz lists: home /, my quizzes /my, create/delete, app header (QUIZ-04–06, NAV-01)
 
-**Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 01-03-PLAN.md — Quiz editor shell: metadata, cover upload, publish, navigation settings (QUIZ-01–03, QUIZ-07, EDIT-08, NAV-01–02)
+**Wave 3**
+- [x] 01-03-PLAN.md — Quiz editor shell: metadata, cover upload, publish, navigation settings (QUIZ-01–03, QUIZ-07, EDIT-08, NAV-01–02)
 
-**Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 01-04-PLAN.md — Question editor: question/option CRUD, DnD reorder, publish validation (EDIT-01–07, QUIZ-03) *(autonomous: no)*
+**Wave 4**
+- [x] 01-04-PLAN.md — Question editor: question/option CRUD, DnD reorder, publish validation (EDIT-01–07, QUIZ-03)
 
 **Cross-cutting constraints:**
 - All tables: `ENABLE ROW LEVEL SECURITY` + dual-policy (TO authenticated + TO anon)
@@ -109,7 +109,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Auth & Quiz Editor | 0/? | Not started | - |
+| 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
 | 2. Quiz Taking & Sharing | 0/? | Not started | - |
 | 3. AI Wizard | 0/? | Not started | - |
 | 4. Statistics | 0/? | Not started | - |
