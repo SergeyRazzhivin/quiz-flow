@@ -128,6 +128,14 @@ export const useQuizEditorStore = defineStore('quiz-editor', () => {
     if (question) Object.assign(question, patch)
     try {
       await apiUpdateQuestion(id, patch)
+      // Switching to single-answer: keep only the first correct option.
+      if (patch.type === 'single') {
+        const extraCorrect = (answerOptions.value[id] ?? []).filter(o => o.is_correct).slice(1)
+        for (const option of extraCorrect) {
+          option.is_correct = false
+          await apiUpdateAnswerOption(option.id, { is_correct: false })
+        }
+      }
     } catch {
       toast.error(SAVE_ERROR)
     }
