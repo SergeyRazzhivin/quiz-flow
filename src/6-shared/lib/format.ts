@@ -50,3 +50,35 @@ export function formatDate(isoString: string): string {
     year: 'numeric',
   })
 }
+
+/**
+ * Format a 0–100 percent value to a Russian-style string.
+ * E.g. formatPercent(73.5) → "73,5%", formatPercent(null) → "—"
+ */
+export function formatPercent(value: number | null): string {
+  if (value === null) return '—'
+  return `${value.toFixed(1).replace('.', ',')}%`
+}
+
+/**
+ * Format a numeric score for display.
+ * E.g. formatScore(7.5, 10) → "7,5 из 10", formatScore(null, 10) → "—"
+ */
+export function formatScore(score: number | null, totalQuestions: number): string {
+  if (score === null) return '—'
+  const s = score % 1 === 0 ? score.toFixed(0) : score.toFixed(1).replace('.', ',')
+  return `${s} из ${totalQuestions}`
+}
+
+/**
+ * Format a timestamptz ISO string to a Russian short date+time string.
+ * E.g. formatShortDateTime("2026-05-17T14:32:00Z") → "17 мая, 14:32"
+ */
+export function formatShortDateTime(isoString: string): string {
+  return new Date(isoString).toLocaleString('ru-RU', {
+    day:    'numeric',
+    month:  'long',
+    hour:   '2-digit',
+    minute: '2-digit',
+  }).replace(' г.', '').replace(/(\d+\s+\w+)/, '$1,')
+}
