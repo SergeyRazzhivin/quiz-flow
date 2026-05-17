@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 02
 status: executing
-last_updated: "2026-05-17T12:00:00.000Z"
+last_updated: "2026-05-17T16:30:00.000Z"
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 7
-  percent: 33
+  completed_plans: 8
+  percent: 36
 ---
 
 # State: Quiz Flow
@@ -33,16 +33,16 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 02 (quiz-taking-sharing) — EXECUTING
-Plan: 4 of 5 — NOT STARTED
+Plan: 5 of 5 — NOT STARTED
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
 **Phase 2 Plan 2:** COMPLETE — owner access-link slice (create-quiz-access EF, quiz-share store/UI, AccessLinksModal)
 **Phase 2 Plan 3:** COMPLETE — guest entry slice (start-quiz-session EF, quiz-session entity, useQuizTakingStore, guest UI, allow_retake toggle, get-quiz-meta EF)
-**Phase 2 Plan 4:** PAUSED at checkpoint:human-verify — executor code complete; awaiting human deploy + verify
+**Phase 2 Plan 4:** COMPLETE — active quiz-taking slice (upsert-session-answer EF, timer/answer/navigation store actions, ProgressBar/TimerDisplay, QuestionTaker/NavigationControls/StopConfirmDialog, QuizTakingHeader, migration 011)
 
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
-Phase 2 [▓▓▓▓▓▓    ] 3/5 plans complete
+Phase 2 [▓▓▓▓▓▓▓▓  ] 4/5 plans complete
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
@@ -52,9 +52,9 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 7 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓)
+**Plans completed:** 8 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓)
 **Plans created:** 9 (Phase 1: 4, Phase 2: 5)
-**Requirements shipped:** 27 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–03, SHARE-01–03, EXT-04)
+**Requirements shipped:** 33 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–07, TAKE-09–10, SHARE-01–03, EXT-04)
 **Requirements planned:** 33 / 48 (Phase 1 + Phase 2)
 **Phases completed:** 1 / 5
 
@@ -81,6 +81,9 @@ Phase 5 [          ] 0%
 - `quiz_access` table needed a `created_at` column (migration 010) — migration 004 omitted it, breaking the `created_at`-ordered link list
 - D-01 (intro+login on one screen) needed pre-login quiz metadata — added a 6th Phase 2 Edge Function `get-quiz-meta` (public, `verify_jwt=false`, returns only non-sensitive title/description/cover/time-limit/question-count)
 - start-quiz-session resume branch returns stored `session_answers` so a resumed taker keeps answers and the D-07 required-question gate is not falsely tripped (D-04)
+- session_answers needed a unique index on (session_id, question_id) — migration 011 — for the answer upsert ON CONFLICT to work (Postgres 42P10)
+- start-quiz-session returns the full quiz + ordered questions (answer_options_public) so a browser reload fully rehydrates the active session; currentQuestionIndex is persisted to sessionStorage so reload resumes the same question
+- Timer is server-anchored: timeRemainingSeconds recomputed from started_at + time_limit_sec every tick and on visibilitychange; isTimerCritical at <=20%; finishSession() stub stops the timer (02-05 owns the real submit)
 
 ### Open Questions
 
@@ -101,10 +104,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-17T15:11:00.000Z
+**Last session:** 2026-05-17T16:30:00.000Z
 **Resume file:** None
-**Stopped at:** 02-04-PLAN.md — PAUSED at checkpoint:human-verify (Task 3); executor code committed ad2a0b0
-**Next action:** Human deploy upsert-session-answer + verify in browser, then type "approved"
+**Stopped at:** Completed 02-04-PLAN.md — active quiz-taking slice (checkpoint passed)
+**Next action:** Execute 02-05-PLAN.md — submit + scoring + result slice (final plan of Phase 2)
 
 ---
 

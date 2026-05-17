@@ -72,7 +72,7 @@
 - [x] 02-03-PLAN.md — Guest entry slice: /q/:token routes, intro + login, start-quiz-session, allow_retake toggle (TAKE-01–03, EXT-04)
 
 **Wave 3**
-- [ ] 02-04-PLAN.md — Quiz-taking slice: answering, immediate upsert, server-anchored timer, navigation (TAKE-04–07, TAKE-09–10)
+- [x] 02-04-PLAN.md — Quiz-taking slice: answering, immediate upsert, server-anchored timer, navigation (TAKE-04–07, TAKE-09–10)
 
 **Wave 4**
 - [ ] 02-05-PLAN.md — Submit + scoring + result slice: partial-credit scoring, result page, D-04 re-entry (TAKE-06, TAKE-08, TAKE-10, EXT-04)
@@ -124,7 +124,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
-| 2. Quiz Taking & Sharing | 3/5 | In Progress|  |
+| 2. Quiz Taking & Sharing | 4/5 | In Progress|  |
 | 3. AI Wizard | 0/? | Not started | - |
 | 4. Statistics | 0/? | Not started | - |
 | 5. Billing | 0/? | Not started | - |
