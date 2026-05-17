@@ -12,7 +12,7 @@ Quiz Flow — сервис для создания и прохождения т�
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] AI-генерация вопросов (4-шаговый визард, OpenAI через Supabase Edge Functions) — Validated in Phase 3: AI Wizard
 
 ### Active
 
@@ -20,7 +20,6 @@ Quiz Flow — сервис для создания и прохождения т�
 - [ ] Создание, редактирование и публикация тестов (конструктор)
 - [ ] DnD-сортировка вопросов
 - [ ] Типы вопросов: single / multiple choice
-- [ ] AI-генерация вопросов (4-шаговый визард, OpenAI через Supabase Edge Functions)
 - [ ] Загрузка обложки теста в Supabase Storage
 - [ ] Индивидуальные ссылки доступа (token + login + password)
 - [ ] Прохождение теста без авторизации на сайте
