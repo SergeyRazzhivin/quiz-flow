@@ -24,7 +24,8 @@ function toggleSort(key: SortKey): void {
 }
 
 const sortedRows = computed<PerPersonRow[]>(() => {
-  return [...props.rows].sort((a, b) => {
+  // CR-02: guard against a NULL/undefined rows payload — never spread null.
+  return [...(props.rows ?? [])].sort((a, b) => {
     let valA: string | number | null
     let valB: string | number | null
 
@@ -35,8 +36,10 @@ const sortedRows = computed<PerPersonRow[]>(() => {
       valA = a.score ?? -1
       valB = b.score ?? -1
     } else {
-      valA = a.finished_at
-      valB = b.finished_at
+      // WR-01: compare timestamps numerically — raw ISO string ordering is
+      // unreliable across varying fractional-second / offset representations.
+      valA = new Date(a.finished_at).getTime()
+      valB = new Date(b.finished_at).getTime()
     }
 
     if (valA < valB) return sortDir.value === 'asc' ? -1 : 1
@@ -75,15 +78,24 @@ const sortedRows = computed<PerPersonRow[]>(() => {
         </button>
       </div>
 
-      <!-- Body rows -->
+      <!-- Body rows — WR-02: key on stable quiz_access_id, not a label+timestamp -->
       <div
         v-for="row in sortedRows"
-        :key="row.finished_at + (row.name ?? '')"
+        :key="row.quiz_access_id"
         class="grid grid-cols-3 border-t border-neutral-800 px-4 py-3 hover:bg-neutral-800/50"
       >
         <span class="truncate text-sm text-neutral-300">{{ row.name ?? '—' }}</span>
         <span class="text-sm text-neutral-300">{{ formatScore(row.score, totalQuestions) }}</span>
         <span class="text-sm text-neutral-400">{{ formatShortDateTime(row.finished_at) }}</span>
+      </div>
+
+      <!-- WR-03: started-but-never-finished quizzes have an empty perPerson — -->
+      <!-- show an explanation row instead of a bare header. -->
+      <div
+        v-if="sortedRows.length === 0"
+        class="border-t border-neutral-800 px-4 py-6 text-center text-sm text-neutral-500"
+      >
+        Никто пока не завершил тест
       </div>
     </div>
   </div>
