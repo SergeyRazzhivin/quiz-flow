@@ -30,6 +30,31 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
+    // Fetch the quiz + questions so a resumed taker (who never re-enters credentials)
+    // can repopulate store.quiz / store.questions. The verified guestToken already
+    // proves authentication — quiz_id is taken from the trusted token payload.
+    // Pitfall 4 / T-02-02: query answer_options_public (the anon-safe VIEW),
+    // never the answer_options table — is_correct must never reach the guest.
+    // Same select shape as verify-quiz-access/index.ts step 6.
+    const { data: quiz, error: quizErr } = await supabase
+      .from('quizzes')
+      .select('*, questions(*, answer_options_public(*))')
+      .eq('id', payload.quiz_id)
+      .single()
+
+    if (quizErr || !quiz) {
+      return new Response(JSON.stringify({ error: 'Тест не найден' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Split questions out of the quiz metadata — same shape verify-quiz-access returns.
+    // T-02-02/T-02-03: password_hash and is_correct are never present here
+    // (answer_options_public has no is_correct; quizzes has no password_hash).
+    const { questions: quizQuestions, ...quizMeta } = quiz
+    const questions = quizQuestions ?? []
+
     // D-04: Check for an existing open session (finished_at IS NULL) for this quiz_access_id.
     // The partial unique index (migration 009) is the DB-level backstop; this branch is the
     // app-level guard that returns the existing session instead of attempting a duplicate INSERT.
@@ -57,6 +82,8 @@ Deno.serve(async (req) => {
           started_at: existing.started_at,
           resumed: true,
           answers: savedAnswers ?? [],
+          quiz: quizMeta,
+          questions,
         },
         { headers: corsHeaders },
       )
@@ -77,6 +104,8 @@ Deno.serve(async (req) => {
         started_at: session.started_at,
         resumed: false,
         answers: [],
+        quiz: quizMeta,
+        questions,
       },
       { headers: corsHeaders },
     )

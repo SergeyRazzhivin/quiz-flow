@@ -27,11 +27,15 @@ export type GetQuizMetaResponse =
   | { state: 'invalid' }
 
 // Shape returned by start-quiz-session
+// quiz + questions are included so a resumed session (where the guest never
+// re-enters credentials) can repopulate the store. Same shape as VerifyAccessResponse.
 export interface StartSessionResponse {
   sessionId:  string
   started_at: string
   resumed:    boolean
   answers:    { question_id: string; selected_option_ids: string[] }[]
+  quiz:       Record<string, unknown>
+  questions:  Record<string, unknown>[]
 }
 
 /**
@@ -69,7 +73,8 @@ export async function invokeGetQuizMeta(token: string): Promise<GetQuizMetaRespo
 
 /**
  * Invoke start-quiz-session — creates a new session or resumes an existing open one (D-04).
- * Returns sessionId, server-authoritative started_at, resumed flag, and stored answers.
+ * Returns sessionId, server-authoritative started_at, resumed flag, stored answers,
+ * and the quiz + questions (so a reload-resumed session can repopulate the store).
  */
 export async function invokeStartSession(guestToken: string): Promise<StartSessionResponse> {
   const { data, error } = await supabase.functions.invoke('start-quiz-session', {

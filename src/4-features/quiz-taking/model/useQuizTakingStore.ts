@@ -219,6 +219,9 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     try {
       const res = await invokeStartSession(storedGuestToken)
 
+      // On resume the guest never re-enters credentials, so verifyAccess never runs.
+      // start-quiz-session now returns quiz + questions — repopulate the store from
+      // them here, otherwise the active UI renders "Вопрос 1 из 0" with no question.
       if (res.resumed) {
         // D-04: restore answers FIRST so D-07 canGoForward gate isn't falsely tripped
         const restoredAnswers: Record<string, string[]> = {}
@@ -231,6 +234,13 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         sessionId.value = res.sessionId
         startedAt.value = res.started_at
 
+        // Repopulate quiz + questions (set by verifyAccess on the login path,
+        // skipped on resume) — must happen BEFORE sessionStatus becomes 'active'.
+        quiz.value = res.quiz as unknown as Quiz
+        questions.value = res.questions as unknown as Question[]
+        questionCount.value = questions.value.length
+        timeLimitSec.value = quiz.value?.time_limit_sec ?? null
+
         // Persist merged state (sessionId may have been missing from stored value)
         sessionStorage.setItem(
           storageKey(t),
@@ -238,6 +248,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         )
 
         sessionStatus.value = 'active'
+        startTimer()
       } else {
         // A brand-new session was created during init — rare edge case (token was stored
         // but session was missing from DB). Treat same as active start.
@@ -246,12 +257,19 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         startedAt.value = res.started_at
         answers.value = {}
 
+        // Same repopulation as the resume branch — the guest has no login step here either.
+        quiz.value = res.quiz as unknown as Quiz
+        questions.value = res.questions as unknown as Question[]
+        questionCount.value = questions.value.length
+        timeLimitSec.value = quiz.value?.time_limit_sec ?? null
+
         sessionStorage.setItem(
           storageKey(t),
           JSON.stringify({ guestToken: storedGuestToken, sessionId: res.sessionId }),
         )
 
         sessionStatus.value = 'active'
+        startTimer()
       }
     } catch {
       // T-02-16: expired/invalid guest token → 401. Clear stale storage and fall back
@@ -314,6 +332,12 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
 
       sessionId.value = res.sessionId
       startedAt.value = res.started_at
+
+      // start-quiz-session now also returns quiz + questions — refresh them for
+      // consistency with the init() resume path (verifyAccess already set them here).
+      quiz.value = res.quiz as unknown as Quiz
+      questions.value = res.questions as unknown as Question[]
+      questionCount.value = questions.value.length
       timeLimitSec.value = quiz.value?.time_limit_sec ?? null
 
       // Merge sessionId into sessionStorage (guestToken already stored by verifyAccess)
