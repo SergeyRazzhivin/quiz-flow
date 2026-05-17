@@ -9,8 +9,8 @@ progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 6
-  percent: 22
+  completed_plans: 7
+  percent: 33
 ---
 
 # State: Quiz Flow
@@ -33,15 +33,15 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 02 (quiz-taking-sharing) — EXECUTING
-Plan: 3 of 5 — PAUSED at checkpoint:human-verify (Task 3 — deploy start-quiz-session + browser verify)
+Plan: 4 of 5 — NOT STARTED
 **Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
 **Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
 **Phase 2 Plan 2:** COMPLETE — owner access-link slice (create-quiz-access EF, quiz-share store/UI, AccessLinksModal)
-**Phase 2 Plan 3:** IN PROGRESS — guest entry slice; Tasks 1+2 complete, Task 3 awaiting human-verify (deploy + browser test)
+**Phase 2 Plan 3:** COMPLETE — guest entry slice (start-quiz-session EF, quiz-session entity, useQuizTakingStore, guest UI, allow_retake toggle, get-quiz-meta EF)
 
 ```
 Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
-Phase 2 [▓▓▓▓      ] 2/5 plans complete
+Phase 2 [▓▓▓▓▓▓    ] 3/5 plans complete
 Phase 3 [          ] 0%
 Phase 4 [          ] 0%
 Phase 5 [          ] 0%
@@ -51,7 +51,7 @@ Phase 5 [          ] 0%
 
 ## Performance Metrics
 
-**Plans completed:** 6 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓)
+**Plans completed:** 7 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓)
 **Plans created:** 9 (Phase 1: 4, Phase 2: 5)
 **Requirements shipped:** 27 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–03, SHARE-01–03, EXT-04)
 **Requirements planned:** 33 / 48 (Phase 1 + Phase 2)
@@ -78,6 +78,8 @@ Phase 5 [          ] 0%
 - Owner-authenticated Edge Functions stay out of `config.toml` so `verify_jwt` defaults to true; they still re-verify quiz ownership in-handler because the service_role client bypasses RLS
 - Access-link credentials (8-char login, 16-char password) auto-generated server-side via `crypto.getRandomValues`; plaintext password shown exactly once at creation, only a bcrypt cost-10 hash persists (D-14, D-15)
 - `quiz_access` table needed a `created_at` column (migration 010) — migration 004 omitted it, breaking the `created_at`-ordered link list
+- D-01 (intro+login on one screen) needed pre-login quiz metadata — added a 6th Phase 2 Edge Function `get-quiz-meta` (public, `verify_jwt=false`, returns only non-sensitive title/description/cover/time-limit/question-count)
+- start-quiz-session resume branch returns stored `session_answers` so a resumed taker keeps answers and the D-07 required-question gate is not falsely tripped (D-04)
 
 ### Open Questions
 
@@ -100,8 +102,8 @@ None.
 
 **Last session:** 2026-05-17T14:00:00.000Z
 **Resume file:** None
-**Stopped at:** 02-03-PLAN.md — checkpoint:human-verify (Task 3) — awaiting deploy of start-quiz-session EF + browser verification
-**Next action:** Human deploys `npx supabase functions deploy start-quiz-session`, verifies 7 browser steps, then types "approved" to resume 02-03.
+**Stopped at:** 02-03-PLAN.md — COMPLETE (checkpoint:human-verify passed, "approved")
+**Next action:** Execute 02-04-PLAN.md — quiz-answering UI slice (replaces the `active` placeholder in QuizTakingWidget).
 
 ---
 
