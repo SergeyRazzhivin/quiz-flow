@@ -11,6 +11,18 @@ export function formatDuration(seconds: number): string {
 }
 
 /**
+ * Format a byte count to a human-readable size string.
+ * E.g. formatBytes(1572864) → "1,5 МБ"
+ */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} Б`
+  const kb = bytes / 1024
+  if (kb < 1024) return `${kb.toFixed(kb < 10 ? 1 : 0).replace('.', ',')} КБ`
+  const mb = kb / 1024
+  return `${mb.toFixed(mb < 10 ? 1 : 0).replace('.', ',')} МБ`
+}
+
+/**
  * Format an ISO date string to a localized date string.
  * E.g. formatDate('2026-05-16T12:00:00Z') → "16 мая 2026"
  */
