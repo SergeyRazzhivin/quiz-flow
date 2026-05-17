@@ -56,7 +56,7 @@ function onDrop(e: DragEvent) {
       <Button
         variant="ghost"
         size="sm"
-        class="mt-1 text-red-400 hover:bg-red-500/15 hover:text-red-600"
+        class="mt-1 text-neutral-400 hover:bg-red-500/10 hover:text-red-400"
         @click="store.removeCover()"
       >
         Удалить обложку

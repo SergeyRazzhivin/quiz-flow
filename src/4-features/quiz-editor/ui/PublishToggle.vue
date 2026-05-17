@@ -11,13 +11,12 @@ const isPublished = computed(() => store.quiz?.is_published ?? false)
   <div class="flex items-center gap-2">
     <span
       class="text-sm font-medium"
-      :class="isPublished ? 'text-emerald-400' : 'text-neutral-400'"
+      :class="isPublished ? 'text-orange-400' : 'text-neutral-400'"
     >
       {{ isPublished ? 'Опубликован' : 'Черновик' }}
     </span>
     <Switch
       :model-value="isPublished"
-      class="data-[state=checked]:bg-emerald-500"
       @update:model-value="store.publishToggle()"
     />
   </div>

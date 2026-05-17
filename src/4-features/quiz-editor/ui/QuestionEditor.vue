@@ -61,7 +61,7 @@ defineExpose({ focus })
 </script>
 
 <template>
-  <div class="mb-4 rounded-3xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm">
+  <div class="mb-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm">
     <div class="flex items-center gap-3">
       <span
         class="drag-handle flex h-11 w-6 cursor-grab items-center justify-center text-neutral-600 hover:text-neutral-400"
@@ -115,7 +115,7 @@ defineExpose({ focus })
       v-model="localBody"
       rows="2"
       placeholder="Введите текст вопроса..."
-      class="mt-3 min-h-[80px] w-full resize-none rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-base text-neutral-50 placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+      class="mt-3 min-h-[80px] w-full resize-none rounded-2xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-base text-neutral-50 placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
       @input="autoResize"
       @blur="saveBody"
     />
@@ -144,7 +144,7 @@ defineExpose({ focus })
       <DialogPortal>
         <DialogOverlay class="fixed inset-0 z-50 bg-black/40" />
         <DialogContent
-          class="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-neutral-900 p-6 shadow-lg"
+          class="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-neutral-900 p-6 shadow-lg"
         >
           <DialogTitle class="text-xl font-semibold text-neutral-50">
             Удалить вопрос?

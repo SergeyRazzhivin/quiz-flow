@@ -19,7 +19,7 @@ const router = useRouter()
 
 <template>
   <div
-    class="group overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
+    class="group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
   >
     <div class="relative aspect-video bg-neutral-800">
       <img
@@ -37,7 +37,7 @@ const router = useRouter()
       <span
         v-if="showActions"
         class="absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-medium backdrop-blur-sm"
-        :class="quiz.is_published ? 'bg-emerald-500/90 text-white' : 'bg-neutral-950/80 text-white'"
+        :class="quiz.is_published ? 'bg-orange-500/90 text-white' : 'bg-neutral-950/80 text-white'"
       >
         {{ quiz.is_published ? 'Опубликован' : 'Черновик' }}
       </span>
