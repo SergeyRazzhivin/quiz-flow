@@ -8,9 +8,11 @@ import GuestLoginForm from './GuestLoginForm.vue'
 
 const store = useQuizTakingStore()
 
-// Meta row: "N вопросов · M мин" (time shown only when set)
+// Meta row: "N вопросов · M мин" (time shown only when set).
+// Uses store.questionCount so it is correct both pre-login (get-quiz-meta, D-01)
+// and post-login (synced from the loaded question list).
 const metaText = computed(() => {
-  const q = store.questions.length
+  const q = store.questionCount
   const questionLabel = q === 1 ? '1 вопрос' : `${q} вопросов`
   if (store.quiz?.time_limit_sec) {
     return `${questionLabel} · ${formatDuration(store.quiz.time_limit_sec)}`

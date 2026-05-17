@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { toast } from 'vue-sonner'
-import { invokeVerifyAccess, invokeStartSession } from '@entities/quiz-session/api'
+import { invokeVerifyAccess, invokeStartSession, invokeGetQuizMeta } from '@entities/quiz-session/api'
 import type { Quiz } from '@entities/quiz/model'
 import type { Question } from '@entities/question/model'
 import type { SessionResult } from '@entities/quiz-session/model'
@@ -23,6 +23,9 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   const sessionId       = ref<string | null>(null)
   const quiz            = ref<Quiz | null>(null)
   const questions       = ref<Question[]>([])
+  // questionCount: authoritative count for the intro meta row — populated pre-login
+  // by get-quiz-meta (D-01) and re-synced from questions.length after verifyAccess.
+  const questionCount   = ref(0)
   // answers: questionId → selectedOptionIds (restored from session_answers on D-04 resume)
   const answers         = ref<Record<string, string[]>>({})
   const currentQuestionIndex = ref(0)
@@ -46,8 +49,30 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
   // ── Actions ───────────────────────────────────────────────────────────────
 
   /**
+   * loadIntroMeta(t) — fetches the public, pre-login quiz metadata (D-01) so the
+   * intro card shows title/description/cover/count BEFORE the guest logs in.
+   * Sets sessionStatus to 'idle' on success, or 'invalid' on a bad/expired token.
+   */
+  async function loadIntroMeta(t: string): Promise<void> {
+    try {
+      const res = await invokeGetQuizMeta(t)
+      if (res.state === 'ready') {
+        quiz.value = res.quiz as unknown as Quiz
+        questionCount.value = res.questionCount
+        sessionStatus.value = 'idle'
+      } else {
+        sessionStatus.value = 'invalid'
+      }
+    } catch {
+      // 404/410 (invalid or expired token) → graceful invalid state
+      sessionStatus.value = 'invalid'
+    }
+  }
+
+  /**
    * init(t) — called on widget mount.
-   * Checks sessionStorage for a stored guestToken. If none: idle.
+   * Checks sessionStorage for a stored guestToken. If none: load the intro meta
+   * (D-01) so the pre-login intro card is populated, then go idle.
    * If present: calls start-quiz-session to drive the D-04 resume state machine.
    * Populates answers BEFORE setting sessionStatus = 'active' (D-04 — see PLAN note).
    */
@@ -56,7 +81,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     const stored = sessionStorage.getItem(storageKey(t))
 
     if (!stored) {
-      sessionStatus.value = 'idle'
+      await loadIntroMeta(t)
       return
     }
 
@@ -65,13 +90,13 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
       parsed = JSON.parse(stored)
     } catch {
       sessionStorage.removeItem(storageKey(t))
-      sessionStatus.value = 'idle'
+      await loadIntroMeta(t)
       return
     }
 
     const storedGuestToken = parsed.guestToken
     if (!storedGuestToken) {
-      sessionStatus.value = 'idle'
+      await loadIntroMeta(t)
       return
     }
 
@@ -113,9 +138,10 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         sessionStatus.value = 'active'
       }
     } catch {
-      // T-02-16: expired/invalid token → 401 → show invalid state, clear stale storage
+      // T-02-16: expired/invalid guest token → 401. Clear stale storage and fall back
+      // to the pre-login intro (D-01) so the card still shows title/description.
       sessionStorage.removeItem(storageKey(t))
-      sessionStatus.value = 'idle'
+      await loadIntroMeta(t)
     }
   }
 
@@ -140,6 +166,8 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         guestToken.value = res.guestToken
         quiz.value = res.quiz as unknown as Quiz
         questions.value = (res.questions ?? []) as unknown as Question[]
+        // Keep the meta count correct post-login (the full question list is now known)
+        questionCount.value = questions.value.length
 
         // Persist guestToken to sessionStorage (sessionId added by startSession)
         sessionStorage.setItem(
@@ -210,6 +238,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     sessionId,
     quiz,
     questions,
+    questionCount,
     answers,
     currentQuestionIndex,
     isLoading,

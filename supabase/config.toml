@@ -87,6 +87,9 @@ backend = "postgres"
 # Source: [VERIFIED: supabase.com/docs/guides/functions/function-configuration]
 # Pattern 8 from RESEARCH.md
 
+[functions.get-quiz-meta]
+verify_jwt = false
+
 [functions.verify-quiz-access]
 verify_jwt = false
 

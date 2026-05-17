@@ -13,6 +13,19 @@ export interface VerifyAccessResponse {
   questions?:  Record<string, unknown>[]
 }
 
+// Public quiz metadata for the /q/:token intro card (pre-login) — D-01.
+export interface QuizMeta {
+  title:          string
+  description:    string | null
+  cover_url:      string | null
+  time_limit_sec: number | null
+}
+
+// Shape returned by get-quiz-meta
+export type GetQuizMetaResponse =
+  | { state: 'ready'; quiz: QuizMeta; questionCount: number }
+  | { state: 'invalid' }
+
 // Shape returned by start-quiz-session
 export interface StartSessionResponse {
   sessionId:  string
@@ -37,6 +50,21 @@ export async function invokeVerifyAccess(
   })
   if (error) throw error
   return data as VerifyAccessResponse
+}
+
+/**
+ * Invoke get-quiz-meta — returns non-sensitive quiz metadata (title, description,
+ * cover, time limit) and a question count for the pre-login intro card (D-01).
+ * Does NOT require credentials and never returns question content or answers.
+ * On an invalid/expired token the EF returns HTTP 404/410; supabase.functions.invoke
+ * throws — callers should treat a thrown error as { state: 'invalid' }.
+ */
+export async function invokeGetQuizMeta(token: string): Promise<GetQuizMetaResponse> {
+  const { data, error } = await supabase.functions.invoke('get-quiz-meta', {
+    body: { token },
+  })
+  if (error) throw error
+  return data as GetQuizMetaResponse
 }
 
 /**
