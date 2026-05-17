@@ -51,6 +51,23 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     return `qf_guest_${t}`
   }
 
+  /**
+   * persistSession() — writes the full guest session object to sessionStorage so a
+   * same-tab reload can restore both the session AND the taker's question position.
+   * No-op when there is no quiz token yet (storage key is unknown).
+   */
+  function persistSession(): void {
+    if (!token.value) return
+    sessionStorage.setItem(
+      storageKey(token.value),
+      JSON.stringify({
+        guestToken: guestToken.value,
+        sessionId: sessionId.value,
+        currentQuestionIndex: currentQuestionIndex.value,
+      }),
+    )
+  }
+
   // ── Computeds ────────────────────────────────────────────────────────────
 
   /** currentQuestion: the question at currentQuestionIndex, or null when out of range. */
@@ -201,7 +218,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
       return
     }
 
-    let parsed: { guestToken?: string; sessionId?: string }
+    let parsed: { guestToken?: string; sessionId?: string; currentQuestionIndex?: number }
     try {
       parsed = JSON.parse(stored)
     } catch {
@@ -241,11 +258,15 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         questionCount.value = questions.value.length
         timeLimitSec.value = quiz.value?.time_limit_sec ?? null
 
-        // Persist merged state (sessionId may have been missing from stored value)
-        sessionStorage.setItem(
-          storageKey(t),
-          JSON.stringify({ guestToken: storedGuestToken, sessionId: res.sessionId }),
+        // Restore the taker's last question position (clamped against a stale index)
+        const savedIndex = parsed.currentQuestionIndex ?? 0
+        currentQuestionIndex.value = Math.min(
+          Math.max(0, savedIndex),
+          Math.max(0, questions.value.length - 1),
         )
+
+        // Persist merged state (sessionId may have been missing from stored value)
+        persistSession()
 
         sessionStatus.value = 'active'
         startTimer()
@@ -263,10 +284,14 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         questionCount.value = questions.value.length
         timeLimitSec.value = quiz.value?.time_limit_sec ?? null
 
-        sessionStorage.setItem(
-          storageKey(t),
-          JSON.stringify({ guestToken: storedGuestToken, sessionId: res.sessionId }),
+        // Restore the taker's last question position (clamped against a stale index)
+        const savedIndex = parsed.currentQuestionIndex ?? 0
+        currentQuestionIndex.value = Math.min(
+          Math.max(0, savedIndex),
+          Math.max(0, questions.value.length - 1),
         )
+
+        persistSession()
 
         sessionStatus.value = 'active'
         startTimer()
@@ -303,11 +328,9 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
         // Keep the meta count correct post-login (the full question list is now known)
         questionCount.value = questions.value.length
 
-        // Persist guestToken to sessionStorage (sessionId added by startSession)
-        sessionStorage.setItem(
-          storageKey(token.value),
-          JSON.stringify({ guestToken: res.guestToken }),
-        )
+        // Persist guestToken to sessionStorage (sessionId/index added by startSession;
+        // both are still null/0 pre-start, which is the correct initial state).
+        persistSession()
 
         sessionStatus.value = 'intro'
       }
@@ -341,10 +364,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
       timeLimitSec.value = quiz.value?.time_limit_sec ?? null
 
       // Merge sessionId into sessionStorage (guestToken already stored by verifyAccess)
-      sessionStorage.setItem(
-        storageKey(token.value),
-        JSON.stringify({ guestToken: guestToken.value, sessionId: res.sessionId }),
-      )
+      persistSession()
 
       // Restore any answers that came back (handles D-04 double-start edge case)
       if (res.resumed && res.answers.length > 0) {
@@ -408,6 +428,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     if (!canGoForward.value) return
     if (currentQuestionIndex.value < questions.value.length - 1) {
       currentQuestionIndex.value++
+      persistSession()
     }
   }
 
@@ -418,6 +439,7 @@ export const useQuizTakingStore = defineStore('quiz-taking', () => {
     if (!canGoBack.value) return
     if (currentQuestionIndex.value > 0) {
       currentQuestionIndex.value--
+      persistSession()
     }
   }
 
