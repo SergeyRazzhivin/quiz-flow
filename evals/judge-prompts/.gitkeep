@@ -1,0 +1,18 @@
+# evals/judge-prompts/ — Russian-language LLM-judge prompt templates (AI-SPEC §5)
+#
+# Holds the judge prompt templates for the three subjective dimensions that code
+# cannot decide:
+#   D4 — answer-key correctness   (judge: keyed option genuinely correct vs. source)
+#   D5 — source faithfulness      (judge: every question grounded in the source)
+#   D6 — item quality 1-5         (distractor plausibility, item form, difficulty)
+#
+# Templates are Russian-language because the UI and almost all source material are
+# Russian (AI-SPEC §1b failure mode #5 — gender/case agreement leaks, English drift
+# are invisible to an English-only judge). They are referenced from
+# ../promptfooconfig.yaml via `llm-rubric` assertions.
+#
+# Populated incrementally per AI-SPEC §5 — built concurrently with later work,
+# calibrated by an instructional designer to >= 0.7 agreement before the judge
+# output is trusted as a release gate.
+#
+# This .gitkeep keeps the directory under version control while it is empty.

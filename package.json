@@ -8,7 +8,8 @@
     "build": "vue-tsc && vite build",
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "eval": "promptfoo eval -c evals/promptfooconfig.yaml"
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",

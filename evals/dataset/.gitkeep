@@ -1,0 +1,19 @@
+# evals/dataset/ — AI-SPEC §5 reference dataset (15 cases, built incrementally)
+#
+# Each case is a recorded quiz generation, stored as a JSON file shaped:
+#   {
+#     "id": "string",                 — unique case id
+#     "requestedCount": number,       — the question count the owner requested
+#     "difficulty": "лёгкий|средний|сложный",
+#     "clarifyingPrompt": "string",
+#     "source": "string",             — the source material (truncated, as sent to OpenAI)
+#     "finish_reason": "stop",        — OpenAI completion finish_reason
+#     "output": { ...GeneratedQuiz }  — the quiz JSON the model returned
+#   }
+#
+# The D1-D3 Vitest suite (../quiz-schema.eval.test.ts) replays every *.json here
+# against the real QuizSchema. With zero fixtures the suite stays green via an
+# it.todo placeholder — populate this directory per AI-SPEC §5 (predominantly
+# Russian-source: 5 critical-path, 3 difficulty-spread, 4 edge, 2 adversarial).
+#
+# This .gitkeep keeps the directory under version control while it is empty.
