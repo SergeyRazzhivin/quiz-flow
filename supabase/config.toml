@@ -102,8 +102,8 @@ verify_jwt = false
 [functions.get-quiz-result]
 verify_jwt = false
 
-# _probe-bcrypt: temporary bcrypt runtime verification probe — no auth needed
-[functions._probe-bcrypt]
+# probe-bcrypt: temporary bcrypt runtime verification probe — no auth needed
+[functions.probe-bcrypt]
 verify_jwt = false
 
 # create-quiz-access: omitted → defaults to verify_jwt = true (owner must be authenticated)

@@ -1,4 +1,4 @@
-// supabase/functions/_probe-bcrypt/index.ts
+// supabase/functions/probe-bcrypt/index.ts
 // Temporary Wave-1 verification probe for the [ASSUMED] bcryptjs-in-Deno assumption.
 // Source: RESEARCH.md Open Question 1 / Assumption A1 + Pattern 3.
 //
