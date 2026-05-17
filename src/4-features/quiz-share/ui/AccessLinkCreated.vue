@@ -35,7 +35,7 @@ async function copyCredentials() {
       Данные для доступа
     </p>
     <pre
-      class="select-all rounded-lg bg-neutral-900 p-3 font-mono text-sm leading-relaxed text-neutral-300"
+      class="select-all whitespace-pre-wrap break-all rounded-lg bg-neutral-900 p-3 font-mono text-sm leading-relaxed text-neutral-300"
     >Ссылка: {{ `${origin}/q/${store.lastCreated.token}` }}
 Логин: {{ store.lastCreated.login }}
 Пароль: {{ store.lastCreated.password }}</pre>
