@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: quiz-taking-sharing
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-17
+reviewed_at: 2026-05-17
 ---
 
 # Phase 2 — UI Design Contract
@@ -60,7 +61,7 @@ Inherited from Phase 1. No changes.
 
 **Phase 2 exceptions:**
 - Answer option touch target on mobile: minimum 44px hit area. Visual height may remain auto; `min-h-[44px]` on the row container.
-- Timer badge: `px-3 py-1` (12px / 4px) — tight inline pill, not standard spacing token.
+- Timer badge: `px-3 py-1` (12px / 4px) — tight inline pill, not standard spacing token. 12px is the 4-grid step that gives the clock icon breathing room; 8px (`px-2`) feels cramped with the icon present.
 - Progress bar height: 4px fixed (`h-1`) — below token scale, intentional.
 - Sticky header height: 56px (`h-14`) — matches AppHeader height from Phase 1.
 
@@ -109,6 +110,20 @@ All values from the implemented Phase 1 dark palette (confirmed in `src/1-app/st
 6. "Ссылки доступа" button in the editor header (same orange default variant)
 
 Accent is NOT used on: navigation buttons (Назад/Вперёд — use `variant="outline"`), the stop button (use `variant="ghost"` or `variant="secondary"`), link list rows, the result page home link.
+
+---
+
+## Focal Points
+
+Each primary screen has one declared focal point — the element that receives visual weight and default keyboard focus on mount.
+
+| Screen | Focal Point |
+|--------|-------------|
+| Intro screen (`/q/:token`, no session) | Orange "Начать" CTA button — full-width, high-contrast, at the bottom of the centered card |
+| Quiz-taking screen (active session) | Question-text card — the `bg-neutral-900 rounded-2xl p-6` card containing the question text and answer options |
+| Result screen | Score percentage display (`text-display` 28px/600) |
+| Stop-confirmation dialog | "Продолжить тест" cancel button (first focusable action — safe default) |
+| Access-link modal | "Имя тестируемого" input field |
 
 ---
 
@@ -231,7 +246,7 @@ When `allow_back: false`: "Назад" button is not rendered at all (not hidden
 - Title: "Завершить тест?" — `text-heading` (20px/600), `text-neutral-50`
 - Body: "Ваши ответы сохранены. Результат будет подсчитан по ответам на момент завершения." — `text-label` (16px/400), `text-neutral-400`
 - Actions row (`flex gap-3 justify-end mt-6`):
-  - "Отмена" — `<Button variant="outline">` — closes dialog, returns to question
+  - "Продолжить тест" — `<Button variant="outline">` — closes dialog, returns to question
   - "Завершить" — `<Button variant="destructive">` — submits session → result page
 
 ---
@@ -355,7 +370,9 @@ Each link row: `bg-neutral-800 rounded-xl px-4 py-3 flex items-center gap-3`
 - Taker name (label): `text-label` (16px/400), `text-neutral-50`, `flex-1`, `truncate`
 - Login text: `text-body` (14px/400), `text-neutral-400`, `shrink-0`. Format: `@{login}`
 - Expiry (if set): `text-body` (14px/400), `text-neutral-400`, `shrink-0`. Format: "до 31.12.2025". If no expiry: "Бессрочно", `text-neutral-600`.
-- Delete button: Lucide `Trash2` (16px), `<Button variant="ghost" size="icon">`, `text-neutral-500 hover:text-red-500`. No confirmation dialog — immediate delete with `toast.success("Ссылка удалена.")`.
+- Delete button: Lucide `Trash2` (16px), `<Button variant="ghost" size="icon">`, `text-neutral-500 hover:text-red-500`, `aria-label="Удалить ссылку {label}"` where `{label}` is the taker name for that row.
+
+**Delete behavior:** Deletion is intentionally immediate — no confirmation dialog. The action calls the store, removes the row from the list, and shows `toast.success("Ссылка удалена.")` as the sole feedback. This is the designed UX: links can be re-created and the action is low-risk; a dialog would add unnecessary friction.
 
 **Empty link list:** When no links exist yet:
 ```
@@ -416,7 +433,7 @@ All guest-facing copy is in Russian. Owner-facing copy (modal) is also Russian p
 | Stop dialog title | "Завершить тест?" | D-06 |
 | Stop dialog body | "Ваши ответы сохранены. Результат будет подсчитан по ответам на момент завершения." | Claude's Discretion |
 | Stop dialog confirm | "Завершить" | D-06 |
-| Stop dialog cancel | "Отмена" | Claude's Discretion |
+| Stop dialog cancel | "Продолжить тест" | UI checker revision — context-specific label replacing generic "Отмена" |
 | Timer expired heading | "Время вышло" | D-08 |
 | Timer expired body | "Тест отправляется автоматически..." | Claude's Discretion |
 | Result page — score (example) | "80%" (display) / "8 из 10" (fraction) | D-10, D-18 |
@@ -453,6 +470,7 @@ All guest-facing copy is in Russian. Owner-facing copy (modal) is also Russian p
 | Expiry link format (date) | "до 31.12.2025" | Claude's Discretion |
 | Expiry: no expiry | "Бессрочно" | Claude's Discretion |
 | Login display format | "@{login}" | Claude's Discretion |
+| Link delete button aria-label | "Удалить ссылку {label}" | accessibility |
 
 ---
 
