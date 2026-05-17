@@ -43,3 +43,8 @@
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* Toast notifications (vue-sonner) */
+[data-sonner-toast] {
+  border-radius: 1rem !important;
+}
