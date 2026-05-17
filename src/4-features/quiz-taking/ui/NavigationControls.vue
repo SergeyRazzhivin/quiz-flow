@@ -36,9 +36,11 @@ const emit = defineEmits<{
     <span v-else />
 
     <!-- "Завершить" on last question (opens confirm dialog) -->
+    <!-- Disabled by the same D-07 required-question gate as "Вперёд" -->
     <Button
       v-if="isLastQuestion"
       variant="default"
+      :disabled="!canGoForward"
       @click="emit('finish')"
     >
       Завершить
