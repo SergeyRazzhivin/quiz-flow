@@ -79,27 +79,32 @@ const isFirstQuestion = computed<boolean>(() => store.currentQuestionIndex === 0
     <!-- Sticky header: progress + timer + stop (D-05/D-06/D-09) -->
     <QuizTakingHeader v-model:stop-dialog-open="stopDialogOpen" />
 
-    <!-- Scrollable body: question card + navigation footer -->
+    <!-- Scrollable body: question card + navigation footer.
+         Outer container is on the app's 1280px grid (max-w-7xl mx-auto px-6),
+         matching AppHeader/QuizEditorWidget. The question card sits in a centered
+         max-w-3xl reading column so it is not stretched edge-to-edge. -->
     <main class="taking-body">
-      <div class="mx-auto flex w-full max-w-2xl flex-col px-4 py-6">
-        <QuestionTaker
-          v-if="store.currentQuestion"
-          :question="store.currentQuestion"
-          :selected-option-ids="selectedOptionIds"
-          :options="currentOptions"
-        />
+      <div class="mx-auto flex w-full max-w-7xl flex-col px-6 py-6">
+        <div class="mx-auto w-full max-w-3xl">
+          <QuestionTaker
+            v-if="store.currentQuestion"
+            :question="store.currentQuestion"
+            :selected-option-ids="selectedOptionIds"
+            :options="currentOptions"
+          />
 
-        <NavigationControls
-          class="mt-4"
-          :can-go-back="store.canGoBack"
-          :allow-back="store.quiz?.settings?.allow_back ?? false"
-          :can-go-forward="store.canGoForward"
-          :is-last-question="store.isLastQuestion"
-          :is-first-question="isFirstQuestion"
-          @back="store.goBack()"
-          @forward="store.goForward()"
-          @finish="stopDialogOpen = true"
-        />
+          <NavigationControls
+            class="mt-4"
+            :can-go-back="store.canGoBack"
+            :allow-back="store.quiz?.settings?.allow_back ?? false"
+            :can-go-forward="store.canGoForward"
+            :is-last-question="store.isLastQuestion"
+            :is-first-question="isFirstQuestion"
+            @back="store.goBack()"
+            @forward="store.goForward()"
+            @finish="stopDialogOpen = true"
+          />
+        </div>
       </div>
     </main>
 
