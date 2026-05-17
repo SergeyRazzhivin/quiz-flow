@@ -19,7 +19,7 @@ const router = useRouter()
 
 <template>
   <div
-    class="group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
+    class="group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition-colors duration-150 hover:border-orange-500/50"
   >
     <div class="relative aspect-video bg-neutral-800">
       <img
