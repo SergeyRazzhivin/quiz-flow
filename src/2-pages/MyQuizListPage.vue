@@ -35,7 +35,8 @@ async function handleCreate() {
   } catch (e) {
     // The DB enforces the Free quiz limit via a BEFORE INSERT trigger
     // (migration 015) — surface it as an upsell instead of a generic error.
-    const message = e instanceof Error ? e.message : ''
+    // Supabase errors are plain objects, not Error instances — read .message directly.
+    const message = (e as { message?: string } | null)?.message ?? ''
     if (message.includes('QUIZ_LIMIT_EXCEEDED')) {
       toast.error('Достигнут лимит Free-плана — 3 теста. Перейдите на Pro для неограниченного количества тестов.', {
         action: { label: 'Тарифы', onClick: () => router.push('/billing') },
