@@ -20,6 +20,7 @@ export const router = createRouter({
     { path: '/editor/:id',          component: () => import('@pages/QuizEditorPage.vue'),    meta: { requiresAuth: true } },
     { path: '/quiz/:id/stats',      component: () => import('@pages/QuizStatsPage.vue'),     meta: { requiresAuth: true } },
     { path: '/ai-wizard',           component: () => import('@pages/AiWizardPage.vue'),      meta: { requiresAuth: true } },
+    { path: '/billing',             component: () => import('@pages/BillingPage.vue'),       meta: { requiresAuth: true } },
     // Public guest routes — no auth guard, access independent of is_published (D-19)
     { path: '/q/:token',            component: () => import('@pages/QuizSharePage.vue') },
     { path: '/q/:token/result',     component: () => import('@pages/QuizResultPage.vue') },

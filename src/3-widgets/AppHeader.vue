@@ -36,6 +36,13 @@ async function handleLogout() {
         >
           Мои тесты
         </RouterLink>
+        <RouterLink
+          v-if="authStore.user"
+          to="/billing"
+          class="text-sm text-neutral-300 hover:text-neutral-50"
+        >
+          Тарифы
+        </RouterLink>
       </nav>
 
       <div class="ml-auto flex items-center gap-3">
