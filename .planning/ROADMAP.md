@@ -128,9 +128,19 @@
 **Success Criteria**:
 1. An owner can visit a pricing page that clearly shows Free vs. Pro limits and features
 2. An owner can click "Subscribe" and complete payment in rubles via YooKassa without leaving the core flow; on success they immediately gain Pro access
-3. Free-tier limits (3 quizzes, 10 questions/quiz, 1 AI generation/month, no sharing links) are enforced at the DB or Edge Function level — bypassing the UI does not circumvent them
+3. Free-tier limits (3 quizzes, 10 questions/quiz, 10 AI generations/month, no sharing links) are enforced at the DB or Edge Function level — bypassing the UI does not circumvent them
 4. When a Pro subscription expires or is cancelled, Pro features become inaccessible automatically without manual intervention
-**Plans**: TBD
+**Plans**: 3 plans across 3 waves
+
+**Wave 1**
+- [ ] 05-01-PLAN.md — DB enforcement: migration 015 (ai_generations, get_effective_plan, BEFORE INSERT triggers, get_usage RPC) (PAY-01, PAY-04, PAY-05)
+
+**Wave 2**
+- [ ] 05-02-PLAN.md — Edge Functions: create-payment, public yookassa-webhook, AI limit gate in ai-generate-quiz (PAY-03, PAY-04, PAY-05)
+
+**Wave 3**
+- [ ] 05-03-PLAN.md — Billing frontend slice: payment store, PricingCards, ProStatusBanner, BillingWidget/Page, /billing route, header link, limit upsell toast (PAY-01, PAY-02, PAY-03, PAY-05)
+
 **UI hint**: yes
 
 ---
@@ -143,4 +153,4 @@
 | 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
 | 3. AI Wizard | 3/3 | Complete   | 2026-05-17 |
 | 4. Statistics | 2/2 | Complete   | 2026-05-17 |
-| 5. Billing | 0/? | Not started | - |
+| 5. Billing | 0/3 | Not started | - |
