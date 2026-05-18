@@ -58,10 +58,10 @@ Source: `AppHeader.vue` (`px-6 max-w-6xl`), `QuizListPage.vue` (`py-8 px-6`), in
 | Body | 16px (`text-base`) | 400 (regular) | 1.5 |
 | Label / caption | 14px (`text-sm`) | 400 (regular) | 1.4 |
 | Heading (section title) | 20px (`text-xl`) | 600 (semibold) | 1.3 |
-| Display (hero headline) | 36px (`text-4xl`) or 48px (`text-5xl` on md+) | 700 (bold) | 1.15 |
+| Display (hero headline) | 36px (`text-4xl`) or 48px (`text-5xl` on md+) | 600 (semibold) | 1.15 |
 
 Notes:
-- Hero sub-headline: 18px (`text-lg`), weight 400, `text-neutral-400`, line-height 1.5.
+- Hero sub-headline: Body role — 16px (`text-base`), weight 400, `text-neutral-400`, line-height 1.5. The muted colour provides sufficient visual separation from the headline.
 - Card title (`QuizCard.vue`): 14px semibold — unchanged, no override needed.
 - "Как это работает" step labels: 16px semibold (`text-base font-semibold`).
 - Step counter badges: 14px semibold, gradient text or `text-orange-400`.
@@ -127,8 +127,8 @@ AppFooter
 
 - Full-width, centered text layout (`text-center max-w-3xl mx-auto`)
 - Dot-grid backdrop already present globally via `#app::before` — no additional background needed
-- Headline: Display size (36px mobile → 48px ≥md), bold, `text-neutral-50`
-- Sub-headline: 18px, regular, `text-neutral-400`, `mt-4`
+- Headline: Display size (36px mobile → 48px ≥md), semibold (`font-semibold`), `text-neutral-50`
+- Sub-headline: 16px (`text-base`), weight 400, `text-neutral-400`, `mt-4`, line-height 1.5
 - CTA row: `mt-8 flex flex-wrap justify-center gap-3`
   - **Primary (unauthenticated):** gradient button "Начать бесплатно" → `/auth`
     `bg-linear-to-r from-violet-600 to-indigo-600 text-white rounded-lg h-10 px-8 font-medium hover:opacity-90`
