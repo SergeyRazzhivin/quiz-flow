@@ -68,7 +68,7 @@ const onSubmit = handleSubmit(async (values) => {
     <button
       type="submit"
       :disabled="isSubmitting"
-      class="w-full rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-50"
+      class="w-full cursor-pointer rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {{ isSubmitting ? 'Вход...' : 'Войти' }}
     </button>

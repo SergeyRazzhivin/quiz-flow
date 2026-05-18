@@ -80,7 +80,7 @@ function onCountInput(value: string | number): void {
           v-for="d in difficulties"
           :key="d.value"
           type="button"
-          class="inline-flex flex-1 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+          class="inline-flex flex-1 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-3 py-1 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
           :class="
             store.form.difficulty === d.value
               ? 'bg-neutral-900 text-neutral-50 shadow'
