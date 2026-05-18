@@ -8,7 +8,7 @@ const proFeatures = ['Неограниченно тестов и вопросо�
 </script>
 
 <template>
-  <section class="bg-neutral-900/50 py-12">
+  <section class="flex min-h-dvh flex-col justify-center bg-neutral-900/50 py-12">
     <div class="mx-auto max-w-6xl px-6">
       <h2 class="text-xl font-semibold text-neutral-50">
         Простые тарифы

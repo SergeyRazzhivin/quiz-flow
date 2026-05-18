@@ -7,7 +7,7 @@ const authStore = useAuthStore()
 </script>
 
 <template>
-  <section class="py-16 text-center md:py-20">
+  <section class="flex min-h-dvh flex-col justify-center py-16 text-center">
     <div class="mx-auto max-w-3xl px-6">
       <h1 class="text-4xl font-semibold leading-[1.15] text-neutral-50 md:text-5xl">
         Создавай тесты с AI за секунды
