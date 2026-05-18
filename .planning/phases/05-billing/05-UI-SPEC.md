@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: true
 preset: shadcn-vue default + slate baseColor + cssVariables
 created: 2026-05-18
+revised: 2026-05-18
 ---
 
 # Phase 5 — UI Design Contract: Billing
@@ -52,12 +53,16 @@ Exceptions:
 
 Established by prior phases (Inter, dark theme). Billing page follows the same scale.
 
+Two weights only: 400 (regular) and 600 (semibold). Labels and badges are distinguished from body text by size (12px), not weight.
+
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
-| Body | 14px | 400 | 1.5 | Feature list items, plan description copy, status text |
-| Label | 14px | 500 | 1.4 | Badge text ("Free", "Pro"), toggle labels, fine-print |
+| Body | 14px | 400 | 1.5 | Feature list items, plan description copy, status text, badge text, toggle labels, fine-print |
 | Heading | 20px | 600 | 1.2 | Plan card titles ("Free", "Pro"), section headings |
 | Display | 28px (text-2xl) | 600 | 1.2 | Page heading "Тарифы", price amount |
+| Fine print | 12px (text-xs) | 400 | 1.4 | Badge chips ("PRO", "Скидка 24%"), usage meter text below feature list items |
+
+Badge text ("Free", "Pro", "Скидка 24%") uses `text-xs` (12px, weight 400) to differentiate from body copy — no weight distinction needed.
 
 Price display: 28px semibold for the number, 14px regular for the unit (₽/мес or ₽/год) — a consistent pattern with the project's stat display components.
 
@@ -93,13 +98,13 @@ Components to create for this phase:
 |-----------|-------|------|-------------|
 | BillingPage.vue | 2-pages | `src/2-pages/BillingPage.vue` | Thin assembler: AppHeader + PricingCards or ProStatusBanner |
 | PricingCards.vue | 4-features/payment | `src/4-features/payment/ui/PricingCards.vue` | Two-card layout: Free + Pro, period toggle, CTAs |
-| ProStatusBanner.vue | 4-features/payment | `src/4-features/payment/ui/ProStatusBanner.vue` | "Pro активен до DD.MM.YYYY" + "Продлить" button |
+| ProStatusBanner.vue | 4-features/payment | `src/4-features/payment/ui/ProStatusBanner.vue` | "Pro активен до DD.MM.YYYY" + "Продлить подписку" button |
 | LimitBlockToast.vue | 4-features/payment | `src/4-features/payment/ui/LimitBlockToast.vue` | Contextual upsell toast when limit is hit |
 | usePaymentStore.ts | 4-features/payment | `src/4-features/payment/model/usePaymentStore.ts` | Pinia store: usage data, createPayment action |
 
 Reused without modification:
 - `AppHeader.vue` — needs one nav link addition: "Тарифы" RouterLink (see Copywriting below)
-- `Button.vue` — use `variant="outline"` for "Продлить"; custom gradient class for Pro CTA
+- `Button.vue` — use `variant="outline"` for "Продлить подписку"; custom gradient class for Pro CTA
 
 ---
 
@@ -142,11 +147,11 @@ BillingPage.vue
 **Pro plan card:**
 - Background: `bg-neutral-900 rounded-xl border border-violet-600/40 p-6` (violet border to distinguish)
 - Top accent line: `h-0.5 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-t-xl -mt-6 -mx-6 mb-6` — 2px gradient bar at top of card
-- Header: plan name "Pro" with a `"PRO"` badge: `text-xs font-medium bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full px-2 py-0.5`
+- Header: plan name "Pro" with a `"PRO"` badge: `text-xs bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full px-2 py-0.5`
 - Price: "490 ₽" (monthly) or "4 490 ₽" (yearly) in display size + "/мес" or "/год" in 14px regular
 - Feature list — 14px body, `text-neutral-300`, checkmark icon in `text-violet-400`
 - CTA: gradient button with label "Подписаться" — `bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:opacity-90 h-10 rounded-md px-8 font-medium w-full`
-- When Pro active: CTA replaced by "Продлить" (outline variant, smaller) shown inside ProStatusBanner
+- When Pro active: CTA replaced by "Продлить подписку" (outline variant, smaller) shown inside ProStatusBanner
 
 **Feature list content (Free card):**
 - 3 теста
@@ -172,7 +177,7 @@ Displayed above plan cards when user's effective plan is Pro and `period_end` is
 bg-violet-600/10 border border-violet-600/30 rounded-xl px-6 py-4
 ├── Left: icon Sparkles (text-violet-400, h-5 w-5) + text "Pro активен"
 │         sub-text: "Действует до DD.MM.YYYY" (text-sm text-neutral-400)
-└── Right: Button variant="outline" size="sm" "Продлить"
+└── Right: Button variant="outline" size="sm" "Продлить подписку"
 ```
 
 Date format: `DD.MM.YYYY` — use `toLocaleDateString('ru-RU')`.
@@ -232,7 +237,7 @@ Shown only when `authStore.user` is truthy (same guard as "Мои тесты").
 | Page heading | Тарифы | h1, text-2xl |
 | Page subheading | Выберите подходящий план | text-sm neutral-400 |
 | Primary CTA (Pro subscription) | Подписаться | Gradient button on Pro card |
-| Renew CTA | Продлить | Outline button in ProStatusBanner |
+| Renew CTA | Продлить подписку | Outline button in ProStatusBanner |
 | Free plan current state label | Текущий план | Replaces CTA on Free card when user is Free |
 | Period toggle option 1 | Помесячно | Left segment |
 | Period toggle option 2 | Ежегодно | Right segment; shows savings badge |
@@ -273,13 +278,22 @@ No new component registry dependencies. All UI built from existing `Button.vue`,
 | Inter font, CVA component pattern | main.css + Button.vue |
 | Two-card layout (Free + Pro) | CONTEXT.md D-15 |
 | Monthly/yearly toggle | CONTEXT.md D-16 |
-| "Pro active until DD.MM.YYYY" + Продлить button | CONTEXT.md D-17 |
+| "Pro active until DD.MM.YYYY" + Продлить подписку button | CONTEXT.md D-17 |
 | "Тарифы" header link + limit toasts with upsell CTA | CONTEXT.md D-18 |
 | No cancel button | CONTEXT.md D-07 |
 | Free limits: 3 quizzes, 10 questions, 10 AI/month | CONTEXT.md D-14 + PAY-01 |
 | Pro limits: 30 AI/month, unlimited quizzes/questions | CONTEXT.md D-14 + RESEARCH.md |
 | Price: 490 ₽/мес, 4 490 ₽/год | CONTEXT.md D-16 |
 | LimitBlockToast maps trigger errors to upsell | RESEARCH.md Pitfall 7 |
+
+---
+
+## Revision Log
+
+| Date | Change |
+|------|--------|
+| 2026-05-18 | Initial draft |
+| 2026-05-18 | Fix typography: removed weight 500 (Label role). Now 2 weights only: 400 + 600. Badge/fine-print differentiated by size (12px text-xs) not weight. Copywriting: "Продлить" → "Продлить подписку" (verb + noun CTA). |
 
 ---
 
