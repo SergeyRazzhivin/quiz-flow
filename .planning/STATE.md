@@ -2,22 +2,22 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 05
+current_phase: 06
 status: executing
 stopped_at: Phase 6 UI-SPEC approved
-last_updated: "2026-05-18T19:29:08.958Z"
+last_updated: "2026-05-18T20:02:39.730Z"
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 19
-  completed_plans: 17
+  completed_plans: 18
   percent: 83
 ---
 
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
-**Current Phase:** 05
+**Current Phase:** 06
 **Status:** Ready to execute
 
 ---
@@ -27,14 +27,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Milestone complete
+**Current focus:** Phase 06 — landing-page-service-overview-public-quiz-carousel-and-recen
 
 ---
 
 ## Current Position
 
-Phase: 05 (billing) — EXECUTING
-Plan: Not started
+Phase: 06 (landing-page-service-overview-public-quiz-carousel-and-recen) — EXECUTING
+Plan: 2 of 2
 **Phase 5 Plan 3:** COMPLETE — Billing frontend slice (usePaymentStore: get_usage fetch, isProActive, createPayment YooKassa redirect, handleLimitError upsell; PricingCards Free/Pro cards + monthly/yearly toggle; ProStatusBanner; BillingWidget shell; BillingPage; /billing route; AppHeader Тарифы link; 18 tests pass, steiger clean; PAY-02, PAY-03 UI). Task 4 (visual human-verify) auto-approved in --auto chain.
 **Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 (YooKassa live payment round-trip) DEFERRED by user — carried forward as a human-UAT item (see 05-02-SUMMARY Deferred Verification); resolve before production billing launch.
 **Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)
@@ -143,8 +143,8 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-18T19:01:33.906Z
-**Resume file:** .planning/phases/06-landing-page-service-overview-public-quiz-carousel-and-recen/06-UI-SPEC.md
+**Last session:** 2026-05-18T20:02:34.659Z
+**Resume file:** None
 **Stopped at:** Phase 6 UI-SPEC approved
 **Next action:** Verify Phase 5 (/gsd:verify-work 5)
 
