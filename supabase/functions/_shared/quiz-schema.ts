@@ -21,7 +21,11 @@ export const QUIZ_JSON_SCHEMA = {
   required: ['title', 'description', 'time_limit_sec', 'questions'],
   properties: {
     title: { type: 'string' },
-    description: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'Связное описание теста на 30–50 слов: о чём тест, какие темы и разделы материала он охватывает и какие знания проверяет.',
+    },
     time_limit_sec: { type: ['integer', 'null'] },
     questions: {
       type: 'array',
