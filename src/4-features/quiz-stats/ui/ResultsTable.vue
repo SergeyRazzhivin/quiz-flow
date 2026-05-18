@@ -56,21 +56,21 @@ const sortedRows = computed<PerPersonRow[]>(() => {
       <!-- Header -->
       <div class="grid grid-cols-3 bg-neutral-800 px-4 py-2">
         <button
-          class="text-left text-[13px] uppercase tracking-wide text-neutral-400 hover:text-neutral-200"
+          class="rounded-lg text-left text-[13px] uppercase tracking-wide text-neutral-400 hover:text-neutral-200"
           @click="toggleSort('name')"
         >
           Имя
           <span v-if="sortKey === 'name'" class="ml-1">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
         </button>
         <button
-          class="text-left text-[13px] uppercase tracking-wide text-neutral-400 hover:text-neutral-200"
+          class="rounded-lg text-left text-[13px] uppercase tracking-wide text-neutral-400 hover:text-neutral-200"
           @click="toggleSort('score')"
         >
           Балл
           <span v-if="sortKey === 'score'" class="ml-1">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
         </button>
         <button
-          class="text-left text-[13px] uppercase tracking-wide text-neutral-400 hover:text-neutral-200"
+          class="rounded-lg text-left text-[13px] uppercase tracking-wide text-neutral-400 hover:text-neutral-200"
           @click="toggleSort('finished_at')"
         >
           Завершён

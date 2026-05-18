@@ -65,7 +65,7 @@ function handleSubscribe(): void {
       <div class="inline-flex items-center gap-1 rounded-lg bg-neutral-900 p-1">
         <button
           type="button"
-          class="h-9 cursor-pointer rounded-md px-4 text-sm transition-colors"
+          class="h-9 cursor-pointer rounded-lg px-4 text-sm transition-colors"
           :class="selectedPeriod === 'monthly' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200'"
           @click="selectedPeriod = 'monthly'"
         >
@@ -73,7 +73,7 @@ function handleSubscribe(): void {
         </button>
         <button
           type="button"
-          class="flex h-9 cursor-pointer items-center gap-2 rounded-md px-4 text-sm transition-colors"
+          class="flex h-9 cursor-pointer items-center gap-2 rounded-lg px-4 text-sm transition-colors"
           :class="selectedPeriod === 'yearly' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200'"
           @click="selectedPeriod = 'yearly'"
         >
@@ -122,7 +122,7 @@ function handleSubscribe(): void {
         <button
           type="button"
           disabled
-          class="mt-auto h-10 w-full rounded-md bg-neutral-800 text-sm font-medium text-neutral-400 disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-auto h-10 w-full rounded-lg bg-neutral-800 text-sm font-medium text-neutral-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {{ isFreeUser ? 'Текущий план' : 'Free' }}
         </button>
@@ -153,7 +153,7 @@ function handleSubscribe(): void {
         <button
           type="button"
           :disabled="loading"
-          class="mt-auto h-10 w-full cursor-pointer rounded-md bg-linear-to-r from-violet-600 to-indigo-600 px-8 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-auto h-10 w-full cursor-pointer rounded-lg bg-linear-to-r from-violet-600 to-indigo-600 px-8 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           @click="handleSubscribe"
         >
           {{ loading ? 'Переходим к оплате…' : 'Подписаться' }}

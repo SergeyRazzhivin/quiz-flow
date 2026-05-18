@@ -71,7 +71,7 @@ defineExpose({ focus })
       </span>
       <button
         type="button"
-        class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
+        class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
         :aria-label="collapsed ? 'Развернуть вопрос' : 'Свернуть вопрос'"
         @click="emit('toggle-collapse')"
       >
@@ -95,7 +95,7 @@ defineExpose({ focus })
         <div class="flex">
           <button
             type="button"
-            class="cursor-pointer rounded-l-md border px-3 py-1 text-xs transition-colors"
+            class="cursor-pointer rounded-l-lg border px-3 py-1 text-xs transition-colors"
             :class="question.type === 'single'
               ? 'border-orange-500 bg-orange-500/15 text-orange-400'
               : 'border-neutral-700 bg-neutral-900 text-neutral-300'"
@@ -105,7 +105,7 @@ defineExpose({ focus })
           </button>
           <button
             type="button"
-            class="cursor-pointer rounded-r-md border border-l-0 px-3 py-1 text-xs transition-colors"
+            class="cursor-pointer rounded-r-lg border border-l-0 px-3 py-1 text-xs transition-colors"
             :class="question.type === 'multiple'
               ? 'border-orange-500 bg-orange-500/15 text-orange-400'
               : 'border-neutral-700 bg-neutral-900 text-neutral-300'"
@@ -124,7 +124,7 @@ defineExpose({ focus })
         <button
           type="button"
           aria-label="Удалить вопрос"
-          class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-red-400 transition-colors hover:bg-red-500/15"
+          class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-red-400 transition-colors hover:bg-red-500/15"
           @click="showDeleteDialog = true"
         >
           <Trash2 class="h-4 w-4" />
@@ -155,7 +155,7 @@ defineExpose({ focus })
       />
       <button
         type="button"
-        class="mt-1 flex w-fit cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-sm text-neutral-400 transition-colors hover:bg-neutral-800"
+        class="mt-1 flex w-fit cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-sm text-neutral-400 transition-colors hover:bg-neutral-800"
         @click="store.addAnswerOption(question.id)"
       >
         <Plus class="h-4 w-4" />

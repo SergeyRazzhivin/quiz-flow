@@ -42,7 +42,7 @@ const isRequiredAndUnanswered = () =>
         v-for="option in options"
         :key="option.id"
         type="button"
-        class="flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors"
+        class="flex min-h-[44px] cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors"
         :class="isSelected(option.id)
           ? 'border-orange-500 bg-neutral-800'
           : 'border-neutral-700 bg-neutral-800 hover:border-neutral-600'"

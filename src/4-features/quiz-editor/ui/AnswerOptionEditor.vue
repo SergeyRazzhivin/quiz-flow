@@ -38,7 +38,7 @@ function saveBody() {
       type="button"
       class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center border-2 transition-colors"
       :class="[
-        type === 'single' ? 'rounded-full' : 'rounded',
+        type === 'single' ? 'rounded-lg' : 'rounded-lg',
         option.is_correct ? 'border-orange-500 bg-orange-500' : 'border-neutral-700 bg-neutral-900',
       ]"
       :aria-label="option.is_correct ? 'Правильный ответ' : 'Отметить правильным'"
@@ -63,7 +63,7 @@ function saveBody() {
       <button
         type="button"
         aria-label="Удалить вариант"
-        class="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
+        class="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
         @click="store.deleteAnswerOption(option.id)"
       >
         <X class="h-4 w-4" />
