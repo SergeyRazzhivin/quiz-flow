@@ -1,7 +1,49 @@
 <script setup lang="ts">
-// AnimatedBackground — decorative full-viewport backdrop with soft glowing
-// orbs that slowly drift across the screen. Pure CSS, no dependency.
+// AnimatedBackground — decorative full-viewport backdrop: a field of small
+// glowing particles that drift and twinkle, plus brand-coloured "comet"
+// streaks that periodically fly across the screen. Small crisp elements
+// instead of large soft gradients — no gradient banding. Pure CSS, no deps.
 // FSD: 6-shared/ui — generic decorative UI, no domain knowledge.
+
+const COLORS = ['#a78bfa', '#818cf8', '#fb923c', '#e879f9'] as const
+
+interface Decoration {
+  id: number
+  style: Record<string, string>
+}
+
+const particles: Decoration[] = Array.from({ length: 44 }, (_, i) => {
+  const size = 2 + Math.random() * 3.5
+  const color = COLORS[i % COLORS.length]
+  return {
+    id: i,
+    style: {
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      width: `${size}px`,
+      height: `${size}px`,
+      background: color,
+      boxShadow: `0 0 ${size * 3}px ${size * 0.8}px ${color}`,
+      '--dx': `${(Math.random() * 2 - 1) * 90}px`,
+      '--dy': `${(Math.random() * 2 - 1) * 90}px`,
+      animationDuration: `${14 + Math.random() * 22}s`,
+      animationDelay: `${-Math.random() * 36}s`,
+    },
+  }
+})
+
+const comets: Decoration[] = Array.from({ length: 5 }, (_, i) => {
+  const color = COLORS[i % COLORS.length]
+  return {
+    id: i,
+    style: {
+      top: `${6 + Math.random() * 62}%`,
+      '--comet-color': color,
+      animationDuration: `${7 + Math.random() * 6}s`,
+      animationDelay: `${-Math.random() * 22 - i * 3}s`,
+    },
+  }
+})
 </script>
 
 <template>
@@ -9,10 +51,18 @@
     class="glow-bg"
     aria-hidden="true"
   >
-    <span class="orb orb-1" />
-    <span class="orb orb-2" />
-    <span class="orb orb-3" />
-    <span class="orb orb-4" />
+    <span
+      v-for="p in particles"
+      :key="`p${p.id}`"
+      class="particle"
+      :style="p.style"
+    />
+    <span
+      v-for="c in comets"
+      :key="`c${c.id}`"
+      class="comet"
+      :style="c.style"
+    />
   </div>
 </template>
 
@@ -25,110 +75,83 @@
   pointer-events: none;
 }
 
-.orb {
+/* --- Drifting, twinkling particles ------------------------------------ */
+.particle {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(90px);
-  opacity: 0.35;
-  will-change: transform;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 
-/* violet — drifts from top-left across to the lower-right */
-.orb-1 {
-  width: 34rem;
-  height: 34rem;
-  top: -10rem;
-  left: -8rem;
-  background: radial-gradient(
-    circle,
-    rgba(124, 58, 237, 0.55) 0%,
-    rgba(124, 58, 237, 0.32) 35%,
-    rgba(124, 58, 237, 0.12) 60%,
-    rgba(124, 58, 237, 0) 80%
-  );
-  animation: drift-1 32s ease-in-out infinite;
+@keyframes float {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  20% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.45;
+    transform: translate(var(--dx), var(--dy));
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
 }
 
-/* indigo — sweeps from the bottom-left up to the top-right */
-.orb-2 {
-  width: 28rem;
-  height: 28rem;
-  bottom: -8rem;
-  left: 10%;
-  background: radial-gradient(
-    circle,
-    rgba(79, 70, 229, 0.55) 0%,
-    rgba(79, 70, 229, 0.32) 35%,
-    rgba(79, 70, 229, 0.12) 60%,
-    rgba(79, 70, 229, 0) 80%
-  );
-  animation: drift-2 38s ease-in-out infinite;
-  animation-delay: -6s;
+/* --- Comet streaks flying across -------------------------------------- */
+.comet {
+  position: absolute;
+  left: -16rem;
+  height: 2px;
+  width: 14rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), var(--comet-color));
+  filter: drop-shadow(0 0 6px var(--comet-color));
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: fly;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
-/* orange — a smaller, faster glow flying right-to-left */
-.orb-3 {
-  width: 20rem;
-  height: 20rem;
-  top: 18%;
-  right: -6rem;
-  background: radial-gradient(
-    circle,
-    rgba(249, 115, 22, 0.5) 0%,
-    rgba(249, 115, 22, 0.28) 35%,
-    rgba(249, 115, 22, 0.1) 60%,
-    rgba(249, 115, 22, 0) 80%
-  );
-  opacity: 0.28;
-  animation: drift-3 26s ease-in-out infinite;
-  animation-delay: -12s;
+@keyframes fly {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(16deg);
+  }
+  4% {
+    opacity: 0.85;
+  }
+  34% {
+    opacity: 0.85;
+  }
+  46% {
+    opacity: 0;
+    transform: translate(135vw, 40vh) rotate(16deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(135vw, 40vh) rotate(16deg);
+  }
 }
 
-/* fuchsia — slow wandering glow near the lower-right */
-.orb-4 {
-  width: 26rem;
-  height: 26rem;
-  bottom: 8%;
-  right: 6%;
-  background: radial-gradient(
-    circle,
-    rgba(192, 38, 211, 0.5) 0%,
-    rgba(192, 38, 211, 0.28) 35%,
-    rgba(192, 38, 211, 0.1) 60%,
-    rgba(192, 38, 211, 0) 80%
-  );
-  opacity: 0.25;
-  animation: drift-4 44s ease-in-out infinite;
-  animation-delay: -20s;
-}
-
-@keyframes drift-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(46vw, 22vh) scale(1.15); }
-  66% { transform: translate(18vw, 58vh) scale(0.9); }
-}
-
-@keyframes drift-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  40% { transform: translate(38vw, -42vh) scale(1.2); }
-  70% { transform: translate(62vw, -14vh) scale(0.95); }
-}
-
-@keyframes drift-3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-66vw, 30vh) scale(1.25); }
-}
-
-@keyframes drift-4 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  35% { transform: translate(-30vw, -18vh) scale(1.1); }
-  68% { transform: translate(-52vw, 24vh) scale(0.85); }
-}
-
-/* Respect users who prefer reduced motion — keep the glow, drop the drift. */
+/* Respect users who prefer reduced motion — static dots, no comets. */
 @media (prefers-reduced-motion: reduce) {
-  .orb {
+  .particle {
     animation: none;
+    opacity: 0.5;
+  }
+  .comet {
+    display: none;
   }
 }
 </style>
