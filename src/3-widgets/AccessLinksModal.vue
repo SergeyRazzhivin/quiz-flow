@@ -44,7 +44,7 @@ watch(
     <DialogPortal>
       <DialogOverlay class="fixed inset-0 z-50 bg-black/40" />
       <DialogContent
-        class="fixed left-1/2 top-1/2 z-50 flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl bg-neutral-900 p-6 shadow-lg"
+        class="fixed left-1/2 top-1/2 z-50 flex w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl bg-neutral-900 p-6 shadow-lg"
         style="max-height: 80vh"
       >
         <div class="mb-4 flex items-center justify-between">

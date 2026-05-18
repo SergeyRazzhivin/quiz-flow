@@ -62,7 +62,7 @@ function handleSubscribe(): void {
   <div>
     <!-- Period toggle -->
     <div class="mb-8 flex justify-center">
-      <div class="inline-flex items-center gap-1 rounded-lg bg-neutral-900 p-1">
+      <div class="inline-flex flex-wrap items-center justify-center gap-1 rounded-lg bg-neutral-900 p-1">
         <button
           type="button"
           class="h-9 cursor-pointer rounded-lg px-4 text-sm transition-colors"
@@ -86,7 +86,7 @@ function handleSubscribe(): void {
     </div>
 
     <!-- Plan cards -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
       <!-- Free card -->
       <div class="flex flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-6">
         <h3 class="text-xl font-semibold text-neutral-50">Free</h3>

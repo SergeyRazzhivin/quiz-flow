@@ -66,7 +66,7 @@ async function handleConfirmDelete() {
   <div class="flex min-h-screen flex-col">
     <AppHeader />
     <main class="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
-      <div class="mb-6 flex items-center justify-between">
+      <div class="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-semibold text-neutral-50">
           Мои тесты
         </h1>

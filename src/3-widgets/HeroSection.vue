@@ -32,7 +32,7 @@ const highlights = [
         <Sparkles class="h-4 w-4 text-orange-400" />
         Генерация тестов на AI
       </span>
-      <h1 class="text-4xl font-semibold leading-[1.15] text-neutral-50 md:text-5xl">
+      <h1 class="text-3xl font-semibold leading-[1.15] text-neutral-50 sm:text-4xl md:text-5xl">
         Создавай тесты с AI за секунды
       </h1>
       <p class="mt-4 text-base leading-relaxed text-neutral-400">

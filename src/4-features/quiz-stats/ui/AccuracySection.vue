@@ -53,15 +53,17 @@ const router = useRouter()
       <div
         v-for="row in accuracy"
         :key="row.question_id"
-        class="mb-3 flex items-center gap-3"
+        class="mb-3 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3"
       >
-        <span class="flex-1 truncate text-sm text-neutral-300">{{ row.body }}</span>
-        <div class="w-40 shrink-0">
-          <ProgressBar :value="row.accuracy_percent ?? 0" size="md" />
+        <span class="text-sm text-neutral-300 sm:flex-1 sm:truncate">{{ row.body }}</span>
+        <div class="flex items-center gap-3">
+          <div class="flex-1 sm:w-40 sm:flex-none sm:shrink-0">
+            <ProgressBar :value="row.accuracy_percent ?? 0" size="md" />
+          </div>
+          <span class="w-10 shrink-0 text-right text-sm font-semibold text-neutral-200">
+            {{ formatPercent(row.accuracy_percent) }}
+          </span>
         </div>
-        <span class="w-10 shrink-0 text-right text-sm font-semibold text-neutral-200">
-          {{ formatPercent(row.accuracy_percent) }}
-        </span>
       </div>
     </template>
   </div>
