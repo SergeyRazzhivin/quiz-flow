@@ -39,7 +39,13 @@
   height: 34rem;
   top: -10rem;
   left: -8rem;
-  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(124, 58, 237, 0.55) 0%,
+    rgba(124, 58, 237, 0.32) 35%,
+    rgba(124, 58, 237, 0.12) 60%,
+    rgba(124, 58, 237, 0) 80%
+  );
   animation: drift-1 32s ease-in-out infinite;
 }
 
@@ -49,7 +55,13 @@
   height: 28rem;
   bottom: -8rem;
   left: 10%;
-  background: radial-gradient(circle, #4f46e5 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(79, 70, 229, 0.55) 0%,
+    rgba(79, 70, 229, 0.32) 35%,
+    rgba(79, 70, 229, 0.12) 60%,
+    rgba(79, 70, 229, 0) 80%
+  );
   animation: drift-2 38s ease-in-out infinite;
   animation-delay: -6s;
 }
@@ -60,7 +72,13 @@
   height: 20rem;
   top: 18%;
   right: -6rem;
-  background: radial-gradient(circle, #f97316 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(249, 115, 22, 0.5) 0%,
+    rgba(249, 115, 22, 0.28) 35%,
+    rgba(249, 115, 22, 0.1) 60%,
+    rgba(249, 115, 22, 0) 80%
+  );
   opacity: 0.28;
   animation: drift-3 26s ease-in-out infinite;
   animation-delay: -12s;
@@ -72,7 +90,13 @@
   height: 26rem;
   bottom: 8%;
   right: 6%;
-  background: radial-gradient(circle, #c026d3 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(192, 38, 211, 0.5) 0%,
+    rgba(192, 38, 211, 0.28) 35%,
+    rgba(192, 38, 211, 0.1) 60%,
+    rgba(192, 38, 211, 0) 80%
+  );
   opacity: 0.25;
   animation: drift-4 44s ease-in-out infinite;
   animation-delay: -20s;
