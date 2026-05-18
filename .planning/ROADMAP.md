@@ -19,7 +19,7 @@
 **Goal:** A visitor landing on `/` sees a marketing overview of Quiz Flow — hero with an auth-adaptive CTA, a 3-step "how it works" explainer, an auto-scrolling carousel of freshly published quizzes, and a pricing teaser — while the existing quiz catalog moves to a dedicated `/quizzes` route
 **Requirements**: None mapped — scope defined by CONTEXT.md decisions D-01..D-09
 **Depends on:** Phase 5
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -28,7 +28,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 06-02-PLAN.md — Landing widgets (Hero, How-it-works, QuizCarousel, PricingTeaser) + LandingPage assembler + router rebinding
+- [x] 06-02-PLAN.md — Landing widgets (Hero, How-it-works, QuizCarousel, PricingTeaser) + LandingPage assembler + router rebinding
 
 ---
 
@@ -209,7 +209,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 06-01-PLAN.md — Carousel fetcher (fetchCarouselQuizzes) + AppHeader/AppFooter nav-link rebinding to /quizzes (D-01, D-07, D-08)
+- [x] 06-01-PLAN.md — Carousel fetcher (fetchCarouselQuizzes) + AppHeader/AppFooter nav-link rebinding to /quizzes (D-01, D-07, D-08)
 
 **Wave 2**
 
