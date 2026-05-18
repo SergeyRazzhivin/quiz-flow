@@ -111,6 +111,9 @@ function onPrimary(): void {
       <h1 class="text-center text-2xl font-semibold text-neutral-50">
         Создание теста с ИИ
       </h1>
+      <p class="mt-1 text-center text-sm text-neutral-400">
+        Загрузите материал — ИИ соберёт готовый тест с вопросами за несколько секунд.
+      </p>
       <div class="mt-6">
         <WizardStepper />
       </div>
@@ -118,11 +121,13 @@ function onPrimary(): void {
 
     <!-- Step body -->
     <main class="wizard-body">
-      <div class="mx-auto flex w-full max-w-2xl flex-col px-6 py-6">
-        <WizardStep1 v-if="store.step === 1" />
-        <WizardStep2 v-else-if="store.step === 2" />
-        <WizardStep3 v-else-if="store.step === 3" />
-        <WizardStep4 v-else />
+      <div class="mx-auto w-full max-w-2xl px-6 py-6">
+        <div class="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-sm sm:p-8">
+          <WizardStep1 v-if="store.step === 1" />
+          <WizardStep2 v-else-if="store.step === 2" />
+          <WizardStep3 v-else-if="store.step === 3" />
+          <WizardStep4 v-else />
+        </div>
       </div>
     </main>
 
@@ -187,7 +192,7 @@ function onPrimary(): void {
   grid-template-rows: auto 1fr auto;
   height: 100dvh;
   overflow: hidden;
-  background: #0a0a0a;
+  /* Transparent — the global #app dot-grid backdrop shows through. */
 }
 
 .wizard-body {
