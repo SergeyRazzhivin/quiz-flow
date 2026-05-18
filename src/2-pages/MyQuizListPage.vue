@@ -32,8 +32,17 @@ async function handleCreate() {
     const quiz = await createQuiz()
     toast.success('Тест создан. Добавьте вопросы.')
     router.push('/editor/' + quiz.id)
-  } catch {
-    toast.error('Не удалось создать тест. Попробуйте снова.')
+  } catch (e) {
+    // The DB enforces the Free quiz limit via a BEFORE INSERT trigger
+    // (migration 015) — surface it as an upsell instead of a generic error.
+    const message = e instanceof Error ? e.message : ''
+    if (message.includes('QUIZ_LIMIT_EXCEEDED')) {
+      toast.error('Достигнут лимит Free-плана — 3 теста. Перейдите на Pro для неограниченного количества тестов.', {
+        action: { label: 'Тарифы', onClick: () => router.push('/billing') },
+      })
+    } else {
+      toast.error('Не удалось создать тест. Попробуйте снова.')
+    }
   }
 }
 
