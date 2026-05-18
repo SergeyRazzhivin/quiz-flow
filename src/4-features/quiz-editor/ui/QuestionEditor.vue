@@ -65,13 +65,13 @@ defineExpose({ focus })
   <div class="mb-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm">
     <div class="flex items-center gap-3">
       <span
-        class="drag-handle flex h-11 w-6 cursor-grab items-center justify-center text-neutral-600 hover:text-neutral-400"
+        class="drag-handle flex h-11 w-6 shrink-0 cursor-grab items-center justify-center text-neutral-600 hover:text-neutral-400"
       >
         <GripVertical class="h-5 w-5" />
       </span>
       <button
         type="button"
-        class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
+        class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
         :aria-label="collapsed ? 'Развернуть вопрос' : 'Свернуть вопрос'"
         @click="emit('toggle-collapse')"
       >
@@ -87,7 +87,7 @@ defineExpose({ focus })
       <span class="shrink-0 text-sm text-neutral-500">Вопрос {{ number }}</span>
       <span
         v-if="collapsed"
-        class="line-clamp-1 text-sm text-neutral-400"
+        class="min-w-0 flex-1 truncate text-sm text-neutral-400"
       >
         {{ question.body || 'Без текста' }}
       </span>
