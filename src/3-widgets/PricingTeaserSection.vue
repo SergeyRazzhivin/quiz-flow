@@ -1,10 +1,23 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { Check } from 'lucide-vue-next'
+import { useAuthStore } from '@features/auth/model/useAuthStore'
 import Button from '@shared/ui/Button.vue'
 
-const freeFeatures = ['3 теста', '10 вопросов на тест', '10 AI-генераций в месяц']
-const proFeatures = ['Неограниченно тестов и вопросов', '30 AI-генераций в месяц', 'Индивидуальные ссылки доступа']
+const authStore = useAuthStore()
+
+const freeFeatures = [
+  'До 3 тестов',
+  'До 10 вопросов в тесте',
+  '10 AI-генераций в месяц',
+  'Прохождение по ссылке и базовая статистика',
+]
+const proFeatures = [
+  'Неограниченно тестов и вопросов',
+  '30 AI-генераций в месяц',
+  'Индивидуальные ссылки доступа для участников',
+  'Расширенная статистика по каждому вопросу',
+]
 </script>
 
 <template>
@@ -13,8 +26,9 @@ const proFeatures = ['Неограниченно тестов и вопросо�
       <h2 class="text-xl font-semibold text-neutral-50">
         Простые тарифы
       </h2>
-      <p class="mt-2 text-sm text-neutral-400">
-        Начни бесплатно — перейди на Pro когда нужно
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-400">
+        Начни бесплатно и создавай тесты без ограничений по времени. Когда тестов
+        станет больше, перейди на Pro — оплата помесячно, отменить можно в любой момент.
       </p>
       <div class="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
         <!-- Free card -->
@@ -24,6 +38,9 @@ const proFeatures = ['Неограниченно тестов и вопросо�
           </h3>
           <p class="mt-3 text-2xl font-semibold text-neutral-50">
             0 ₽
+          </p>
+          <p class="mt-1 text-sm text-neutral-400">
+            Чтобы попробовать и собрать первые тесты
           </p>
           <ul class="mb-6 mt-6 space-y-3">
             <li
@@ -35,6 +52,18 @@ const proFeatures = ['Неограниченно тестов и вопросо�
               {{ f }}
             </li>
           </ul>
+          <RouterLink
+            v-if="!authStore.user"
+            to="/auth"
+            class="mt-auto"
+          >
+            <Button
+              variant="outline"
+              class="w-full cursor-pointer"
+            >
+              Начать бесплатно
+            </Button>
+          </RouterLink>
         </div>
         <!-- Pro card -->
         <div class="flex flex-col rounded-2xl border border-violet-600/40 bg-neutral-900 p-6 ring-1 ring-violet-600/20">
@@ -43,11 +72,14 @@ const proFeatures = ['Неограниченно тестов и вопросо�
               Pro
             </h3>
             <span class="rounded-full bg-linear-to-r from-violet-600 to-indigo-600 px-2 py-0.5 text-xs text-white">
-              PRO
+              Популярный
             </span>
           </div>
           <p class="mt-3">
             <span class="text-2xl font-semibold text-neutral-50">490 ₽</span><span class="text-sm text-neutral-400">/мес</span>
+          </p>
+          <p class="mt-1 text-sm text-neutral-400">
+            Для регулярной работы с тестами и группами
           </p>
           <ul class="mb-6 mt-6 space-y-3">
             <li
@@ -59,16 +91,28 @@ const proFeatures = ['Неограниченно тестов и вопросо�
               {{ f }}
             </li>
           </ul>
-          <RouterLink to="/billing">
+          <RouterLink
+            to="/billing"
+            class="mt-auto"
+          >
             <Button
               variant="outline"
-              class="mt-4 w-full cursor-pointer"
+              class="w-full cursor-pointer"
             >
               Подробнее о Pro
             </Button>
           </RouterLink>
         </div>
       </div>
+      <p class="mt-8 text-center text-sm text-neutral-500">
+        Полное сравнение тарифов и оплата — на странице
+        <RouterLink
+          to="/billing"
+          class="cursor-pointer text-orange-400 underline-offset-2 hover:text-orange-300 hover:underline"
+        >
+          тарифов
+        </RouterLink>.
+      </p>
     </div>
   </section>
 </template>

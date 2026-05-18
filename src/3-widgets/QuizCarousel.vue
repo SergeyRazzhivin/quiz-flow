@@ -105,6 +105,11 @@ onUnmounted(() => {
         </RouterLink>
       </div>
 
+      <p class="mb-6 max-w-2xl text-sm leading-relaxed text-neutral-400">
+        Загляни в тесты, которые недавно создали и обновили другие авторы — это
+        живой пример того, что можно собрать в Quiz Flow за пару минут.
+      </p>
+
       <!-- Loading skeletons -->
       <div
         v-if="isLoading"
