@@ -51,7 +51,7 @@ describe('usePaymentStore.fetchUsage', () => {
   it('sets usage on a successful get_usage RPC call', async () => {
     const payload = {
       plan: 'free', quizzes_used: 2, quizzes_limit: 3,
-      ai_used: 4, ai_limit: 10, period_end: null,
+      ai_used: 4, ai_limit: 10, period_end: null, current_period: null,
     }
     rpcMock.mockResolvedValue({ data: payload, error: null })
     const store = usePaymentStore()
