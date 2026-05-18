@@ -98,7 +98,7 @@ function onPrimary(): void {
 <template>
   <div class="wizard-shell">
     <!-- Header row: title + stepper + exit affordance -->
-    <header class="relative mx-auto w-full max-w-2xl px-6 pt-8 pb-4">
+    <header class="relative mx-auto w-full max-w-7xl px-6 pt-8 pb-4">
       <Button
         variant="ghost"
         size="icon"
@@ -121,35 +121,35 @@ function onPrimary(): void {
 
     <!-- Step body -->
     <main class="wizard-body">
-      <div class="mx-auto w-full max-w-2xl px-6 py-6">
+      <div class="mx-auto w-full max-w-7xl px-6 py-6">
         <div class="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-sm sm:p-8">
           <WizardStep1 v-if="store.step === 1" />
           <WizardStep2 v-else-if="store.step === 2" />
           <WizardStep3 v-else-if="store.step === 3" />
           <WizardStep4 v-else />
         </div>
+
+        <!-- Step nav — sits right under the step card; hidden on step 4 (D-12) -->
+        <div
+          v-if="store.step !== 4"
+          class="mt-6 flex items-center justify-end gap-3"
+        >
+          <Button
+            v-if="store.step > 1"
+            variant="outline"
+            @click="store.back()"
+          >
+            Назад
+          </Button>
+          <Button
+            :disabled="!store.isStepValid"
+            @click="onPrimary"
+          >
+            {{ store.step === 3 ? 'Сгенерировать' : 'Далее' }}
+          </Button>
+        </div>
       </div>
     </main>
-
-    <!-- Footer nav — hidden on step 4 (D-12) -->
-    <footer
-      v-if="store.step !== 4"
-      class="mx-auto flex w-full max-w-2xl items-center justify-end gap-3 px-6 py-4"
-    >
-      <Button
-        v-if="store.step > 1"
-        variant="outline"
-        @click="store.back()"
-      >
-        Назад
-      </Button>
-      <Button
-        :disabled="!store.isStepValid"
-        @click="onPrimary"
-      >
-        {{ store.step === 3 ? 'Сгенерировать' : 'Далее' }}
-      </Button>
-    </footer>
 
     <!-- D-12 leave confirmation -->
     <Dialog
@@ -189,7 +189,7 @@ function onPrimary(): void {
 /* auto 1fr auto grid at 100dvh — matches the editor's shell discipline. */
 .wizard-shell {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   height: 100dvh;
   overflow: hidden;
   /* Transparent — the global #app dot-grid backdrop shows through. */
