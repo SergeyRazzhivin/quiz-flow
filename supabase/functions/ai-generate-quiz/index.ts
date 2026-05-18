@@ -315,6 +315,64 @@ Deno.serve(async (req) => {
       return json({ error: 'Either sourceText or fileBase64 is required' }, 400)
     }
 
+    // ── AI monthly-limit gate (D-10 / D-14, threat T-05-09) ──────────────────
+    // Enforced here, inside the service_role Edge Function, BEFORE the OpenAI
+    // call runs. The effective plan is resolved via get_effective_plan (D-06:
+    // subscriptions is the source of truth — NOT profiles.plan, which the
+    // file-size gate above keeps reading only for size limits).
+    const { data: effectivePlan, error: planError } = await supabase.rpc(
+      'get_effective_plan',
+      { p_user_id: user.id },
+    )
+    if (planError) {
+      console.error('ai-generate-quiz: get_effective_plan failed', serializeError(planError))
+      return json({ error: 'AI_LIMIT_CHECK_FAILED' }, 500)
+    }
+    const aiLimit = effectivePlan === 'pro' ? 30 : 10
+
+    // Rolling 30-day window anchor (D-12). Fall back to now-30d if RPC is null.
+    const { data: windowStartRpc } = await supabase.rpc('get_ai_window_start', {
+      p_user_id: user.id,
+    })
+    const windowStart =
+      typeof windowStartRpc === 'string' && windowStartRpc
+        ? windowStartRpc
+        : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+    // Pitfall 4: atomic insert-then-count. Insert the usage row first so
+    // concurrent requests cannot both read an under-limit count and slip past.
+    const { data: usageRow, error: usageInsertError } = await supabase
+      .from('ai_generations')
+      .insert({ user_id: user.id })
+      .select('id')
+      .single()
+    if (usageInsertError || !usageRow) {
+      console.error('ai-generate-quiz: ai_generations insert failed', serializeError(usageInsertError))
+      return json({ error: 'AI_LIMIT_CHECK_FAILED' }, 500)
+    }
+
+    const { count: usageCount, error: usageCountError } = await supabase
+      .from('ai_generations')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', windowStart)
+
+    if (usageCountError || usageCount === null) {
+      // Roll back the just-inserted row so a transient count failure does not
+      // permanently consume one of the owner's monthly generations.
+      await supabase.from('ai_generations').delete().eq('id', usageRow.id)
+      console.error('ai-generate-quiz: ai_generations count failed', serializeError(usageCountError))
+      return json({ error: 'AI_LIMIT_CHECK_FAILED' }, 500)
+    }
+
+    if (usageCount > aiLimit) {
+      // Over the monthly limit — delete the speculative row and reject.
+      // The error string MUST contain literal AI_LIMIT_EXCEEDED (Pitfall 7:
+      // the frontend matches error.message.includes('AI_LIMIT_EXCEEDED')).
+      await supabase.from('ai_generations').delete().eq('id', usageRow.id)
+      return json({ error: 'AI_LIMIT_EXCEEDED', limit: aiLimit }, 429)
+    }
+
     // ── Insert the ai_jobs row — this is what the owner polls ──
     const { data: job, error: jobError } = await supabase
       .from('ai_jobs')
