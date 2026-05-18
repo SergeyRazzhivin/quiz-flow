@@ -45,6 +45,20 @@ interface GenerationInput {
 }
 
 /**
+ * Fisher-Yates shuffle — returns a new array, does not mutate the input.
+ * Used to randomise answer-option order so the correct option is not always
+ * first (the model tends to place it at index 0 regardless of the prompt).
+ */
+function shuffle<T>(items: readonly T[]): T[] {
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+/**
  * Persist a generated quiz into the standard quizzes/questions/answer_options tables.
  * - quizzes.owner_id is set from the verified caller id, NEVER the request body (Pitfall 6).
  * - order_index is re-indexed deterministically 0..n-1 — the model's order_index is not
@@ -105,7 +119,9 @@ async function persistQuiz(
 
     const answerRows = quiz.questions.flatMap((q, qi) => {
       const questionId = questionIdByOrder.get(qi)!
-      return q.answers.map((a, ai) => ({
+      // Shuffle so the correct option lands at a random position — the model
+      // is biased toward placing it first regardless of prompt instructions.
+      return shuffle(q.answers).map((a, ai) => ({
         question_id: questionId,
         body: a.body,
         is_correct: a.is_correct,
