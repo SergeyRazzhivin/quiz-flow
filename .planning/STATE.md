@@ -10,8 +10,8 @@ progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
-  completed_plans: 16
-  percent: 85
+  completed_plans: 17
+  percent: 90
 ---
 
 # State: Quiz Flow
@@ -34,7 +34,8 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 05 (billing) — EXECUTING
-Plan: 3 of 3 (05-03 next)
+Plan: 3 of 3 (05-03 COMPLETE)
+**Phase 5 Plan 3:** COMPLETE — Billing frontend slice (usePaymentStore: get_usage fetch, isProActive, createPayment YooKassa redirect, handleLimitError upsell; PricingCards Free/Pro cards + monthly/yearly toggle; ProStatusBanner; BillingWidget shell; BillingPage; /billing route; AppHeader Тарифы link; 18 tests pass, steiger clean; PAY-02, PAY-03 UI). Task 4 (visual human-verify) auto-approved in --auto chain.
 **Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 (YooKassa live payment round-trip) DEFERRED by user — carried forward as a human-UAT item (see 05-02-SUMMARY Deferred Verification); resolve before production billing launch.
 **Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)
 **Phase 4 Plan 1:** COMPLETE — Statistics data layer (migration 013 get_quiz_stats + get_quiz_accuracy RPCs, format helpers, ProgressBar size prop; STATS-01–03)
@@ -54,7 +55,7 @@ Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
 Phase 3 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
 Phase 4 [▓▓▓▓▓     ] 50% (1/2 plans)
-Phase 5 [▓▓▓▓▓▓▓   ] 67% (2/3 plans)
+Phase 5 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
 ```
 
 ---
@@ -143,9 +144,9 @@ None.
 ## Session Continuity
 
 **Last session:** 2026-05-18T12:42:43.443Z
-**Resume file:** .planning/phases/05-billing/05-03-PLAN.md
-**Stopped at:** Completed 05-02-PLAN.md — tasks 1-3 done; Task 4 (YooKassa live payment round-trip) deferred as human-UAT
-**Next action:** Execute plan 05-03
+**Resume file:** none — Phase 5 plans all complete
+**Stopped at:** Completed 05-03-PLAN.md — tasks 1-3 done; Task 4 (visual human-verify) auto-approved in --auto chain
+**Next action:** Verify Phase 5 (/gsd:verify-work 5)
 
 ---
 
