@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { BarChart3, Image, Pencil, Trash2 } from 'lucide-vue-next'
+import { BarChart3, Clock, FileQuestion, Image, Pencil, Trash2 } from 'lucide-vue-next'
 import type { Quiz } from '../model'
 import { formatDuration } from '@shared/lib/format'
-import Button from '@shared/ui/Button.vue'
 import Tooltip from '@shared/ui/Tooltip.vue'
 
 defineProps<{
@@ -20,81 +19,91 @@ const router = useRouter()
 
 <template>
   <div
-    class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition duration-150 hover:border-orange-500/50 hover:shadow-[0_0_18px_-2px_rgba(249,115,22,0.25)]"
+    class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition duration-150 hover:-translate-y-0.5 hover:border-orange-500/50 hover:shadow-[0_8px_28px_-8px_rgba(249,115,22,0.30)]"
   >
-    <div class="relative h-40 shrink-0 bg-neutral-800">
+    <div class="relative h-32 shrink-0 overflow-hidden bg-neutral-800">
       <img
         v-if="quiz.cover_url"
         :src="quiz.cover_url"
         :alt="quiz.title"
-        class="h-full w-full object-cover"
+        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
       >
       <div
         v-else
-        class="flex h-full items-center justify-center"
+        class="flex h-full items-center justify-center bg-linear-to-br from-neutral-800 to-neutral-900"
       >
         <Image class="h-7 w-7 text-neutral-600" />
       </div>
       <span
         v-if="showActions"
         class="absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-medium backdrop-blur-sm"
-        :class="quiz.is_published ? 'bg-orange-500/90 text-white' : 'bg-neutral-950/80 text-white'"
+        :class="quiz.is_published ? 'bg-orange-500/90 text-white' : 'bg-neutral-950/80 text-neutral-300'"
       >
         {{ quiz.is_published ? 'Опубликован' : 'Черновик' }}
       </span>
     </div>
 
-    <div class="flex flex-1 flex-col p-3">
+    <div class="flex flex-1 flex-col p-3.5">
       <h3 class="line-clamp-1 text-sm font-semibold text-neutral-50">
         {{ quiz.title }}
       </h3>
       <p
-        v-if="quiz.description"
-        class="mt-0.5 line-clamp-2 text-xs text-neutral-400"
+        class="mt-1 line-clamp-2 min-h-8 text-xs leading-4 text-neutral-400"
       >
-        {{ quiz.description }}
+        {{ quiz.description || 'Без описания' }}
       </p>
-      <p
-        v-if="quiz.time_limit_sec"
-        class="mt-1 mb-2 text-xs text-neutral-500"
-      >
-        {{ formatDuration(quiz.time_limit_sec) }}
-      </p>
+
+      <!-- Meta chips -->
+      <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+        <span
+          v-if="quiz.question_count != null"
+          class="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-1.5 py-0.5 text-[11px] font-medium text-neutral-300"
+        >
+          <FileQuestion class="h-3 w-3 text-neutral-500" />
+          {{ quiz.question_count }}
+          {{ quiz.question_count === 1 ? 'вопрос' : quiz.question_count >= 2 && quiz.question_count <= 4 ? 'вопроса' : 'вопросов' }}
+        </span>
+        <span
+          v-if="quiz.time_limit_sec"
+          class="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-1.5 py-0.5 text-[11px] font-medium text-neutral-300"
+        >
+          <Clock class="h-3 w-3 text-neutral-500" />
+          {{ formatDuration(quiz.time_limit_sec) }}
+        </span>
+      </div>
 
       <div
         v-if="showActions"
-        class="mt-auto flex items-center gap-1 border-t border-neutral-800 pt-3"
+        class="mt-auto flex items-center gap-1.5 border-t border-neutral-800 pt-3"
       >
-        <Tooltip content="Изменить">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Изменить тест"
-            @click="router.push('/editor/' + quiz.id)"
-          >
-            <Pencil class="h-4 w-4" />
-          </Button>
-        </Tooltip>
+        <button
+          type="button"
+          aria-label="Изменить тест"
+          class="flex h-8 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-orange-500/10 text-xs font-medium text-orange-400 transition-colors hover:bg-orange-500 hover:text-white"
+          @click="router.push('/editor/' + quiz.id)"
+        >
+          <Pencil class="h-3.5 w-3.5" />
+          Изменить
+        </button>
         <Tooltip content="Статистика">
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
             aria-label="Статистика теста"
+            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-neutral-800 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
             @click="router.push(`/quiz/${quiz.id}/stats`)"
           >
             <BarChart3 class="h-4 w-4" />
-          </Button>
+          </button>
         </Tooltip>
         <Tooltip content="Удалить тест">
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
             aria-label="Удалить тест"
-            class="ml-auto text-red-400 hover:bg-red-500/15 hover:text-red-600"
+            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-neutral-800 text-neutral-400 transition-colors hover:bg-red-500/15 hover:text-red-400"
             @click="emit('delete', quiz)"
           >
             <Trash2 class="h-4 w-4" />
-          </Button>
+          </button>
         </Tooltip>
       </div>
     </div>

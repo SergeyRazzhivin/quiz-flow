@@ -8,10 +8,15 @@ type QuizUpdate = Database['public']['Tables']['quizzes']['Update']
 export async function fetchMyQuizzes(): Promise<Quiz[]> {
   const { data, error } = await supabase
     .from('quizzes')
-    .select('*')
+    .select('*, question_count:questions(count)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return data as unknown as Quiz[]
+  // Supabase returns the aggregate as `question_count: [{ count: N }]` — flatten it.
+  return (data ?? []).map((row) => {
+    const { question_count, ...rest } = row as Record<string, unknown>
+    const agg = question_count as Array<{ count: number }> | null
+    return { ...rest, question_count: agg?.[0]?.count ?? 0 }
+  }) as unknown as Quiz[]
 }
 
 export async function fetchPublishedQuizzes(): Promise<Quiz[]> {

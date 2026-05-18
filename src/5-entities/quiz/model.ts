@@ -11,4 +11,6 @@ export interface Quiz {
   settings: QuizSettings
   created_at: string
   updated_at: string
+  /** Number of questions in the quiz. Populated by fetchMyQuizzes; undefined elsewhere. */
+  question_count?: number
 }
