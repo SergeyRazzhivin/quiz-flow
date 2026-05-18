@@ -8,7 +8,7 @@ import TabsContent from '@shared/ui/TabsContent.vue'
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-neutral-950">
+  <div class="flex min-h-screen items-center justify-center">
     <div class="w-full max-w-md p-6">
       <div class="mb-8 text-center">
         <h1 class="text-2xl font-bold text-neutral-50">Quiz Flow</h1>

@@ -18,7 +18,7 @@ onMounted(() => {
 
 <template>
   <!-- Page shell: min-h-[100dvh] per UI-SPEC (never 100vh) -->
-  <div class="min-h-[100dvh] bg-neutral-950">
+  <div class="min-h-[100dvh]">
     <AppHeader />
 
     <main class="mx-auto max-w-5xl px-4 py-12">

@@ -28,7 +28,7 @@ function formatScore(score: number, total: number): string {
 
 <template>
   <!-- No AppHeader — guest-only focused result screen (D-10, D-12) -->
-  <div class="flex min-h-screen flex-col items-center justify-center bg-neutral-950 px-4 py-12">
+  <div class="flex min-h-screen flex-col items-center justify-center px-4 py-12">
     <!-- Loading state while result is fetching -->
     <div
       v-if="!store.result && store.sessionStatus !== 'invalid'"

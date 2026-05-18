@@ -18,7 +18,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-[100dvh] bg-neutral-950">
+  <div class="min-h-[100dvh]">
     <AppHeader />
 
     <main class="mx-auto max-w-3xl px-6 py-16">
