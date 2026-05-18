@@ -19,7 +19,7 @@ onMounted(() => {
 
 <template>
   <section class="flex min-h-dvh flex-col justify-center py-12">
-    <div class="mx-auto w-full max-w-7xl px-6">
+    <div class="mx-auto w-full max-w-6xl px-6">
       <h2 class="text-xl font-semibold text-neutral-50">
         Тарифы
       </h2>
