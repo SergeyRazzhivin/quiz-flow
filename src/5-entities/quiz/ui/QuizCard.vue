@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { BarChart3, Clock, FileQuestion, Image, Pencil, Trash2 } from 'lucide-vue-next'
+import { BarChart3, Clock, FilePen, FileQuestion, Globe, Image, Pencil, Trash2 } from 'lucide-vue-next'
 import type { Quiz } from '../model'
 import { formatDuration } from '@shared/lib/format'
 import Tooltip from '@shared/ui/Tooltip.vue'
@@ -19,7 +19,7 @@ const router = useRouter()
 
 <template>
   <div
-    class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition duration-150 hover:-translate-y-0.5 hover:border-orange-500/50 hover:shadow-[0_8px_28px_-8px_rgba(249,115,22,0.30)]"
+    class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition-colors duration-150 hover:border-orange-500/50"
   >
     <div class="relative h-32 shrink-0 overflow-hidden bg-neutral-800">
       <img
@@ -36,9 +36,19 @@ const router = useRouter()
       </div>
       <span
         v-if="showActions"
-        class="absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-medium backdrop-blur-sm"
-        :class="quiz.is_published ? 'bg-orange-500/90 text-white' : 'bg-neutral-950/80 text-neutral-300'"
+        class="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full py-0.5 pr-2.5 pl-1.5 text-[11px] font-medium shadow-sm ring-1 backdrop-blur-md"
+        :class="quiz.is_published
+          ? 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30'
+          : 'bg-neutral-950/70 text-neutral-300 ring-neutral-700'"
       >
+        <Globe
+          v-if="quiz.is_published"
+          class="h-3 w-3"
+        />
+        <FilePen
+          v-else
+          class="h-3 w-3"
+        />
         {{ quiz.is_published ? 'Опубликован' : 'Черновик' }}
       </span>
     </div>

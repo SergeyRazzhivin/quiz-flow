@@ -65,14 +65,17 @@ async function handleConfirmDelete() {
         >
           <Tooltip content="Сгенерировать новый тест из текста или файла">
             <Button
-              variant="default"
+              variant="outline"
               @click="router.push('/ai-wizard')"
             >
               <Sparkles class="h-4 w-4" />
               Создать с ИИ
             </Button>
           </Tooltip>
-          <Button @click="handleCreate">
+          <Button
+            variant="outline"
+            @click="handleCreate"
+          >
             <Plus class="h-4 w-4" />
             Создать тест
           </Button>
