@@ -21,8 +21,12 @@ const activeUntil = computed(() =>
 )
 
 function handleRenew(): void {
-  // Renewal reuses the monthly period; the user can adjust on the YooKassa page.
-  void store.createPayment('monthly')
+  // WR-03: renew with the subscriber's ACTUAL current period — the YooKassa
+  // hosted page shows a fixed amount and cannot change the period. Fall back to
+  // monthly only when the period is unknown (e.g. a legacy subscription row
+  // created before current_period was persisted).
+  const period = props.usage?.current_period ?? 'monthly'
+  void store.createPayment(period)
 }
 </script>
 

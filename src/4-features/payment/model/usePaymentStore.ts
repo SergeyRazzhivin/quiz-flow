@@ -23,6 +23,8 @@ export interface UsageData {
   ai_used: number
   ai_limit: number
   period_end: string | null
+  /** Billing period of the active subscription — drives the renew CTA (WR-03). */
+  current_period: 'monthly' | 'yearly' | null
 }
 
 export type BillingPeriod = 'monthly' | 'yearly'
@@ -33,6 +35,48 @@ const LIMIT_MESSAGES: Record<string, string> = {
   QUIZ_LIMIT_EXCEEDED: 'Достигнут лимит тестов Free-плана.',
   QUESTION_LIMIT_EXCEEDED: 'Достигнут лимит вопросов Free-плана (10).',
   AI_LIMIT_EXCEEDED: 'Достигнут лимит AI-генераций (10/мес).',
+}
+
+/**
+ * Runtime-validate the get_usage RPC payload (WR-04). The RPC can return a
+ * shape change or a partial JSON; a blind `as UsageData` cast would let
+ * undefined fields reach isProActive / PricingCards. Throws on a malformed
+ * payload so fetchUsage surfaces a real error instead of a misleading view.
+ */
+function parseUsageData(raw: unknown): UsageData {
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('get_usage returned a non-object payload')
+  }
+  const d = raw as Record<string, unknown>
+  if (d.plan !== 'free' && d.plan !== 'pro') {
+    throw new Error('get_usage payload: invalid plan')
+  }
+  const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
+  if (!isNum(d.quizzes_used) || !isNum(d.ai_used) || !isNum(d.ai_limit)) {
+    throw new Error('get_usage payload: missing numeric counters')
+  }
+  if (d.quizzes_limit !== null && !isNum(d.quizzes_limit)) {
+    throw new Error('get_usage payload: invalid quizzes_limit')
+  }
+  if (d.period_end != null && typeof d.period_end !== 'string') {
+    throw new Error('get_usage payload: invalid period_end')
+  }
+  if (
+    d.current_period != null &&
+    d.current_period !== 'monthly' &&
+    d.current_period !== 'yearly'
+  ) {
+    throw new Error('get_usage payload: invalid current_period')
+  }
+  return {
+    plan: d.plan,
+    quizzes_used: d.quizzes_used,
+    quizzes_limit: (d.quizzes_limit as number | null) ?? null,
+    ai_used: d.ai_used,
+    ai_limit: d.ai_limit,
+    period_end: (d.period_end as string | null) ?? null,
+    current_period: (d.current_period as 'monthly' | 'yearly' | null) ?? null,
+  }
 }
 
 // --- Store ------------------------------------------------------------------
@@ -68,7 +112,7 @@ export const usePaymentStore = defineStore('payment', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error: rpcError } = await (supabase as any).rpc('get_usage')
       if (rpcError) throw rpcError
-      usage.value = data as UsageData
+      usage.value = parseUsageData(data)
     } catch (e) {
       console.error('fetchUsage failed', e)
       error.value = 'Не удалось загрузить данные тарифа.'
