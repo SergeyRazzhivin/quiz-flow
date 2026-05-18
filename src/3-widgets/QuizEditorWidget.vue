@@ -15,7 +15,7 @@ onMounted(() => store.loadQuiz(props.quizId))
   <div class="quiz-editor-layout">
     <QuizEditorHeader />
     <main class="editor-body">
-      <div class="mx-auto max-w-7xl px-6 py-6">
+      <div class="mx-auto max-w-6xl px-6 py-6">
         <QuizMetaForm />
         <div class="mt-8">
           <QuestionList />

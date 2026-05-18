@@ -22,7 +22,7 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen">
     <AppHeader />
-    <main class="mx-auto max-w-7xl px-6 py-8">
+    <main class="mx-auto max-w-6xl px-6 py-8">
       <h1 class="mb-6 text-2xl font-semibold text-neutral-50">
         Все тесты
       </h1>

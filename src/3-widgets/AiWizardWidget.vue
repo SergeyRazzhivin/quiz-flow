@@ -98,7 +98,7 @@ function onPrimary(): void {
 <template>
   <div class="wizard-shell">
     <!-- Header row: title + stepper + exit affordance -->
-    <header class="relative mx-auto w-full max-w-7xl px-6 pt-8 pb-4">
+    <header class="relative mx-auto w-full max-w-6xl px-6 pt-8 pb-4">
       <button
         type="button"
         aria-label="Закрыть мастер"
@@ -120,7 +120,7 @@ function onPrimary(): void {
 
     <!-- Step body -->
     <main class="wizard-body">
-      <div class="mx-auto w-full max-w-7xl px-6 py-6">
+      <div class="mx-auto w-full max-w-6xl px-6 py-6">
         <div class="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-sm sm:p-8">
           <WizardStep1 v-if="store.step === 1" />
           <WizardStep2 v-else-if="store.step === 2" />

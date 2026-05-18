@@ -88,11 +88,11 @@ const showTimerExpiredNotice = computed<boolean>(
     <QuizTakingHeader v-model:stop-dialog-open="stopDialogOpen" />
 
     <!-- Scrollable body: question card + navigation footer.
-         Outer container is on the app's 1280px grid (max-w-7xl mx-auto px-6),
+         Outer container is on the app's 1280px grid (max-w-6xl mx-auto px-6),
          matching AppHeader/QuizEditorWidget. The question card sits in a centered
          max-w-3xl reading column so it is not stretched edge-to-edge. -->
     <main class="taking-body">
-      <div class="mx-auto flex w-full max-w-7xl flex-col px-6 py-6">
+      <div class="mx-auto flex w-full max-w-6xl flex-col px-6 py-6">
         <div class="mx-auto w-full max-w-3xl">
           <QuestionTaker
             v-if="store.currentQuestion"

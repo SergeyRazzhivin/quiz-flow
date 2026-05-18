@@ -21,9 +21,9 @@ const store = useQuizTakingStore()
 <template>
   <!-- UI-SPEC section 2 TakingHeader: h-14, bg-neutral-900 border-b border-neutral-800.
        Outer header is the full-width sticky bar; inner div aligns content to the
-       app's 1280px grid (max-w-7xl mx-auto px-6) — same pattern as AppHeader.vue. -->
+       app's 1280px grid (max-w-6xl mx-auto px-6) — same pattern as AppHeader.vue. -->
   <header class="border-b border-neutral-800 bg-neutral-900">
-    <div class="mx-auto flex h-14 w-full max-w-7xl items-center gap-4 px-6">
+    <div class="mx-auto flex h-14 w-full max-w-6xl items-center gap-4 px-6">
       <!-- Left section (flex-1): progress label + progress bar -->
       <div class="flex flex-1 flex-col gap-1">
         <span class="text-sm text-neutral-400">
