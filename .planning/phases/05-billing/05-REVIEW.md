@@ -23,7 +23,9 @@ findings:
   warning: 7
   info: 4
   total: 14
-status: issues_found
+status: fixes_applied
+fixes_applied: 2026-05-18
+fixes_applied_scope: critical+warning
 ---
 
 # Phase 5: Code Review Report
@@ -49,6 +51,7 @@ a missing payment-status verification) need fixing before this ships.
 
 ### CR-01: Webhook never verifies the amount actually paid
 
+**Status:** FIXED (commit 6269d4e)
 **File:** `supabase/functions/yookassa-webhook/index.ts:107-157`
 **Issue:** The webhook grants Pro purely from `payload.object.metadata.period`.
 It never reads `payload.object.amount` and never compares it against the
@@ -78,6 +81,7 @@ label, or at minimum cross-check the two.
 
 ### CR-02: AI monthly limit is off-by-one — allows one extra generation
 
+**Status:** FIXED (commits f158e46, fdd8ae7) — requires human verification (limit logic)
 **File:** `supabase/functions/ai-generate-quiz/index.ts:344-374`
 **Issue:** The row is inserted first, then counted, then `if (usageCount > aiLimit)`
 rejects. With `aiLimit = 10`, the 11th request inserts its row and the count
@@ -95,6 +99,7 @@ single transaction / RPC so a partial failure cannot leak quota.
 
 ### CR-03: `get_usage` Free quiz limit hardcoded as 3 but trigger uses `>= 3` — consistent; the AI window count uses `>=` while RPC anchor differs from gate anchor
 
+**Status:** FIXED (commit f158e46)
 **File:** `supabase/migrations/015_billing_enforcement.sql:242-247` vs `supabase/functions/ai-generate-quiz/index.ts:334-340`
 **Issue:** `get_usage()` counts `ai_used` against `get_ai_window_start()` which
 returns the rolling 30-day boundary anchored to subscription/registration date.
@@ -113,6 +118,7 @@ cannot see.
 
 ### WR-01: Webhook trusts `period` defaulting to `'monthly'` when metadata missing
 
+**Status:** FIXED (commit 6269d4e)
 **File:** `supabase/functions/yookassa-webhook/index.ts:114`
 **Issue:** `const period = payload.object?.metadata?.period ?? 'monthly'`. If
 `metadata.period` is absent, the webhook silently grants a 30-day Pro period.
@@ -122,6 +128,7 @@ otherwise log and `return respond({ ignored: true }, 200)`.
 
 ### WR-02: Webhook idempotency upsert keyed on `user_id`, not `yookassa_payment_id`
 
+**Status:** FIXED (commit 6269d4e) — requires human verification (period-extension logic)
 **File:** `supabase/functions/yookassa-webhook/index.ts:146-157`
 **Issue:** The idempotency SELECT checks `yookassa_payment_id` (correct), but the
 upsert uses `onConflict: 'user_id'`. A second, *different* payment by the same
@@ -133,6 +140,7 @@ subscription exists, compute the new `current_period_end` from
 
 ### WR-03: Renew CTA always sends `monthly` regardless of user's current plan
 
+**Status:** FIXED (commits fdd8ae7, c8d5998)
 **File:** `src/4-features/payment/ui/ProStatusBanner.vue:23-26`
 **Issue:** `handleRenew()` hardcodes `createPayment('monthly')`. A Pro-yearly
 subscriber clicking "Продлить подписку" is charged for and granted only a
@@ -143,6 +151,7 @@ subscription) so renewal matches the active plan.
 
 ### WR-04: `fetchUsage` types RPC result with `as UsageData` — no runtime validation
 
+**Status:** FIXED (commit c8d5998)
 **File:** `src/4-features/payment/model/usePaymentStore.ts:69-71`
 **Issue:** `data as UsageData` blind-casts the RPC payload. If `get_usage`
 returns a shape change or `null` (it can `RAISE EXCEPTION` but a partial JSON is
@@ -152,6 +161,7 @@ treat a malformed payload as an error.
 
 ### WR-05: `create-payment` does not persist a pending payment record
 
+**Status:** FIXED (commit bdb2c49)
 **File:** `supabase/functions/create-payment/index.ts:103-111`
 **Issue:** The function returns `confirmation_url`/`payment_id` but never records
 the created payment server-side. The webhook is then the *only* place a payment
@@ -162,6 +172,7 @@ paid-but-not-granted state. **Fix:** insert a `payments`/pending row keyed on
 
 ### WR-06: IPv6 allowlist uses string-prefix match
 
+**Status:** FIXED (commit 6269d4e)
 **File:** `supabase/functions/yookassa-webhook/index.ts:40,63-68`
 **Issue:** IPv6 membership is `ip.toLowerCase().startsWith('2a02:5180:')`.
 Compressed IPv6 forms (`2a02:5180::1`) and zero-omission make string-prefix
@@ -173,6 +184,7 @@ and a valid hextet.
 
 ### WR-07: `period` from webhook metadata not validated before use as branch key
 
+**Status:** FIXED (commit 6269d4e)
 **File:** `supabase/functions/yookassa-webhook/index.ts:114,143`
 **Issue:** `period` is typed `unknown` (line 99) and used directly in
 `period === 'yearly' ? 365 : 30` without a type/allowlist guard. Any non-yearly
