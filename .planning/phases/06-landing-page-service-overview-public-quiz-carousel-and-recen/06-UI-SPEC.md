@@ -163,6 +163,7 @@ AppFooter
 - Controls:
   - Prev/Next arrow buttons: `h-11 w-11 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-300 hover:bg-neutral-700 hover:text-neutral-50 cursor-pointer transition-colors` — absolute positioned outside the track, vertically centered
   - Arrow icons: `lucide-vue-next` `ChevronLeft` / `ChevronRight`, `h-5 w-5`
+  - Accessibility: icon-only buttons MUST declare `aria-label="Предыдущий"` (prev) and `aria-label="Следующий"` (next)
   - Disabled state: `opacity-40 pointer-events-none` when at first/last card
 - "Смотреть все" link: `text-sm text-orange-400 hover:text-orange-300 underline-offset-2 hover:underline` — right-aligned in section header row
 - Implementation: pure CSS scroll-snap as baseline (`scroll-snap-type x mandatory` on the container); JavaScript manages the auto-advance timer and programmatic scroll — no carousel library dependency required
