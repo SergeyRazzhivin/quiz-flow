@@ -11,8 +11,10 @@ import PricingTeaserSection from '@widgets/PricingTeaserSection.vue'
   <div class="flex min-h-screen flex-col">
     <AppHeader />
     <HeroSection />
-    <HowItWorksSection />
-    <QuizCarousel />
+    <div class="flex min-h-dvh flex-col justify-center bg-neutral-900/50">
+      <HowItWorksSection />
+      <QuizCarousel />
+    </div>
     <PricingTeaserSection />
     <AppFooter />
   </div>

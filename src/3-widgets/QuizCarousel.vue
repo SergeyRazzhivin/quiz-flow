@@ -85,7 +85,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="flex min-h-dvh flex-col justify-center py-12">
+  <section class="py-8">
     <div class="mx-auto max-w-6xl px-6">
       <!-- Section header row -->
       <div class="mb-6 flex items-end justify-between">

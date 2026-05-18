@@ -18,17 +18,36 @@ const proFeatures = [
   'Индивидуальные ссылки доступа для участников',
   'Расширенная статистика по каждому вопросу',
 ]
+
+const details = [
+  {
+    title: 'Без карты на старте',
+    body: 'Регистрация и бесплатный тариф не требуют привязки карты — начни создавать тесты сразу.',
+  },
+  {
+    title: 'Оплата в рублях',
+    body: 'Подписка Pro оплачивается российскими картами через ЮKassa, чек приходит автоматически.',
+  },
+  {
+    title: 'Отмена в один клик',
+    body: 'Откажись от Pro когда угодно — доступ сохранится до конца оплаченного месяца.',
+  },
+]
 </script>
 
 <template>
-  <section class="flex min-h-dvh flex-col justify-center bg-neutral-900/50 py-12">
+  <section class="flex min-h-dvh flex-col justify-center py-12">
     <div class="mx-auto max-w-6xl px-6">
       <h2 class="text-xl font-semibold text-neutral-50">
         Простые тарифы
       </h2>
       <p class="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-400">
-        Начни бесплатно и создавай тесты без ограничений по времени. Когда тестов
-        станет больше, перейди на Pro — оплата помесячно, отменить можно в любой момент.
+        Начни бесплатно и создавай тесты без ограничений по времени — бесплатный
+        тариф не пробный, им можно пользоваться постоянно. Когда тестов и участников
+        станет больше, перейди на Pro: снимаются лимиты на количество тестов и вопросов,
+        растёт месячная квота AI-генераций и открывается расширенная статистика.
+        Оплата помесячно, без скрытых платежей — отменить подписку можно в любой момент,
+        и Pro-возможности останутся доступны до конца оплаченного периода.
       </p>
       <div class="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
         <!-- Free card -->
@@ -104,8 +123,26 @@ const proFeatures = [
           </RouterLink>
         </div>
       </div>
-      <p class="mt-8 text-center text-sm text-neutral-500">
-        Полное сравнение тарифов и оплата — на странице
+      <!-- Details / reassurance -->
+      <div class="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3">
+        <div
+          v-for="detail in details"
+          :key="detail.title"
+          class="text-left"
+        >
+          <h3 class="mb-1 text-sm font-semibold text-neutral-200">
+            {{ detail.title }}
+          </h3>
+          <p class="text-sm leading-relaxed text-neutral-400">
+            {{ detail.body }}
+          </p>
+        </div>
+      </div>
+
+      <p class="mt-10 text-center text-sm text-neutral-500">
+        Лимиты бесплатного тарифа обновляются каждый месяц, а апгрейд на Pro
+        вступает в силу сразу после оплаты. Полное сравнение возможностей и оплата —
+        на странице
         <RouterLink
           to="/billing"
           class="cursor-pointer text-orange-400 underline-offset-2 hover:text-orange-300 hover:underline"
