@@ -76,11 +76,11 @@
 
 ### Freemium & Billing
 
-- [ ] **PAY-01**: Free план: лимит 3 теста, 10 вопросов на тест, 1 AI-генерация в месяц; индивидуальные ссылки недоступны
+- [x] **PAY-01**: Free план: лимит 3 теста, 10 вопросов на тест, 1 AI-генерация в месяц; индивидуальные ссылки недоступны
 - [ ] **PAY-02**: Пользователь может видеть страницу тарифов с описанием Free и Pro планов
 - [ ] **PAY-03**: Пользователь может оформить подписку Pro (490 ₽/мес) через ЮKassa
-- [ ] **PAY-04**: Лимиты плана enforced на уровне БД/Edge Function — не только на клиенте
-- [ ] **PAY-05**: При отмене/истечении подписки права Pro автоматически отзываются
+- [x] **PAY-04**: Лимиты плана enforced на уровне БД/Edge Function — не только на клиенте
+- [x] **PAY-05**: При отмене/истечении подписки права Pro автоматически отзываются
 
 ---
 
@@ -165,11 +165,11 @@
 | STATS-01 | Phase 4 | Complete |
 | STATS-02 | Phase 4 | Complete |
 | STATS-03 | Phase 4 | Complete |
-| PAY-01 | Phase 5 | Pending |
+| PAY-01 | Phase 5 | Complete |
 | PAY-02 | Phase 5 | Pending |
 | PAY-03 | Phase 5 | Pending |
-| PAY-04 | Phase 5 | Pending |
-| PAY-05 | Phase 5 | Pending |
+| PAY-04 | Phase 5 | Complete |
+| PAY-05 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 48 total

@@ -2,22 +2,22 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 5
+current_phase: 05
 status: executing
 stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-05-18T12:28:10.144Z"
+last_updated: "2026-05-18T12:42:43.443Z"
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 15
   percent: 80
 ---
 
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
-**Current Phase:** 5
+**Current Phase:** 05
 **Status:** Ready to execute
 
 ---
@@ -27,14 +27,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 5 — billing
+**Current focus:** Phase 05 — billing
 
 ---
 
 ## Current Position
 
-Phase: 04 (statistics) — EXECUTING
-Plan: Not started
+Phase: 05 (billing) — EXECUTING
+Plan: 2 of 3
+**Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)
 **Phase 4 Plan 1:** COMPLETE — Statistics data layer (migration 013 get_quiz_stats + get_quiz_accuracy RPCs, format helpers, ProgressBar size prop; STATS-01–03)
 **Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
 **Phase 3 Plan 2:** COMPLETE — AI-wizard frontend slice (ai-job entity, useAiWizardStore 4-step machine + poll loop, 4 step components/stepper/widget/page, /ai-wizard route; AI-01–04, AI-06–07)
@@ -52,16 +53,16 @@ Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
 Phase 3 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
 Phase 4 [▓▓▓▓▓     ] 50% (1/2 plans)
-Phase 5 [          ] 0%
+Phase 5 [▓▓▓       ] 33% (1/3 plans)
 ```
 
 ---
 
 ## Performance Metrics
 
-**Plans completed:** 13 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓, 03-02 ✓, 03-03 ✓, 04-01 ✓)
+**Plans completed:** 14 (01-01 ✓, 01-02 ✓, 01-03 ✓, 01-04 ✓, 02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓, 02-05 ✓, 03-01 ✓, 03-02 ✓, 03-03 ✓, 04-01 ✓, 05-01 ✓)
 **Plans created:** 12 (Phase 1: 4, Phase 2: 5, Phase 3: 3)
-**Requirements shipped:** 44 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-01–07, STATS-01–03)
+**Requirements shipped:** 47 / 48 (AUTH-01–03, QUIZ-01–07, EDIT-01–08, NAV-01–02, TAKE-01–10, SHARE-01–03, EXT-04, AI-01–07, STATS-01–03, PAY-01, PAY-04, PAY-05)
 **Requirements planned:** 41 / 48 (Phase 1 + Phase 2 + Phase 3)
 **Phases completed:** 3 / 5
 
@@ -122,6 +123,9 @@ Phase 5 [          ] 0%
 - EF request-body limit for a Pro 5 MB base64 file (~6.7 MB encoded) — deferred to phase verification / human UAT; base64-in-JSON is the chosen transport, Storage-upload remains the documented contingency if a live test shows a 413 (RESEARCH Open Question 2 / Assumption A3)
 - shuffle_answers RESOLVED: added to quizzes.settings JSONB default in migration 002
 - Supabase Storage RLS for cover images RESOLVED: covers/{owner_id}/{quiz_id}/{uuid}.{ext} path in migration 007 comment
+- 05-01: DB-level freemium enforcement live (migration 015) — get_effective_plan() resolves plan lazily by date with no cron (D-05); BEFORE INSERT triggers enforce_quiz_limit/enforce_question_limit block the 4th quiz / 11th question for Free owners even against direct client DB queries (D-09), raising literal QUIZ_LIMIT_EXCEEDED / QUESTION_LIMIT_EXCEEDED tokens the frontend matches
+- 05-01: get_usage() RPC returns {plan, quizzes_used, quizzes_limit, ai_used, ai_limit, period_end} in one call (D-13); AI usage counted via ai_generations log table on a rolling 30-day window anchored to subscription/registration date (D-12); Free AI limit 10/mo, Pro 30/mo (D-14)
+- 05-01: subscriptions is the single source of truth for plan resolution — profiles.plan not consulted (D-06); migration 015 added subscriptions.created_at and a UNIQUE(user_id) constraint
 
 ### Blockers
 
@@ -136,10 +140,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-18T12:02:56.627Z
-**Resume file:** .planning/phases/05-billing/05-UI-SPEC.md
-**Stopped at:** Phase 5 UI-SPEC approved
-**Next action:** Execute plan 04-02 (Statistics UI slice)
+**Last session:** 2026-05-18T12:42:43.443Z
+**Resume file:** .planning/phases/05-billing/05-02-PLAN.md
+**Stopped at:** Completed 05-01-PLAN.md — billing DB enforcement, migration 015 applied to live DB
+**Next action:** Execute plan 05-02
 
 ---
 
