@@ -3,7 +3,7 @@ import AppHeader from '@widgets/AppHeader.vue'
 import AppFooter from '@widgets/AppFooter.vue'
 import HeroSection from '@widgets/HeroSection.vue'
 import HowItWorksSection from '@widgets/HowItWorksSection.vue'
-import QuizCarousel from '@widgets/QuizCarousel.vue'
+import LatestQuizzes from '@widgets/LatestQuizzes.vue'
 import PricingTeaserSection from '@widgets/PricingTeaserSection.vue'
 </script>
 
@@ -13,7 +13,7 @@ import PricingTeaserSection from '@widgets/PricingTeaserSection.vue'
     <HeroSection />
     <div class="flex min-h-dvh flex-col justify-center bg-neutral-900/50">
       <HowItWorksSection />
-      <QuizCarousel />
+      <LatestQuizzes />
     </div>
     <PricingTeaserSection />
     <AppFooter />
