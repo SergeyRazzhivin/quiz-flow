@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ImagePlus, Loader2, Camera } from 'lucide-vue-next'
+import { ImagePlus, Loader2, Camera, Trash2 } from 'lucide-vue-next'
 import { useQuizEditorStore } from '@features/quiz-editor/model/useQuizEditorStore'
-import Button from '@shared/ui/Button.vue'
 
 const store = useQuizEditorStore()
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -53,14 +52,14 @@ function onDrop(e: DragEvent) {
           Изменить
         </button>
       </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        class="mt-1 text-neutral-400 hover:bg-red-500/10 hover:text-red-400"
+      <button
+        type="button"
+        class="mt-2 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-800/60 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-400"
         @click="store.removeCover()"
       >
+        <Trash2 class="h-3.5 w-3.5" />
         Удалить обложку
-      </Button>
+      </button>
     </div>
 
     <div
