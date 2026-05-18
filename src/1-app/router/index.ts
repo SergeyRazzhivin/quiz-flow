@@ -11,7 +11,8 @@ declare module 'vue-router' {
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/',                    component: () => import('@pages/QuizListPage.vue') },
+    { path: '/',                    component: () => import('@pages/LandingPage.vue') },
+    { path: '/quizzes',             component: () => import('@pages/QuizListPage.vue') },
     { path: '/auth',                component: () => import('@pages/AuthPage.vue') },
     // WR-07: auth requirement is declared per-route via meta, not by textual
     // path-prefix matching — a path-prefix guard would also catch unrelated
