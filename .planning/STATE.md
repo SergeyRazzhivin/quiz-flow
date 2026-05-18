@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 5
 status: planning
-stopped_at: Phase 5 context gathered
-last_updated: "2026-05-18T11:41:34.317Z"
+stopped_at: Phase 5 UI-SPEC approved
+last_updated: "2026-05-18T12:02:56.633Z"
 progress:
   total_phases: 5
   completed_phases: 4
@@ -136,9 +136,9 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-18T11:41:34.310Z
-**Resume file:** .planning/phases/05-billing/05-CONTEXT.md
-**Stopped at:** Phase 5 context gathered
+**Last session:** 2026-05-18T12:02:56.627Z
+**Resume file:** .planning/phases/05-billing/05-UI-SPEC.md
+**Stopped at:** Phase 5 UI-SPEC approved
 **Next action:** Execute plan 04-02 (Statistics UI slice)
 
 ---
