@@ -33,6 +33,9 @@ onMounted(() => store.loadQuiz(props.quizId))
 }
 .editor-body {
   position: relative;
+  /* Establish a stacking context so the z-index:-1 dot layer paints above
+     this element's background but below the editor content. */
+  isolation: isolate;
   overflow-y: auto;
   overscroll-behavior: contain;
   background-color: #0a0a0a;
