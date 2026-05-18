@@ -9,10 +9,20 @@
 ## Phases
 
 - [x] **Phase 1: Foundation, Auth & Quiz Editor** — Owner can register, log in, create and fully edit a quiz with DnD question ordering
-- [x] **Phase 2: Quiz Taking & Sharing** — Guest can open a quiz by token link, authenticate, take it with a live timer, and see their score; owner can generate and manage per-person access links (completed 2026-05-17)
-- [x] **Phase 3: AI Wizard** — Owner can generate a complete quiz from uploaded text in 4 steps via an async Edge Function + OpenAI pipeline (completed 2026-05-17)
-- [x] **Phase 4: Statistics** — Owner can view attempt totals and per-person results (Free) and per-question accuracy (Pro) (completed 2026-05-17)
+- [x] **Phase 2: Quiz Taking & Sharing** — Guest can open a quiz by token link, authenticate, take it with a live timer, and see their score; owner can generate and manage per-person access links (completed 2006-05-17)
+- [x] **Phase 3: AI Wizard** — Owner can generate a complete quiz from uploaded text in 4 steps via an async Edge Function + OpenAI pipeline (completed 2006-05-17)
+- [x] **Phase 4: Statistics** — Owner can view attempt totals and per-person results (Free) and per-question accuracy (Pro) (completed 2006-05-17)
 - [x] **Phase 5: Billing** — Owner can subscribe to Pro via YooKassa; freemium limits are enforced at DB/Edge Function level
+
+### Phase 6: Landing page — service overview, public quiz carousel, and recently updated quizzes
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 5
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 6 to break down)
 
 ---
 
@@ -142,15 +152,3 @@
 - [x] 05-03-PLAN.md — Billing frontend slice: payment store, PricingCards, ProStatusBanner, BillingWidget/Page, /billing route, header link, limit upsell toast (PAY-01, PAY-02, PAY-03, PAY-05)
 
 **UI hint**: yes
-
----
-
-## Progress Table
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
-| 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
-| 3. AI Wizard | 3/3 | Complete   | 2026-05-17 |
-| 4. Statistics | 2/2 | Complete   | 2026-05-17 |
-| 5. Billing | 2/3 | In Progress|  |
