@@ -12,11 +12,17 @@ import WaveDivider from '@shared/ui/WaveDivider.vue'
   <div class="flex min-h-screen flex-col">
     <AppHeader />
     <HeroSection />
-    <div class="relative flex min-h-dvh flex-col justify-center bg-neutral-900/50">
-      <WaveDivider position="top" />
+    <div class="relative flex min-h-dvh flex-col justify-center bg-linear-to-b from-violet-950/45 via-neutral-900/55 to-indigo-950/45">
+      <WaveDivider
+        position="top"
+        fill="rgb(46 16 101 / 0.45)"
+      />
       <HowItWorksSection />
       <LatestQuizzes />
-      <WaveDivider position="bottom" />
+      <WaveDivider
+        position="bottom"
+        fill="rgb(30 27 75 / 0.45)"
+      />
     </div>
     <PricingTeaserSection />
     <AppFooter />
