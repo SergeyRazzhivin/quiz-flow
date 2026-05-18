@@ -51,7 +51,7 @@ async function onAddQuestion() {
       class="mb-3 flex justify-end gap-1"
     >
       <Button
-        variant="ghost"
+        variant="secondary"
         size="sm"
         @click="collapseAll"
       >
@@ -59,7 +59,7 @@ async function onAddQuestion() {
         Свернуть все
       </Button>
       <Button
-        variant="ghost"
+        variant="secondary"
         size="sm"
         @click="expandAll"
       >
