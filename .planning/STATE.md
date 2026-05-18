@@ -3,22 +3,22 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 05
-status: executing
-stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-05-18T12:42:43.443Z"
+status: milestone_complete
+stopped_at: Milestone complete (Phase 05 was final phase)
+last_updated: 2026-05-18T14:19:25.100Z
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
   completed_plans: 17
-  percent: 90
+  percent: 80
 ---
 
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
 **Current Phase:** 05
-**Status:** Ready to execute
+**Status:** Milestone complete
 
 ---
 
@@ -27,14 +27,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 05 — billing
+**Current focus:** Milestone complete
 
 ---
 
 ## Current Position
 
 Phase: 05 (billing) — EXECUTING
-Plan: 3 of 3 (05-03 COMPLETE)
+Plan: Not started
 **Phase 5 Plan 3:** COMPLETE — Billing frontend slice (usePaymentStore: get_usage fetch, isProActive, createPayment YooKassa redirect, handleLimitError upsell; PricingCards Free/Pro cards + monthly/yearly toggle; ProStatusBanner; BillingWidget shell; BillingPage; /billing route; AppHeader Тарифы link; 18 tests pass, steiger clean; PAY-02, PAY-03 UI). Task 4 (visual human-verify) auto-approved in --auto chain.
 **Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 (YooKassa live payment round-trip) DEFERRED by user — carried forward as a human-UAT item (see 05-02-SUMMARY Deferred Verification); resolve before production billing launch.
 **Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)
