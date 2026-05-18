@@ -330,24 +330,48 @@ Deno.serve(async (req) => {
     }
     const aiLimit = effectivePlan === 'pro' ? 30 : 10
 
-    // Rolling 30-day window anchor (D-12). Fall back to now-30d if RPC is null.
-    const { data: windowStartRpc } = await supabase.rpc('get_ai_window_start', {
-      p_user_id: user.id,
-    })
-    const windowStart =
-      typeof windowStartRpc === 'string' && windowStartRpc
-        ? windowStartRpc
-        : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+    // Rolling 30-day window anchor (D-12). The gate MUST count against the
+    // SAME window get_usage() shows the user (CR-03) — never a divergent
+    // now()-30d fallback. If the anchor RPC fails, reject the request rather
+    // than enforcing against a window the user cannot see.
+    const { data: windowStartRpc, error: windowStartError } = await supabase.rpc(
+      'get_ai_window_start',
+      { p_user_id: user.id },
+    )
+    if (windowStartError || typeof windowStartRpc !== 'string' || !windowStartRpc) {
+      console.error('ai-generate-quiz: get_ai_window_start failed', serializeError(windowStartError))
+      return json({ error: 'AI_LIMIT_CHECK_FAILED' }, 500)
+    }
+    const windowStart = windowStartRpc
 
-    // Pitfall 4: atomic insert-then-count. Insert the usage row first so
-    // concurrent requests cannot both read an under-limit count and slip past.
+    // ── Insert the ai_jobs row FIRST — this is what the owner polls ──
+    // CR-02: the usage row must be created AFTER (and linked to) the job so a
+    // crash between the two cannot leave a phantom row that permanently
+    // consumes quota. The job is the anchor; if the limit check below rejects,
+    // both the usage row and the job are cleaned up.
+    const { data: job, error: jobError } = await supabase
+      .from('ai_jobs')
+      .insert({ owner_id: user.id, status: 'pending', stage: 'reading' })
+      .select('id')
+      .single()
+
+    if (jobError || !job) {
+      throw jobError ?? new Error('ai_jobs insert failed')
+    }
+
+    // Pitfall 4: atomic insert-then-count. Insert the usage row (linked to the
+    // job via job_id) so concurrent requests cannot both read an under-limit
+    // count and slip past. A failure after this point cascades-deletes the row
+    // when its owning job is removed, so quota cannot leak.
     const { data: usageRow, error: usageInsertError } = await supabase
       .from('ai_generations')
-      .insert({ user_id: user.id })
+      .insert({ user_id: user.id, job_id: job.id })
       .select('id')
       .single()
     if (usageInsertError || !usageRow) {
       console.error('ai-generate-quiz: ai_generations insert failed', serializeError(usageInsertError))
+      // Remove the orphan job so the owner does not poll a job that will never run.
+      await supabase.from('ai_jobs').delete().eq('id', job.id)
       return json({ error: 'AI_LIMIT_CHECK_FAILED' }, 500)
     }
 
@@ -358,30 +382,21 @@ Deno.serve(async (req) => {
       .gte('created_at', windowStart)
 
     if (usageCountError || usageCount === null) {
-      // Roll back the just-inserted row so a transient count failure does not
-      // permanently consume one of the owner's monthly generations.
+      // Roll back the just-inserted row AND the job so a transient count
+      // failure does not permanently consume one of the owner's generations.
       await supabase.from('ai_generations').delete().eq('id', usageRow.id)
+      await supabase.from('ai_jobs').delete().eq('id', job.id)
       console.error('ai-generate-quiz: ai_generations count failed', serializeError(usageCountError))
       return json({ error: 'AI_LIMIT_CHECK_FAILED' }, 500)
     }
 
     if (usageCount > aiLimit) {
-      // Over the monthly limit — delete the speculative row and reject.
+      // Over the monthly limit — delete the speculative row and the job, reject.
       // The error string MUST contain literal AI_LIMIT_EXCEEDED (Pitfall 7:
       // the frontend matches error.message.includes('AI_LIMIT_EXCEEDED')).
       await supabase.from('ai_generations').delete().eq('id', usageRow.id)
+      await supabase.from('ai_jobs').delete().eq('id', job.id)
       return json({ error: 'AI_LIMIT_EXCEEDED', limit: aiLimit }, 429)
-    }
-
-    // ── Insert the ai_jobs row — this is what the owner polls ──
-    const { data: job, error: jobError } = await supabase
-      .from('ai_jobs')
-      .insert({ owner_id: user.id, status: 'pending', stage: 'reading' })
-      .select('id')
-      .single()
-
-    if (jobError || !job) {
-      throw jobError ?? new Error('ai_jobs insert failed')
     }
 
     // ── Hand the slow work to a background task and RETURN IMMEDIATELY (<200 ms) ──
