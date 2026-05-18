@@ -48,7 +48,7 @@ async function onAddQuestion() {
   <div>
     <div
       v-if="store.questions.length > 0"
-      class="mb-3 flex justify-end gap-1"
+      class="mb-3 flex justify-end gap-2"
     >
       <Button
         variant="secondary"

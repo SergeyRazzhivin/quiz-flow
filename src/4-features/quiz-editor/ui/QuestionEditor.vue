@@ -91,7 +91,7 @@ defineExpose({ focus })
       >
         {{ question.body || 'Без текста' }}
       </span>
-      <div class="ml-auto flex items-center gap-3">
+      <div class="ml-auto flex items-center gap-3 text-nowrap">
         <div class="flex">
           <button
             type="button"
