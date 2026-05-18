@@ -16,13 +16,14 @@
 
 ### Phase 6: Landing page — service overview, public quiz carousel, and recently updated quizzes
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** A visitor landing on `/` sees a marketing overview of Quiz Flow — hero with an auth-adaptive CTA, a 3-step "how it works" explainer, an auto-scrolling carousel of freshly published quizzes, and a pricing teaser — while the existing quiz catalog moves to a dedicated `/quizzes` route
+**Requirements**: None mapped — scope defined by CONTEXT.md decisions D-01..D-09
 **Depends on:** Phase 5
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 6 to break down)
+- [ ] 06-01-PLAN.md — Carousel fetcher (fetchCarouselQuizzes) + AppHeader/AppFooter nav-link rebinding to /quizzes
+- [ ] 06-02-PLAN.md — Landing widgets (Hero, How-it-works, QuizCarousel, PricingTeaser) + LandingPage assembler + router rebinding
 
 ---
 
@@ -150,5 +151,25 @@ Plans:
 
 **Wave 3**
 - [x] 05-03-PLAN.md — Billing frontend slice: payment store, PricingCards, ProStatusBanner, BillingWidget/Page, /billing route, header link, limit upsell toast (PAY-01, PAY-02, PAY-03, PAY-05)
+
+**UI hint**: yes
+
+### Phase 6: Landing page — service overview, public quiz carousel, and recently updated quizzes
+**Goal:** A visitor landing on `/` sees a marketing overview of Quiz Flow — hero with an auth-adaptive CTA, a 3-step "how it works" explainer, an auto-scrolling carousel of freshly published quizzes, and a pricing teaser — while the existing quiz catalog moves to a dedicated `/quizzes` route
+**Mode:** standard
+**Depends on:** Phase 5
+**Requirements:** None mapped — scope defined by CONTEXT.md decisions D-01..D-09
+**Success Criteria**:
+1. Visiting `/` renders the landing page with sections in order: Hero → "Как это работает" → quiz carousel → pricing teaser (D-04)
+2. The hero CTA adapts to auth state — "Начать бесплатно" → /auth for visitors, "Мои тесты" → /my for logged-in users; logged-in users see the same landing, no redirect (D-02, D-03)
+3. The carousel shows published quizzes newest-first by updated_at, auto-advances every 4s with hover-pause, and has bounded prev/next controls (D-07, D-08, D-09)
+4. The existing quiz catalog is reachable at `/quizzes`; all "Все тесты" links route there; both `/` and `/quizzes` are public (D-01)
+**Plans**: 2 plans across 2 waves
+
+**Wave 1**
+- [ ] 06-01-PLAN.md — Carousel fetcher (fetchCarouselQuizzes) + AppHeader/AppFooter nav-link rebinding to /quizzes (D-01, D-07, D-08)
+
+**Wave 2**
+- [ ] 06-02-PLAN.md — Landing widgets (Hero, How-it-works, QuizCarousel, PricingTeaser) + LandingPage assembler + router rebinding (D-01..D-09)
 
 **UI hint**: yes
