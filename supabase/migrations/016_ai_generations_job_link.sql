@@ -86,3 +86,30 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION get_usage() TO authenticated;
+
+-- ─── payments — pending payment audit trail (WR-05) ─────────────────────────
+-- create-payment records a pending row at YooKassa-payment-creation time so a
+-- missed webhook (e.g. IP-allowlist drift) leaves a reconcilable audit record
+-- and a paid-but-not-granted state is detectable. The webhook is no longer the
+-- only place a payment is ever known.
+CREATE TABLE IF NOT EXISTS payments (
+  id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id              uuid NOT NULL REFERENCES profiles (id) ON DELETE CASCADE,
+  yookassa_payment_id  text NOT NULL UNIQUE,
+  period               text NOT NULL CHECK (period IN ('monthly', 'yearly')),
+  amount               numeric(10, 2) NOT NULL,
+  status               text NOT NULL DEFAULT 'pending'
+                         CHECK (status IN ('pending', 'succeeded', 'canceled')),
+  created_at           timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX IF NOT EXISTS payments_user_idx ON payments (user_id);
+
+-- Owner-only read for reconciliation/UX; writes go through service_role EFs
+-- only — no INSERT/UPDATE policy for the authenticated role.
+DROP POLICY IF EXISTS "owner_own_payments" ON payments;
+CREATE POLICY "owner_own_payments"
+  ON payments FOR SELECT TO authenticated
+  USING ( user_id = (SELECT auth.uid()) );

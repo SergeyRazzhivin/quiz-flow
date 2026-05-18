@@ -249,6 +249,17 @@ Deno.serve(async (req) => {
       return respond({ error: 'upsert_failed' }, 500) // 500 → YooKassa retries
     }
 
+    // ── 6. Reconcile the pending payment record (WR-05) ──
+    // Best-effort: the grant above already succeeded; a failure to flip the
+    // audit row must not trigger a YooKassa retry.
+    const { error: paymentUpdateError } = await supabase
+      .from('payments')
+      .update({ status: 'succeeded' })
+      .eq('yookassa_payment_id', paymentId)
+    if (paymentUpdateError) {
+      console.error('yookassa-webhook: payment reconcile failed', serializeError(paymentUpdateError))
+    }
+
     return respond({ ok: true }, 200)
   } catch (err) {
     console.error('yookassa-webhook error:', serializeError(err))

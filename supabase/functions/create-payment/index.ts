@@ -102,6 +102,27 @@ Deno.serve(async (req) => {
 
     const payment = await yooResponse.json()
 
+    // ── Persist a pending payment record (WR-05) ──
+    // Records the payment server-side at creation time so the webhook is not
+    // the only place a payment is ever known. A missed webhook then leaves a
+    // reconcilable audit row instead of an undetectable paid-but-not-granted
+    // state. Best-effort: a failure here must not block the redirect — the
+    // webhook still grants Pro — so the error is logged, not surfaced.
+    if (typeof payment.id === 'string') {
+      const { error: paymentInsertError } = await supabase
+        .from('payments')
+        .insert({
+          user_id: user.id,
+          yookassa_payment_id: payment.id,
+          period: validPeriod,
+          amount,
+          status: 'pending',
+        })
+      if (paymentInsertError) {
+        console.error('create-payment: pending payment insert failed', serializeError(paymentInsertError))
+      }
+    }
+
     return json(
       {
         confirmation_url: payment.confirmation?.confirmation_url,
