@@ -21,7 +21,7 @@ onMounted(() => {
   <div class="min-h-[100dvh]">
     <AppHeader />
 
-    <main class="mx-auto max-w-3xl px-6 py-16">
+    <main class="mx-auto max-w-7xl px-6 py-16">
       <h1 class="text-2xl font-semibold text-neutral-50">Тарифы</h1>
       <p class="mt-2 max-w-xl text-sm leading-relaxed text-neutral-400">
         Quiz Flow можно использовать бесплатно — план Free подходит, чтобы создать
@@ -33,7 +33,7 @@ onMounted(() => {
       <!-- Loading branch -->
       <template v-if="store.loading && !store.usage">
         <div class="mt-10 h-10 w-48 animate-pulse rounded-lg bg-neutral-800" />
-        <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div class="mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
           <div class="h-96 animate-pulse rounded-xl bg-neutral-800" />
           <div class="h-96 animate-pulse rounded-xl bg-neutral-800" />
         </div>
@@ -42,7 +42,7 @@ onMounted(() => {
       <!-- Error branch -->
       <div
         v-else-if="store.error"
-        class="mt-10 rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-12 text-center"
+        class="mt-10 max-w-3xl rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-12 text-center"
       >
         <h2 class="text-xl font-semibold text-neutral-50">Не удалось загрузить данные тарифа</h2>
         <p class="mt-2 text-sm text-neutral-400">
@@ -55,9 +55,9 @@ onMounted(() => {
         <ProStatusBanner
           v-if="store.isProActive"
           :usage="store.usage"
-          class="mt-10 mb-8"
+          class="mt-10 mb-8 max-w-3xl"
         />
-        <div class="mt-10">
+        <div class="mt-10 max-w-3xl">
           <PricingCards
             :usage="store.usage"
             :loading="store.loading"
@@ -65,7 +65,7 @@ onMounted(() => {
         </div>
 
         <!-- Plan details / FAQ -->
-        <dl class="mt-12 space-y-6 border-t border-neutral-800 pt-8">
+        <dl class="mt-12 max-w-3xl space-y-6 border-t border-neutral-800 pt-8">
           <div>
             <dt class="text-sm font-medium text-neutral-200">Как проходит оплата</dt>
             <dd class="mt-1 text-sm leading-relaxed text-neutral-400">
