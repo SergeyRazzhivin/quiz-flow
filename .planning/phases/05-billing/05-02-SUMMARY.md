@@ -37,7 +37,7 @@ decisions:
 metrics:
   duration: ~6m
   completed: "2026-05-18"
-  tasks: "3 of 4 (Task 4 = blocking human-verify checkpoint)"
+  tasks: "3 of 4 (Task 4 = human-UAT, deferred by user)"
 ---
 
 # Phase 5 Plan 02: YooKassa Payment Edge Functions Summary
@@ -58,7 +58,7 @@ YooKassa payment integration: an owner-authed `create-payment` Edge Function tha
 | 1 | create-payment EF + config.toml | 6dc0002 | supabase/functions/create-payment/index.ts, supabase/config.toml |
 | 2 | yookassa-webhook EF (public, idempotent) | 41b6229 | supabase/functions/yookassa-webhook/index.ts |
 | 3 | AI monthly-limit gate in ai-generate-quiz | cc7e322 | supabase/functions/ai-generate-quiz/index.ts |
-| 4 | Verify YooKassa round-trip + webhook | — | blocking human-verify checkpoint — see below |
+| 4 | Verify YooKassa round-trip + webhook | — | DEFERRED — human-UAT, see Deferred Verification |
 
 All three automated `<verify>` checks passed: Task 1 (`api.yookassa.ru/v3/payments` count = 1, config block present), Task 2 (token count = 8), Task 3 (token count = 7).
 
@@ -66,9 +66,30 @@ All three automated `<verify>` checks passed: Task 1 (`api.yookassa.ru/v3/paymen
 
 None — plan executed exactly as written. The IPv6 `2a02:5180::/32` check uses a lowercased hextet-boundary prefix match; this is a correct CIDR test for a /32 IPv6 prefix (the boundary lands exactly on the first two hextets) and not the prohibited subnet string-prefix shortcut, which the plan barred only for the IPv4 `/27`/`/25` subnets.
 
-## Checkpoint: Task 4 (blocking human-verify)
+## Deferred Verification
 
-Task 4 is a `gate="blocking-human"` checkpoint. It requires deploying the three functions, setting Edge Function secrets (`YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY`, `APP_URL`), registering the `payment.succeeded` webhook in the YooKassa dashboard, and completing a real test-card payment round-trip — none of which can be automated. Execution stops here; the orchestrator must surface this for human verification.
+Task 4 was a `gate="blocking-human"` checkpoint (real YooKassa payment round-trip). The
+user chose **"Отложить проверку"** — the Edge Function code is accepted as-is and the plan
+proceeds. The live round-trip test is **NOT done** and is carried forward as an outstanding
+human-UAT item.
+
+**Outstanding human-UAT item — YooKassa payment round-trip:**
+
+1. Deploy the functions: `supabase functions deploy create-payment`,
+   `supabase functions deploy yookassa-webhook`, `supabase functions deploy ai-generate-quiz`.
+2. Set Edge Function secrets: `supabase secrets set YOOKASSA_SHOP_ID=... YOOKASSA_SECRET_KEY=... APP_URL=http://localhost:5173`.
+3. In the YooKassa test dashboard, register the webhook URL (deployed `yookassa-webhook`
+   function URL) for the `payment.succeeded` event.
+4. From an authenticated session, invoke `create-payment` with `{ period: 'monthly' }` —
+   confirm a `confirmation_url` is returned and the YooKassa hosted page opens.
+5. Complete the test payment with a YooKassa test card; confirm redirect back to `/billing`.
+6. In the Supabase SQL editor:
+   `SELECT plan, status, current_period_end FROM subscriptions WHERE user_id = '<your-uuid>';`
+   — expect `pro / active / ~30 days out`.
+7. Re-send the same webhook payload manually — confirm no duplicate row and the plan stays
+   unchanged (webhook idempotency on `yookassa_payment_id`).
+
+**Status:** DEFERRED (not failed, not verified). Resolve before production billing launch.
 
 ## Self-Check: PASSED
 

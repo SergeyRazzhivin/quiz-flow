@@ -34,8 +34,8 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 05 (billing) — EXECUTING
-Plan: 3 of 3
-**Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 = blocking human-verify checkpoint (deploy + YooKassa test payment) — pending user verification.
+Plan: 3 of 3 (05-03 next)
+**Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 (YooKassa live payment round-trip) DEFERRED by user — carried forward as a human-UAT item (see 05-02-SUMMARY Deferred Verification); resolve before production billing launch.
 **Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)
 **Phase 4 Plan 1:** COMPLETE — Statistics data layer (migration 013 get_quiz_stats + get_quiz_accuracy RPCs, format helpers, ProgressBar size prop; STATS-01–03)
 **Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
@@ -122,6 +122,7 @@ Phase 5 [▓▓▓▓▓▓▓   ] 67% (2/3 plans)
 - Follow-up (03-03): populate evals/dataset/ with the 15-case AI-SPEC §5 reference dataset and evals/judge-prompts/ with the Russian-language LLM-judge prompts so the D1-D6 eval gates have data to assert against
 - File parsing strategy for AI wizard RESOLVED (03-01): unpdf for PDF, unzipit for DOCX — both run inside the Edge Function
 - EF request-body limit for a Pro 5 MB base64 file (~6.7 MB encoded) — deferred to phase verification / human UAT; base64-in-JSON is the chosen transport, Storage-upload remains the documented contingency if a live test shows a 413 (RESEARCH Open Question 2 / Assumption A3)
+- Follow-up (05-02): YooKassa payment round-trip test DEFERRED by user — deploy create-payment/yookassa-webhook/ai-generate-quiz, set YOOKASSA secrets, register the payment.succeeded webhook, pay with a test card, confirm Pro grant + webhook idempotency; resolve before production billing launch (see 05-02-SUMMARY Deferred Verification)
 - shuffle_answers RESOLVED: added to quizzes.settings JSONB default in migration 002
 - Supabase Storage RLS for cover images RESOLVED: covers/{owner_id}/{quiz_id}/{uuid}.{ext} path in migration 007 comment
 - 05-01: DB-level freemium enforcement live (migration 015) — get_effective_plan() resolves plan lazily by date with no cron (D-05); BEFORE INSERT triggers enforce_quiz_limit/enforce_question_limit block the 4th quiz / 11th question for Free owners even against direct client DB queries (D-09), raising literal QUIZ_LIMIT_EXCEEDED / QUESTION_LIMIT_EXCEEDED tokens the frontend matches
@@ -143,8 +144,8 @@ None.
 
 **Last session:** 2026-05-18T12:42:43.443Z
 **Resume file:** .planning/phases/05-billing/05-03-PLAN.md
-**Stopped at:** Completed 05-02-PLAN.md tasks 1-3 — YooKassa payment Edge Functions; Task 4 blocking human-verify pending
-**Next action:** Human verifies the YooKassa payment round-trip (deploy + test payment), then execute plan 05-03
+**Stopped at:** Completed 05-02-PLAN.md — tasks 1-3 done; Task 4 (YooKassa live payment round-trip) deferred as human-UAT
+**Next action:** Execute plan 05-03
 
 ---
 
