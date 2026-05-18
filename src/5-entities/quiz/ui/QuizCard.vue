@@ -54,7 +54,7 @@ const router = useRouter()
       </p>
 
       <!-- Meta chips -->
-      <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+      <div class="mt-2.5 mb-3 flex flex-wrap items-center gap-1.5">
         <span
           v-if="quiz.question_count != null"
           class="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-1.5 py-0.5 text-[11px] font-medium text-neutral-300"

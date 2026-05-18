@@ -31,18 +31,19 @@ export async function deleteQuestion(id: string): Promise<void> {
   if (error) throw error
 }
 
-// Batch upsert for DnD reorder. Full rows are sent because `quiz_id` is
-// NOT NULL with no default — a partial upsert would fail the INSERT path.
+// Persists order_index for a DnD reorder via per-row UPDATEs.
+// NOT an upsert: upsert runs as `INSERT ... ON CONFLICT DO UPDATE`, and the
+// INSERT phase fires the `enforce_question_limit` BEFORE INSERT trigger
+// (migration 015) — which rejects the reorder for any owner already at their
+// plan's question limit. Plain UPDATE does not fire INSERT triggers, and the
+// `questions` table has no UNIQUE (quiz_id, order_index) constraint, so the
+// transient duplicate order_index values between updates are safe.
 export async function reorderQuestions(questions: Question[]): Promise<void> {
-  const { error } = await supabase.from('questions').upsert(
-    questions.map(q => ({
-      id: q.id,
-      quiz_id: q.quiz_id,
-      body: q.body,
-      type: q.type,
-      order_index: q.order_index,
-      is_required: q.is_required,
-    })),
+  const results = await Promise.all(
+    questions.map((q, index) =>
+      supabase.from('questions').update({ order_index: index }).eq('id', q.id),
+    ),
   )
-  if (error) throw error
+  const failed = results.find(r => r.error)
+  if (failed?.error) throw failed.error
 }
