@@ -32,12 +32,36 @@ onMounted(() => store.loadQuiz(props.quizId))
   overflow: hidden;
 }
 .editor-body {
+  position: relative;
   overflow-y: auto;
   overscroll-behavior: contain;
   background-color: #0a0a0a;
-  /* Barely-perceptible dot grid for subtle depth. */
-  background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+}
+/* Dot grid that fades out toward the left/right edges. The pattern lives on a
+   pseudo-element so the mask only affects the dots, not the content; z-index
+   -1 keeps it behind the editor content but above the base background. */
+.editor-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px);
   background-size: 24px 24px;
   background-position: -12px -12px;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 22%,
+    #000 78%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 22%,
+    #000 78%,
+    transparent 100%
+  );
 }
 </style>
