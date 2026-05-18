@@ -99,15 +99,14 @@ function onPrimary(): void {
   <div class="wizard-shell">
     <!-- Header row: title + stepper + exit affordance -->
     <header class="relative mx-auto w-full max-w-7xl px-6 pt-8 pb-4">
-      <Button
-        variant="ghost"
-        size="icon"
-        class="absolute left-2 top-6 text-neutral-400"
+      <button
+        type="button"
         aria-label="Закрыть мастер"
+        class="absolute left-6 top-7 flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-neutral-400 transition-colors hover:border-neutral-700 hover:bg-neutral-800 hover:text-neutral-100"
         @click="exitWizard"
       >
-        <X class="h-5 w-5" />
-      </Button>
+        <X class="h-[18px] w-[18px]" />
+      </button>
       <h1 class="text-center text-2xl font-semibold text-neutral-50">
         Создание теста с ИИ
       </h1>
