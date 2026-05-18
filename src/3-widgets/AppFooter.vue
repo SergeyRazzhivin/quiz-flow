@@ -16,7 +16,7 @@ const year = computed(() => new Date().getFullYear())
       </p>
       <nav class="flex items-center gap-4">
         <RouterLink
-          to="/"
+          to="/quizzes"
           class="transition-colors hover:text-neutral-300"
         >
           Все тесты

@@ -37,7 +37,7 @@ async function handleLogout() {
 
       <nav class="flex items-center gap-4">
         <RouterLink
-          to="/"
+          to="/quizzes"
           class="text-sm text-neutral-300 hover:text-neutral-50"
         >
           Все тесты
