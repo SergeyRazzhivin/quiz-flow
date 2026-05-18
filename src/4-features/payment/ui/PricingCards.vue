@@ -88,12 +88,12 @@ function handleSubscribe(): void {
     <!-- Plan cards -->
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
       <!-- Free card -->
-      <div class="rounded-xl border border-neutral-800 bg-neutral-900 p-6">
+      <div class="flex flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-6">
         <h3 class="text-xl font-semibold text-neutral-50">Free</h3>
         <p class="mt-3">
           <span class="text-2xl font-semibold text-neutral-50">0 ₽</span>
         </p>
-        <ul class="mt-6 space-y-3">
+        <ul class="mt-6 mb-6 space-y-3">
           <li
             v-for="f in freeFeatures"
             :key="f.label"
@@ -122,14 +122,14 @@ function handleSubscribe(): void {
         <button
           type="button"
           disabled
-          class="mt-6 h-10 w-full rounded-md bg-neutral-800 text-sm font-medium text-neutral-400 disabled:opacity-60"
+          class="mt-auto h-10 w-full rounded-md bg-neutral-800 text-sm font-medium text-neutral-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {{ isFreeUser ? 'Текущий план' : 'Free' }}
         </button>
       </div>
 
       <!-- Pro card -->
-      <div class="rounded-xl border border-violet-600/60 bg-neutral-900 p-6 ring-1 ring-violet-600/10">
+      <div class="flex flex-col rounded-xl border border-violet-600/60 bg-neutral-900 p-6 ring-1 ring-violet-600/10">
         <div class="flex items-center gap-2">
           <h3 class="text-xl font-semibold text-neutral-50">Pro</h3>
           <span class="rounded-full bg-linear-to-r from-violet-600 to-indigo-600 px-2 py-0.5 text-xs text-white">
@@ -140,7 +140,7 @@ function handleSubscribe(): void {
           <span class="text-2xl font-semibold text-neutral-50">{{ proPrice }}</span>
           <span class="text-sm text-neutral-400">{{ proUnit }}</span>
         </p>
-        <ul class="mt-6 space-y-3">
+        <ul class="mt-6 mb-6 space-y-3">
           <li
             v-for="label in proFeatures"
             :key="label"
@@ -153,7 +153,7 @@ function handleSubscribe(): void {
         <button
           type="button"
           :disabled="loading"
-          class="mt-6 h-10 w-full cursor-pointer rounded-md bg-linear-to-r from-violet-600 to-indigo-600 px-8 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-auto h-10 w-full cursor-pointer rounded-md bg-linear-to-r from-violet-600 to-indigo-600 px-8 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           @click="handleSubscribe"
         >
           {{ loading ? 'Переходим к оплате…' : 'Подписаться' }}
