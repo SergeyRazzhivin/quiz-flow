@@ -23,7 +23,12 @@ onMounted(() => {
 
     <main class="mx-auto max-w-3xl px-6 py-16">
       <h1 class="text-2xl font-semibold text-neutral-50">Тарифы</h1>
-      <p class="mt-1 text-sm text-neutral-400">Выберите подходящий план</p>
+      <p class="mt-2 max-w-xl text-sm leading-relaxed text-neutral-400">
+        Quiz Flow можно использовать бесплатно — план Free подходит, чтобы создать
+        первые тесты и попробовать AI-генерацию. План Pro снимает лимиты: безлимит
+        тестов и вопросов, больше AI-генераций, индивидуальные ссылки доступа и
+        статистика точности по вопросам.
+      </p>
 
       <!-- Loading branch -->
       <template v-if="store.loading && !store.usage">
@@ -58,6 +63,35 @@ onMounted(() => {
             :loading="store.loading"
           />
         </div>
+
+        <!-- Plan details / FAQ -->
+        <dl class="mt-12 space-y-6 border-t border-neutral-800 pt-8">
+          <div>
+            <dt class="text-sm font-medium text-neutral-200">Как проходит оплата</dt>
+            <dd class="mt-1 text-sm leading-relaxed text-neutral-400">
+              Оплата картой через YooKassa в рублях. После успешного платежа
+              доступ к Pro открывается автоматически — возвращаться и что-то
+              активировать вручную не нужно.
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-neutral-200">Это разовый платёж, а не подписка</dt>
+            <dd class="mt-1 text-sm leading-relaxed text-neutral-400">
+              Pro оплачивается за период (месяц или год) и не продлевается
+              автоматически — деньги не спишутся повторно. Когда период
+              заканчивается, аккаунт возвращается на план Free. Кнопка
+              «Продлить» доступна в любой момент.
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-neutral-200">Что будет с тестами после окончания Pro</dt>
+            <dd class="mt-1 text-sm leading-relaxed text-neutral-400">
+              Все созданные тесты сохраняются, и их можно открывать и
+              редактировать. Ограничения Free снова применяются только к
+              новым тестам и вопросам — данные не удаляются.
+            </dd>
+          </div>
+        </dl>
       </template>
     </main>
   </div>

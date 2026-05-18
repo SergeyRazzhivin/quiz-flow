@@ -65,16 +65,16 @@ function handleSubscribe(): void {
       <div class="inline-flex items-center gap-1 rounded-lg bg-neutral-900 p-1">
         <button
           type="button"
-          class="h-9 rounded-md px-4 text-sm transition-colors"
-          :class="selectedPeriod === 'monthly' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400'"
+          class="h-9 cursor-pointer rounded-md px-4 text-sm transition-colors"
+          :class="selectedPeriod === 'monthly' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200'"
           @click="selectedPeriod = 'monthly'"
         >
           Помесячно
         </button>
         <button
           type="button"
-          class="flex h-9 items-center gap-2 rounded-md px-4 text-sm transition-colors"
-          :class="selectedPeriod === 'yearly' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400'"
+          class="flex h-9 cursor-pointer items-center gap-2 rounded-md px-4 text-sm transition-colors"
+          :class="selectedPeriod === 'yearly' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200'"
           @click="selectedPeriod = 'yearly'"
         >
           Ежегодно
@@ -129,11 +129,10 @@ function handleSubscribe(): void {
       </div>
 
       <!-- Pro card -->
-      <div class="relative rounded-xl border border-violet-600/40 bg-neutral-900 p-6">
-        <div class="-mx-6 -mt-6 mb-6 h-0.5 rounded-t-xl bg-gradient-to-r from-violet-600 to-indigo-600" />
+      <div class="rounded-xl border border-violet-600/60 bg-neutral-900 p-6 ring-1 ring-violet-600/10">
         <div class="flex items-center gap-2">
           <h3 class="text-xl font-semibold text-neutral-50">Pro</h3>
-          <span class="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-2 py-0.5 text-xs text-white">
+          <span class="rounded-full bg-linear-to-r from-violet-600 to-indigo-600 px-2 py-0.5 text-xs text-white">
             PRO
           </span>
         </div>
@@ -154,7 +153,7 @@ function handleSubscribe(): void {
         <button
           type="button"
           :disabled="loading"
-          class="mt-6 h-10 w-full rounded-md bg-gradient-to-r from-violet-600 to-indigo-600 px-8 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+          class="mt-6 h-10 w-full cursor-pointer rounded-md bg-linear-to-r from-violet-600 to-indigo-600 px-8 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           @click="handleSubscribe"
         >
           {{ loading ? 'Переходим к оплате…' : 'Подписаться' }}
