@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 06
-status: verifying
-stopped_at: Phase 6 UI-SPEC approved
-last_updated: "2026-05-18T20:06:51.123Z"
+status: completed
+stopped_at: Phase 6 verified and finalized — milestone v1.0 complete
+last_updated: "2026-05-19T00:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 6
@@ -18,7 +18,7 @@ progress:
 
 **Initialized:** 2026-05-16
 **Current Phase:** 06
-**Status:** Phase complete — ready for verification
+**Status:** Milestone v1.0 complete — Phase 6 verified and finalized
 
 ---
 
@@ -27,14 +27,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Phase 06 — landing-page-service-overview-public-quiz-carousel-and-recen
+**Current focus:** Milestone v1.0 complete — all 6 phases shipped
 
 ---
 
 ## Current Position
 
-Phase: 06 (landing-page-service-overview-public-quiz-carousel-and-recen) — EXECUTING
+Phase: 06 (landing-page-service-overview-public-quiz-carousel-and-recen) — COMPLETE
 Plan: 2 of 2
+**Phase 6:** COMPLETE — Public landing page at `/` (hero with auth-adaptive CTA, "Как это работает", 3 full-viewport screens with wave seams, latest-quizzes 4-card grid, pricing screen reusing /billing PricingCards); catalog moved to /quizzes; whole service adapted to mobile (AppHeader hamburger menu, responsive stats/modals). Verified 11/11 must-haves; human UAT done via interactive review. D-01..D-09 all covered.
 **Phase 5 Plan 3:** COMPLETE — Billing frontend slice (usePaymentStore: get_usage fetch, isProActive, createPayment YooKassa redirect, handleLimitError upsell; PricingCards Free/Pro cards + monthly/yearly toggle; ProStatusBanner; BillingWidget shell; BillingPage; /billing route; AppHeader Тарифы link; 18 tests pass, steiger clean; PAY-02, PAY-03 UI). Task 4 (visual human-verify) auto-approved in --auto chain.
 **Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 (YooKassa live payment round-trip) DEFERRED by user — carried forward as a human-UAT item (see 05-02-SUMMARY Deferred Verification); resolve before production billing launch.
 **Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)

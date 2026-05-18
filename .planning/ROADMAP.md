@@ -13,6 +13,7 @@
 - [x] **Phase 3: AI Wizard** — Owner can generate a complete quiz from uploaded text in 4 steps via an async Edge Function + OpenAI pipeline (completed 2006-05-17)
 - [x] **Phase 4: Statistics** — Owner can view attempt totals and per-person results (Free) and per-question accuracy (Pro) (completed 2006-05-17)
 - [x] **Phase 5: Billing** — Owner can subscribe to Pro via YooKassa; freemium limits are enforced at DB/Edge Function level
+- [x] **Phase 6: Landing page** — Public marketing landing at `/` (hero, "Как это работает", latest-quizzes grid, pricing teaser); catalog moved to `/quizzes`
 
 ### Phase 6: Landing page — service overview, public quiz carousel, and recently updated quizzes
 
