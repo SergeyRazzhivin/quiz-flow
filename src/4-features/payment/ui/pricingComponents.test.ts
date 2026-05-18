@@ -26,7 +26,7 @@ import ProStatusBanner from './ProStatusBanner.vue'
 const freeUsage = {
   plan: 'free' as const,
   quizzes_used: 2, quizzes_limit: 3,
-  ai_used: 4, ai_limit: 10, period_end: null,
+  ai_used: 4, ai_limit: 10, period_end: null, current_period: null,
 }
 
 describe('PricingCards', () => {
