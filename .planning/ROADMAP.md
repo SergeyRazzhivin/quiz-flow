@@ -136,7 +136,7 @@
 - [x] 05-01-PLAN.md — DB enforcement: migration 015 (ai_generations, get_effective_plan, BEFORE INSERT triggers, get_usage RPC) (PAY-01, PAY-04, PAY-05)
 
 **Wave 2**
-- [ ] 05-02-PLAN.md — Edge Functions: create-payment, public yookassa-webhook, AI limit gate in ai-generate-quiz (PAY-03, PAY-04, PAY-05)
+- [x] 05-02-PLAN.md — Edge Functions: create-payment, public yookassa-webhook, AI limit gate in ai-generate-quiz (PAY-03, PAY-04, PAY-05)
 
 **Wave 3**
 - [ ] 05-03-PLAN.md — Billing frontend slice: payment store, PricingCards, ProStatusBanner, BillingWidget/Page, /billing route, header link, limit upsell toast (PAY-01, PAY-02, PAY-03, PAY-05)
@@ -153,4 +153,4 @@
 | 2. Quiz Taking & Sharing | 5/5 | Complete   | 2026-05-17 |
 | 3. AI Wizard | 3/3 | Complete   | 2026-05-17 |
 | 4. Statistics | 2/2 | Complete   | 2026-05-17 |
-| 5. Billing | 1/3 | In Progress|  |
+| 5. Billing | 2/3 | In Progress|  |

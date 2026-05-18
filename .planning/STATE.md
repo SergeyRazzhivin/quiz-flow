@@ -10,8 +10,8 @@ progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
-  completed_plans: 15
-  percent: 80
+  completed_plans: 16
+  percent: 85
 ---
 
 # State: Quiz Flow
@@ -34,7 +34,8 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 ## Current Position
 
 Phase: 05 (billing) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
+**Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 = blocking human-verify checkpoint (deploy + YooKassa test payment) — pending user verification.
 **Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)
 **Phase 4 Plan 1:** COMPLETE — Statistics data layer (migration 013 get_quiz_stats + get_quiz_accuracy RPCs, format helpers, ProgressBar size prop; STATS-01–03)
 **Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
@@ -53,7 +54,7 @@ Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
 Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
 Phase 3 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
 Phase 4 [▓▓▓▓▓     ] 50% (1/2 plans)
-Phase 5 [▓▓▓       ] 33% (1/3 plans)
+Phase 5 [▓▓▓▓▓▓▓   ] 67% (2/3 plans)
 ```
 
 ---
@@ -141,9 +142,9 @@ None.
 ## Session Continuity
 
 **Last session:** 2026-05-18T12:42:43.443Z
-**Resume file:** .planning/phases/05-billing/05-02-PLAN.md
-**Stopped at:** Completed 05-01-PLAN.md — billing DB enforcement, migration 015 applied to live DB
-**Next action:** Execute plan 05-02
+**Resume file:** .planning/phases/05-billing/05-03-PLAN.md
+**Stopped at:** Completed 05-02-PLAN.md tasks 1-3 — YooKassa payment Edge Functions; Task 4 blocking human-verify pending
+**Next action:** Human verifies the YooKassa payment round-trip (deploy + test payment), then execute plan 05-03
 
 ---
 
