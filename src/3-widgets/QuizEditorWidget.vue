@@ -35,5 +35,9 @@ onMounted(() => store.loadQuiz(props.quizId))
   overflow-y: auto;
   overscroll-behavior: contain;
   background-color: #0a0a0a;
+  /* Barely-perceptible dot grid for subtle depth. */
+  background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -12px -12px;
 }
 </style>
