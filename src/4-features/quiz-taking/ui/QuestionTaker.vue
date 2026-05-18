@@ -52,7 +52,7 @@ const isRequiredAndUnanswered = () =>
         <span
           class="flex h-5 w-5 shrink-0 items-center justify-center border-2 transition-colors"
           :class="[
-            question.type === 'single' ? 'rounded-full' : 'rounded',
+            question.type === 'single' ? 'rounded-full' : 'rounded-sm',
             isSelected(option.id)
               ? 'border-orange-500 bg-orange-500'
               : 'border-neutral-600 bg-neutral-900',

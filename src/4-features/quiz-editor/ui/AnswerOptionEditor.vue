@@ -38,7 +38,7 @@ function saveBody() {
       type="button"
       class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center border-2 transition-colors"
       :class="[
-        type === 'single' ? 'rounded-full' : 'rounded-lg',
+        type === 'single' ? 'rounded-full' : 'rounded-sm',
         option.is_correct ? 'border-orange-500 bg-orange-500' : 'border-neutral-700 bg-neutral-900',
       ]"
       :aria-label="option.is_correct ? 'Правильный ответ' : 'Отметить правильным'"
