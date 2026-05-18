@@ -110,3 +110,10 @@ verify_jwt = false
 verify_jwt = false
 
 # create-quiz-access: omitted → defaults to verify_jwt = true (owner must be authenticated)
+
+# Edge Function configuration — Phase 5 (billing)
+# yookassa-webhook is a public endpoint hit by YooKassa servers — no Supabase JWT.
+# It authenticates the caller by an IP allowlist instead (threat T-05-06).
+# create-payment is omitted → defaults to verify_jwt = true (owner must be authenticated).
+[functions.yookassa-webhook]
+verify_jwt = false
