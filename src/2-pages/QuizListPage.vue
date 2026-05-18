@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { fetchPublishedQuizzes } from '@entities/quiz/api'
 import type { Quiz } from '@entities/quiz/model'
 import AppHeader from '@widgets/AppHeader.vue'
+import AppFooter from '@widgets/AppFooter.vue'
 import QuizCard from '@entities/quiz/ui/QuizCard.vue'
 
 const quizzes = ref<Quiz[]>([])
@@ -20,9 +21,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div class="flex min-h-screen flex-col">
     <AppHeader />
-    <main class="mx-auto max-w-6xl px-6 py-8">
+    <main class="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
       <h1 class="mb-6 text-2xl font-semibold text-neutral-50">
         Все тесты
       </h1>
@@ -52,5 +53,6 @@ onMounted(async () => {
         />
       </div>
     </main>
+    <AppFooter />
   </div>
 </template>

@@ -6,6 +6,7 @@ import { toast } from 'vue-sonner'
 import { fetchMyQuizzes, createQuiz, deleteQuiz } from '@entities/quiz/api'
 import type { Quiz } from '@entities/quiz/model'
 import AppHeader from '@widgets/AppHeader.vue'
+import AppFooter from '@widgets/AppFooter.vue'
 import QuizCard from '@entities/quiz/ui/QuizCard.vue'
 import EmptyState from '@features/quiz-list/ui/EmptyState.vue'
 import DeleteQuizDialog from '@features/quiz-list/ui/DeleteQuizDialog.vue'
@@ -62,9 +63,9 @@ async function handleConfirmDelete() {
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div class="flex min-h-screen flex-col">
     <AppHeader />
-    <main class="mx-auto max-w-6xl px-6 py-8">
+    <main class="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
       <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-semibold text-neutral-50">
           Мои тесты
@@ -118,6 +119,7 @@ async function handleConfirmDelete() {
         />
       </div>
     </main>
+    <AppFooter />
 
     <DeleteQuizDialog
       :open="!!deleteTarget"

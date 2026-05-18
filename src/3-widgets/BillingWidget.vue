@@ -7,6 +7,7 @@ import { usePaymentStore } from '@features/payment/model/usePaymentStore'
 import PricingCards from '@features/payment/ui/PricingCards.vue'
 import ProStatusBanner from '@features/payment/ui/ProStatusBanner.vue'
 import AppHeader from './AppHeader.vue'
+import AppFooter from './AppFooter.vue'
 
 const store = usePaymentStore()
 
@@ -18,10 +19,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-[100dvh]">
+  <div class="flex min-h-[100dvh] flex-col">
     <AppHeader />
 
-    <main class="mx-auto max-w-6xl px-6 py-16">
+    <main class="mx-auto w-full max-w-6xl flex-1 px-6 py-16">
       <h1 class="text-2xl font-semibold text-neutral-50">Тарифы</h1>
       <p class="mt-2 max-w-6xl text-sm leading-relaxed text-neutral-400">
         Quiz Flow можно использовать бесплатно — план Free подходит, чтобы создать
@@ -57,7 +58,7 @@ onMounted(() => {
           :usage="store.usage"
           class="mt-10 mb-8 max-w-6xl"
         />
-        <div class="mt-10 max-w-3xl">
+        <div class="mt-10 max-w-7xl">
           <PricingCards
             :usage="store.usage"
             :loading="store.loading"
@@ -65,7 +66,7 @@ onMounted(() => {
         </div>
 
         <!-- Plan details / FAQ -->
-        <dl class="mt-12 max-w-xl space-y-6 border-t border-neutral-800 pt-8">
+        <dl class="mt-12 max-w-7xl space-y-6 border-t border-neutral-800 pt-8">
           <div>
             <dt class="text-sm font-medium text-neutral-200">Как проходит оплата</dt>
             <dd class="mt-1 text-sm leading-relaxed text-neutral-400">
@@ -94,5 +95,6 @@ onMounted(() => {
         </dl>
       </template>
     </main>
+    <AppFooter />
   </div>
 </template>

@@ -7,6 +7,7 @@ import SummaryCards from '@features/quiz-stats/ui/SummaryCards.vue'
 import ResultsTable from '@features/quiz-stats/ui/ResultsTable.vue'
 import AccuracySection from '@features/quiz-stats/ui/AccuracySection.vue'
 import AppHeader from './AppHeader.vue'
+import AppFooter from './AppFooter.vue'
 
 const route = useRoute()
 const store = useQuizStatsStore()
@@ -18,10 +19,10 @@ onMounted(() => {
 
 <template>
   <!-- Page shell: min-h-[100dvh] per UI-SPEC (never 100vh) -->
-  <div class="min-h-[100dvh]">
+  <div class="flex min-h-[100dvh] flex-col">
     <AppHeader />
 
-    <main class="mx-auto max-w-5xl px-4 py-12">
+    <main class="mx-auto w-full max-w-5xl flex-1 px-4 py-12">
       <h1 class="mb-8 text-xl font-semibold text-neutral-50">Статистика</h1>
 
       <!-- Loading branch: skeleton layout -->
@@ -73,5 +74,6 @@ onMounted(() => {
         </div>
       </template>
     </main>
+    <AppFooter />
   </div>
 </template>
