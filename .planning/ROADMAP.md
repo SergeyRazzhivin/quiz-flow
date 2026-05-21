@@ -1,12 +1,14 @@
 # Roadmap: Quiz Flow
 
 **Project:** Quiz Flow
-**Total phases:** 5
-**Requirements coverage:** 48/48 v1 requirements mapped ✓
+**Total phases:** 7 (v1.0: Phases 1–6 complete · v1.1: Phase 7 active)
+**Requirements coverage:** 48/48 v1 requirements mapped ✓ · 3/3 v1.1 requirements mapped ✓
 
 ---
 
 ## Phases
+
+### Milestone v1.0 (complete)
 
 - [x] **Phase 1: Foundation, Auth & Quiz Editor** — Owner can register, log in, create and fully edit a quiz with DnD question ordering
 - [x] **Phase 2: Quiz Taking & Sharing** — Guest can open a quiz by token link, authenticate, take it with a live timer, and see their score; owner can generate and manage per-person access links (completed 2006-05-17)
@@ -14,6 +16,10 @@
 - [x] **Phase 4: Statistics** — Owner can view attempt totals and per-person results (Free) and per-question accuracy (Pro) (completed 2006-05-17)
 - [x] **Phase 5: Billing** — Owner can subscribe to Pro via YooKassa; freemium limits are enforced at DB/Edge Function level
 - [x] **Phase 6: Landing page** — Public marketing landing at `/` (hero, "Как это работает", latest-quizzes grid, pricing teaser); catalog moved to `/quizzes`
+
+### Milestone v1.1 (active)
+
+- [ ] **Phase 7: Password Recovery** — Owner who forgot the password can request a recovery email from /forgot-password and set a new one on /reset-password via a one-time Supabase recovery link
 
 ### Phase 6: Landing page — service overview, public quiz carousel, and recently updated quizzes
 
@@ -217,3 +223,38 @@ Plans:
 - [ ] 06-02-PLAN.md — Landing widgets (Hero, How-it-works, QuizCarousel, PricingTeaser) + LandingPage assembler + router rebinding (D-01..D-09)
 
 **UI hint**: yes
+
+---
+
+## Milestone v1.1: Password Recovery
+
+### Phase 7: Password Recovery
+
+**Goal:** An owner who has forgotten the password can request a recovery email from a dedicated `/forgot-password` page and set a new password on `/reset-password` after clicking the one-time Supabase recovery link, all without leaking whether a given email is registered
+**Mode:** standard
+**Depends on:** Phase 6 (reuses AuthPage + 4-features/auth store)
+**Requirements:** AUTH-04, AUTH-05, AUTH-06
+**Success Criteria** (what must be TRUE):
+
+1. From the sign-in form, an owner can click "Забыли пароль?" and arrive on `/forgot-password`, where submitting an email triggers `supabase.auth.resetPasswordForEmail` with `redirectTo` pointing at the production `/reset-password` route on GitHub Pages
+2. A user who entered a wrong or unregistered email on `/forgot-password` still sees the same generic success message — the UI never confirms whether an email exists in the database
+3. After clicking the link in the recovery email, the user lands on `/reset-password`, the client establishes a recovery session via the Supabase `PASSWORD_RECOVERY` auth event, and a new password set through `supabase.auth.updateUser({ password })` immediately allows sign-in on the next visit
+4. An expired, reused, or tampered recovery link on `/reset-password` shows a clear Russian-language error state with a link back to `/forgot-password`, and never silently logs the user in with a stale session
+
+**Plans:** 0 plans across 0 waves (plans created by `/gsd:plan-phase 7`)
+
+**UI hint**: yes
+
+---
+
+## Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Foundation, Auth & Quiz Editor | 4/4 | Complete | 2026-05-17 |
+| 2. Quiz Taking & Sharing | 5/5 | Complete | 2026-05-17 |
+| 3. AI Wizard | 3/3 | Complete | 2026-05-17 |
+| 4. Statistics | 2/2 | Complete | 2026-05-17 |
+| 5. Billing | 3/3 | Complete | 2026-05-18 |
+| 6. Landing page | 2/2 | Complete | 2026-05-21 |
+| 7. Password Recovery | 0/0 | Planning | — |

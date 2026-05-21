@@ -2,11 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Password Recovery
+current_phase: 07
 status: planning
-last_updated: "2026-05-21T16:45:58.955Z"
+last_updated: "2026-05-21T17:30:00.000Z"
 last_activity: 2026-05-21
 progress:
-  total_phases: 0
+  total_phases: 1
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -16,8 +17,8 @@ progress:
 # State: Quiz Flow
 
 **Initialized:** 2026-05-16
-**Current Phase:** 06
-**Status:** Milestone v1.0 complete — Phase 6 verified and finalized
+**Current Phase:** 07
+**Status:** Milestone v1.1 (Password Recovery) — Phase 7 in planning
 
 ---
 
@@ -26,16 +27,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** Пользователь загружает текст — AI генерирует готовый тест за секунды, который можно сразу отправить тестируемым.
-**Current focus:** Milestone v1.0 complete — all 6 phases shipped
+**Current focus:** Milestone v1.1 — Password Recovery (Phase 7)
 
 ---
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-05-21 — Milestone v1.1 started
+Phase: 7 — Password Recovery (just started, milestone v1.1)
+Plan: — (no plans yet; run `/gsd:plan-phase 7` to scope them)
+Status: Planning — roadmap entry written, AUTH-04/05/06 mapped
+Last activity: 2026-05-21 — Phase 7 added to ROADMAP.md for milestone v1.1
 
 ## Performance Metrics
 
@@ -106,6 +107,7 @@ Last activity: 2026-05-21 — Milestone v1.1 started
 - 05-01: DB-level freemium enforcement live (migration 015) — get_effective_plan() resolves plan lazily by date with no cron (D-05); BEFORE INSERT triggers enforce_quiz_limit/enforce_question_limit block the 4th quiz / 11th question for Free owners even against direct client DB queries (D-09), raising literal QUIZ_LIMIT_EXCEEDED / QUESTION_LIMIT_EXCEEDED tokens the frontend matches
 - 05-01: get_usage() RPC returns {plan, quizzes_used, quizzes_limit, ai_used, ai_limit, period_end} in one call (D-13); AI usage counted via ai_generations log table on a rolling 30-day window anchored to subscription/registration date (D-12); Free AI limit 10/mo, Pro 30/mo (D-14)
 - 05-01: subscriptions is the single source of truth for plan resolution — profiles.plan not consulted (D-06); migration 015 added subscriptions.created_at and a UNIQUE(user_id) constraint
+- Phase 7 / v1.1: `redirectTo` for `resetPasswordForEmail` must point at the production GitHub Pages base URL (`https://sergeyrazzhivin.github.io/quiz-flow/#/reset-password`) so the recovery link works under hash-routing — confirm in plan
 
 ### Blockers
 
@@ -120,10 +122,10 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-18T20:06:51.114Z
+**Last session:** 2026-05-21T17:30:00.000Z
 **Resume file:** None
-**Stopped at:** Phase 6 UI-SPEC approved
-**Next action:** Verify Phase 5 (/gsd:verify-work 5)
+**Stopped at:** ROADMAP.md updated with Phase 7 (Password Recovery, milestone v1.1)
+**Next action:** `/gsd:plan-phase 7` to scope the AUTH-04/05/06 implementation
 
 ---
 
