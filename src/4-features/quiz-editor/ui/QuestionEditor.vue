@@ -62,40 +62,42 @@ defineExpose({ focus })
 </script>
 
 <template>
-  <div class="mb-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm">
-    <div class="flex items-center gap-3">
-      <span
-        class="drag-handle flex h-11 w-6 shrink-0 cursor-grab items-center justify-center text-neutral-600 hover:text-neutral-400"
-      >
-        <GripVertical class="h-5 w-5" />
-      </span>
-      <button
-        type="button"
-        class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
-        :aria-label="collapsed ? 'Развернуть вопрос' : 'Свернуть вопрос'"
-        @click="emit('toggle-collapse')"
-      >
-        <ChevronRight
+  <div class="mb-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-3 shadow-sm sm:p-4">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+      <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+        <span
+          class="drag-handle flex h-11 w-6 shrink-0 cursor-grab items-center justify-center text-neutral-600 hover:text-neutral-400"
+        >
+          <GripVertical class="h-5 w-5" />
+        </span>
+        <button
+          type="button"
+          class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
+          :aria-label="collapsed ? 'Развернуть вопрос' : 'Свернуть вопрос'"
+          @click="emit('toggle-collapse')"
+        >
+          <ChevronRight
+            v-if="collapsed"
+            class="h-4 w-4"
+          />
+          <ChevronDown
+            v-else
+            class="h-4 w-4"
+          />
+        </button>
+        <span class="shrink-0 text-sm text-neutral-500">Вопрос {{ number }}</span>
+        <span
           v-if="collapsed"
-          class="h-4 w-4"
-        />
-        <ChevronDown
-          v-else
-          class="h-4 w-4"
-        />
-      </button>
-      <span class="shrink-0 text-sm text-neutral-500">Вопрос {{ number }}</span>
-      <span
-        v-if="collapsed"
-        class="min-w-0 flex-1 truncate text-sm text-neutral-400"
-      >
-        {{ question.body || 'Без текста' }}
-      </span>
-      <div class="ml-auto flex items-center gap-3 text-nowrap">
+          class="min-w-0 flex-1 truncate text-sm text-neutral-400"
+        >
+          {{ question.body || 'Без текста' }}
+        </span>
+      </div>
+      <div class="flex items-center gap-2 sm:ml-auto sm:gap-3 sm:text-nowrap">
         <div class="flex">
           <button
             type="button"
-            class="cursor-pointer rounded-l-lg border px-3 py-1 text-xs transition-colors"
+            class="cursor-pointer rounded-l-lg border px-2.5 py-1 text-xs transition-colors sm:px-3"
             :class="question.type === 'single'
               ? 'border-orange-500 bg-orange-500/15 text-orange-400'
               : 'border-neutral-700 bg-neutral-900 text-neutral-300'"
@@ -105,26 +107,27 @@ defineExpose({ focus })
           </button>
           <button
             type="button"
-            class="cursor-pointer rounded-r-lg border border-l-0 px-3 py-1 text-xs transition-colors"
+            class="cursor-pointer rounded-r-lg border border-l-0 px-2.5 py-1 text-xs transition-colors sm:px-3"
             :class="question.type === 'multiple'
               ? 'border-orange-500 bg-orange-500/15 text-orange-400'
               : 'border-neutral-700 bg-neutral-900 text-neutral-300'"
             @click="setType('multiple')"
           >
-            Несколько ответов
+            Несколько
           </button>
         </div>
         <label class="flex items-center gap-2">
           <Switch
             :model-value="question.is_required"
+            :aria-label="'Обязательный вопрос'"
             @update:model-value="store.updateQuestion(question.id, { is_required: $event })"
           />
-          <span class="text-sm text-neutral-300">Обязательный</span>
+          <span class="hidden text-sm text-neutral-300 sm:inline">Обязательный</span>
         </label>
         <button
           type="button"
           aria-label="Удалить вопрос"
-          class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-red-400 transition-colors hover:bg-red-500/15"
+          class="ml-auto flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-red-400 transition-colors hover:bg-red-500/15 sm:ml-0"
           @click="showDeleteDialog = true"
         >
           <Trash2 class="h-4 w-4" />

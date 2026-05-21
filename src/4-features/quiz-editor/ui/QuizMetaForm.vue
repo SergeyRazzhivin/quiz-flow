@@ -22,9 +22,9 @@ function onTimeLimitInput(e: Event) {
 </script>
 
 <template>
-  <div class="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm sm:p-6">
+  <div class="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm sm:p-6">
     <!-- Top: cover + title / description -->
-    <div class="flex flex-col gap-6 md:flex-row md:gap-7">
+    <div class="flex flex-col gap-5 md:flex-row md:gap-7">
       <div class="w-full shrink-0 md:w-[38%]">
         <CoverUpload />
       </div>
