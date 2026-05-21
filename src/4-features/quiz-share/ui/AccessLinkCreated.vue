@@ -7,13 +7,15 @@ import { useQuizShareStore } from '@features/quiz-share/model/useQuizShareStore'
 const store = useQuizShareStore()
 const copied = ref(false)
 
-const origin = window.location.origin
+// import.meta.env.BASE_URL ends with '/'. On GitHub Pages it's '/quiz-flow/',
+// locally it's '/'. Trimming the trailing slash keeps the joined link clean.
+const baseUrl = window.location.origin + import.meta.env.BASE_URL.replace(/\/$/, '')
 
 async function copyCredentials() {
   if (!store.lastCreated) return
   const { token, login, password } = store.lastCreated
   const text = [
-    `Ссылка: ${origin}/q/${token}`,
+    `Ссылка: ${baseUrl}/q/${token}`,
     `Логин: ${login}`,
     `Пароль: ${password}`,
   ].join('\n')
@@ -36,7 +38,7 @@ async function copyCredentials() {
     </p>
     <pre
       class="select-all whitespace-pre-wrap break-all rounded-lg bg-neutral-900 p-3 font-mono text-sm leading-relaxed text-neutral-300"
-    >Ссылка: {{ `${origin}/q/${store.lastCreated.token}` }}
+    >Ссылка: {{ `${baseUrl}/q/${store.lastCreated.token}` }}
 Логин: {{ store.lastCreated.login }}
 Пароль: {{ store.lastCreated.password }}</pre>
     <p class="mt-2 text-sm text-amber-400">
