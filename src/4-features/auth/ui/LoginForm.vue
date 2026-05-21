@@ -4,7 +4,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { toast } from 'vue-sonner'
 import { useAuthStore } from '@features/auth/model/useAuthStore'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 
 const schema = z.object({
   email: z.string().email('Некорректный email'),
@@ -63,6 +63,15 @@ const onSubmit = handleSubmit(async (values) => {
         placeholder="Минимум 6 символов"
         class="mt-1 block w-full rounded-md border border-neutral-700 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
       />
+    </div>
+
+    <div class="text-right">
+      <RouterLink
+        to="/forgot-password"
+        class="cursor-pointer text-sm text-orange-400 hover:text-orange-300"
+      >
+        Забыли пароль?
+      </RouterLink>
     </div>
 
     <button

@@ -14,6 +14,9 @@ export const router = createRouter({
     { path: '/',                    component: () => import('@pages/LandingPage.vue') },
     { path: '/quizzes',             component: () => import('@pages/QuizListPage.vue') },
     { path: '/auth',                component: () => import('@pages/AuthPage.vue') },
+    // Phase 7: password recovery — both routes are public (no requiresAuth meta).
+    { path: '/forgot-password',     component: () => import('@pages/ForgotPasswordPage.vue') },
+    { path: '/reset-password',      component: () => import('@pages/ResetPasswordPage.vue') },
     // WR-07: auth requirement is declared per-route via meta, not by textual
     // path-prefix matching — a path-prefix guard would also catch unrelated
     // future routes like /myaccount or /editorial.
