@@ -9,7 +9,7 @@ declare module 'vue-router' {
 }
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/',                    component: () => import('@pages/LandingPage.vue') },
     { path: '/quizzes',             component: () => import('@pages/QuizListPage.vue') },

@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  // GitHub Pages serves the project site at /quiz-flow/. The env override lets
+  // local dev (`npm run dev`) and other hosts use the default root '/'.
+  base: process.env.VITE_BASE ?? '/',
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
