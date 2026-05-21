@@ -241,7 +241,12 @@ Plans:
 3. After clicking the link in the recovery email, the user lands on `/reset-password`, the client establishes a recovery session via the Supabase `PASSWORD_RECOVERY` auth event, and a new password set through `supabase.auth.updateUser({ password })` immediately allows sign-in on the next visit
 4. An expired, reused, or tampered recovery link on `/reset-password` shows a clear Russian-language error state with a link back to `/forgot-password`, and never silently logs the user in with a stale session
 
-**Plans:** 0 plans across 0 waves (plans created by `/gsd:plan-phase 7`)
+**Plans:** 1 plan across 1 wave
+
+Plans:
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — Auth store recovery methods + tests, /forgot-password and /reset-password pages, "Забыли пароль?" link in LoginForm, public routes (AUTH-04, AUTH-05, AUTH-06)
 
 **UI hint**: yes
 
@@ -257,4 +262,4 @@ Plans:
 | 4. Statistics | 2/2 | Complete | 2026-05-17 |
 | 5. Billing | 3/3 | Complete | 2026-05-18 |
 | 6. Landing page | 2/2 | Complete | 2026-05-21 |
-| 7. Password Recovery | 0/0 | Planning | — |
+| 7. Password Recovery | 0/1 | Planning | — |
