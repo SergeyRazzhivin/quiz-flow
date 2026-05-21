@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-current_phase: 06
-status: completed
-stopped_at: Phase 6 verified and finalized — milestone v1.0 complete
-last_updated: "2026-05-19T00:00:00.000Z"
+milestone: v1.1
+milestone_name: Password Recovery
+status: planning
+last_updated: "2026-05-21T16:45:58.955Z"
+last_activity: 2026-05-21
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 19
-  completed_plans: 19
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: Quiz Flow
@@ -33,33 +32,10 @@ See: .planning/PROJECT.md (updated 2026-05-16)
 
 ## Current Position
 
-Phase: 06 (landing-page-service-overview-public-quiz-carousel-and-recen) — COMPLETE
-Plan: 2 of 2
-**Phase 6:** COMPLETE — Public landing page at `/` (hero with auth-adaptive CTA, "Как это работает", 3 full-viewport screens with wave seams, latest-quizzes 4-card grid, pricing screen reusing /billing PricingCards); catalog moved to /quizzes; whole service adapted to mobile (AppHeader hamburger menu, responsive stats/modals). Verified 11/11 must-haves; human UAT done via interactive review. D-01..D-09 all covered.
-**Phase 5 Plan 3:** COMPLETE — Billing frontend slice (usePaymentStore: get_usage fetch, isProActive, createPayment YooKassa redirect, handleLimitError upsell; PricingCards Free/Pro cards + monthly/yearly toggle; ProStatusBanner; BillingWidget shell; BillingPage; /billing route; AppHeader Тарифы link; 18 tests pass, steiger clean; PAY-02, PAY-03 UI). Task 4 (visual human-verify) auto-approved in --auto chain.
-**Phase 5 Plan 2:** COMPLETE — YooKassa payment Edge Functions (create-payment owner-authed EF → confirmation_url; yookassa-webhook public IP-allowlisted idempotent Pro grant; AI monthly-limit gate in ai-generate-quiz HTTP 429; config.toml; PAY-03, PAY-04 API tier, PAY-05 grant side). Task 4 (YooKassa live payment round-trip) DEFERRED by user — carried forward as a human-UAT item (see 05-02-SUMMARY Deferred Verification); resolve before production billing launch.
-**Phase 5 Plan 1:** COMPLETE — Billing DB enforcement spine (migration 015: ai_generations table, get_effective_plan() lazy-expiry resolver, enforce_quiz_limit/enforce_question_limit BEFORE INSERT triggers, get_ai_window_start/get_usage RPCs; migration applied to live DB; PAY-01, PAY-04, PAY-05)
-**Phase 4 Plan 1:** COMPLETE — Statistics data layer (migration 013 get_quiz_stats + get_quiz_accuracy RPCs, format helpers, ProgressBar size prop; STATS-01–03)
-**Phase 3 Plan 1:** COMPLETE — AI generation backend (migration 012 ai_jobs, four _shared AI helpers, ai-generate-quiz Edge Function; AI-05)
-**Phase 3 Plan 2:** COMPLETE — AI-wizard frontend slice (ai-job entity, useAiWizardStore 4-step machine + poll loop, 4 step components/stepper/widget/page, /ai-wizard route; AI-01–04, AI-06–07)
-**Phase 3 Plan 3:** COMPLETE — D-02 entry-point buttons (/my, /my empty state, editor header) + AI-SPEC §5 evals harness scaffold (AI-01)
-**Phase:** 1 — Foundation, Auth & Quiz Editor — COMPLETE
-**Phase:** 2 — Quiz Taking & Sharing — COMPLETE
-**Phase 2 Plan 1:** COMPLETE — server foundation (migration 009, Edge Functions, verify-quiz-access)
-**Phase 2 Plan 2:** COMPLETE — owner access-link slice (create-quiz-access EF, quiz-share store/UI, AccessLinksModal)
-**Phase 2 Plan 3:** COMPLETE — guest entry slice (start-quiz-session EF, quiz-session entity, useQuizTakingStore, guest UI, allow_retake toggle, get-quiz-meta EF)
-**Phase 2 Plan 4:** COMPLETE — active quiz-taking slice (upsert-session-answer EF, timer/answer/navigation store actions, ProgressBar/TimerDisplay, QuestionTaker/NavigationControls/StopConfirmDialog, QuizTakingHeader, migration 011)
-**Phase 2 Plan 5:** COMPLETE — submit + scoring + result slice (_shared/scoring.ts D-17 partial credit, submit-quiz-answers + get-quiz-result EFs, finishSession/loadResult, D-04 re-entry machine, TimerExpiredNotice, QuizResultPage)
-
-```
-Phase 1 [▓▓▓▓▓▓▓▓▓▓] complete (4/4 plans)
-Phase 2 [▓▓▓▓▓▓▓▓▓▓] complete (5/5 plans)
-Phase 3 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
-Phase 4 [▓▓▓▓▓     ] 50% (1/2 plans)
-Phase 5 [▓▓▓▓▓▓▓▓▓▓] complete (3/3 plans)
-```
-
----
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-21 — Milestone v1.1 started
 
 ## Performance Metrics
 
