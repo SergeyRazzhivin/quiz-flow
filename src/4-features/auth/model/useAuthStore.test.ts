@@ -142,9 +142,9 @@ describe('useAuthStore', () => {
   it('requestPasswordReset() swallows the "User not found" Supabase error (no email enumeration)', async () => {
     const notFoundError = { message: 'User not found', status: 400 } as import('@supabase/supabase-js').AuthError
     vi.mocked(supabase.auth.resetPasswordForEmail).mockResolvedValue({
-      data: {},
+      data: null,
       error: notFoundError,
-    } as Awaited<ReturnType<typeof supabase.auth.resetPasswordForEmail>>)
+    })
 
     const authStore = useAuthStore()
 
@@ -156,9 +156,9 @@ describe('useAuthStore', () => {
   it('requestPasswordReset() swallows other Supabase errors (network / rate limit) for generic-success UX', async () => {
     const otherError = { message: 'Email rate limit exceeded', status: 429 } as import('@supabase/supabase-js').AuthError
     vi.mocked(supabase.auth.resetPasswordForEmail).mockResolvedValue({
-      data: {},
+      data: null,
       error: otherError,
-    } as Awaited<ReturnType<typeof supabase.auth.resetPasswordForEmail>>)
+    })
 
     const authStore = useAuthStore()
 
