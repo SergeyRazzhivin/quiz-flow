@@ -130,10 +130,12 @@ describe('useAuthStore', () => {
 
     await expect(authStore.requestPasswordReset('user@example.com')).resolves.toBeUndefined()
 
-    // happy-dom default origin is http://localhost, vitest BASE_URL resolves to '/'
+    // happy-dom default origin is http://localhost:3000, vitest BASE_URL resolves to '/'.
+    // Assert via the live origin so the test stays portable across happy-dom versions.
+    const expectedRedirect = `${window.location.origin}/reset-password`
     expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
       'user@example.com',
-      { redirectTo: 'http://localhost/reset-password' },
+      { redirectTo: expectedRedirect },
     )
   })
 

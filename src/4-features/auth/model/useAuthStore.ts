@@ -39,5 +39,22 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
   }
 
-  return { user, isLoading, init, login, register, logout }
+  async function requestPasswordReset(email: string): Promise<void> {
+    // LOCKED redirect derivation (07-CONTEXT.md Supabase Flow): origin + BASE_URL + 'reset-password'
+    // works on both GitHub Pages (/quiz-flow/reset-password) and local dev (/reset-password).
+    const redirectTo = window.location.origin + import.meta.env.BASE_URL + 'reset-password'
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    // CONTEXT.md Email Security LOCKED: never reveal whether an email is registered —
+    // swallow all Supabase errors so the UI always shows the generic success message.
+    if (error) {
+      console.warn('[auth] resetPasswordForEmail error', error.message)
+    }
+  }
+
+  async function updatePassword(newPassword: string): Promise<void> {
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) throw error
+  }
+
+  return { user, isLoading, init, login, register, logout, requestPasswordReset, updatePassword }
 })
