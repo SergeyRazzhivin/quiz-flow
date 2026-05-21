@@ -10,6 +10,8 @@ vi.mock('@shared/api/supabase', () => {
   const mockSignInWithPassword = vi.fn()
   const mockSignUp = vi.fn()
   const mockSignOut = vi.fn()
+  const mockResetPasswordForEmail = vi.fn()
+  const mockUpdateUser = vi.fn()
 
   return {
     supabase: {
@@ -19,6 +21,8 @@ vi.mock('@shared/api/supabase', () => {
         signInWithPassword: mockSignInWithPassword,
         signUp: mockSignUp,
         signOut: mockSignOut,
+        resetPasswordForEmail: mockResetPasswordForEmail,
+        updateUser: mockUpdateUser,
       },
     },
   }
@@ -112,5 +116,80 @@ describe('useAuthStore', () => {
 
     expect(supabase.auth.signOut).toHaveBeenCalledOnce()
     expect(authStore.user).toBeNull()
+  })
+
+  // --- Phase 7: password recovery (AUTH-04 / AUTH-05 / AUTH-06) ---
+
+  it('requestPasswordReset() calls supabase.auth.resetPasswordForEmail with redirectTo derived from BASE_URL', async () => {
+    vi.mocked(supabase.auth.resetPasswordForEmail).mockResolvedValue({
+      data: {},
+      error: null,
+    } as Awaited<ReturnType<typeof supabase.auth.resetPasswordForEmail>>)
+
+    const authStore = useAuthStore()
+
+    await expect(authStore.requestPasswordReset('user@example.com')).resolves.toBeUndefined()
+
+    // happy-dom default origin is http://localhost, vitest BASE_URL resolves to '/'
+    expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
+      'user@example.com',
+      { redirectTo: 'http://localhost/reset-password' },
+    )
+  })
+
+  it('requestPasswordReset() swallows the "User not found" Supabase error (no email enumeration)', async () => {
+    const notFoundError = { message: 'User not found', status: 400 } as import('@supabase/supabase-js').AuthError
+    vi.mocked(supabase.auth.resetPasswordForEmail).mockResolvedValue({
+      data: {},
+      error: notFoundError,
+    } as Awaited<ReturnType<typeof supabase.auth.resetPasswordForEmail>>)
+
+    const authStore = useAuthStore()
+
+    // LOCKED: never reveal whether an email is registered — method MUST NOT throw.
+    await expect(authStore.requestPasswordReset('ghost@example.com')).resolves.toBeUndefined()
+    expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledOnce()
+  })
+
+  it('requestPasswordReset() swallows other Supabase errors (network / rate limit) for generic-success UX', async () => {
+    const otherError = { message: 'Email rate limit exceeded', status: 429 } as import('@supabase/supabase-js').AuthError
+    vi.mocked(supabase.auth.resetPasswordForEmail).mockResolvedValue({
+      data: {},
+      error: otherError,
+    } as Awaited<ReturnType<typeof supabase.auth.resetPasswordForEmail>>)
+
+    const authStore = useAuthStore()
+
+    await expect(authStore.requestPasswordReset('rate@example.com')).resolves.toBeUndefined()
+  })
+
+  it('updatePassword() calls supabase.auth.updateUser and resolves on success', async () => {
+    const mockUser = { id: 'user-1', email: 'test@example.com' } as User
+    vi.mocked(supabase.auth.updateUser).mockResolvedValue({
+      data: { user: mockUser },
+      error: null,
+    } as Awaited<ReturnType<typeof supabase.auth.updateUser>>)
+
+    const authStore = useAuthStore()
+
+    await expect(authStore.updatePassword('newpassword123')).resolves.toBeUndefined()
+    expect(supabase.auth.updateUser).toHaveBeenCalledWith({ password: 'newpassword123' })
+  })
+
+  it('updatePassword() throws when Supabase returns an error (e.g. password matches old one)', async () => {
+    const mockError = {
+      message: 'New password should be different from the old password',
+      status: 422,
+    } as import('@supabase/supabase-js').AuthError
+    vi.mocked(supabase.auth.updateUser).mockResolvedValue({
+      data: { user: null },
+      error: mockError,
+    } as Awaited<ReturnType<typeof supabase.auth.updateUser>>)
+
+    const authStore = useAuthStore()
+
+    await expect(authStore.updatePassword('oldpassword123')).rejects.toMatchObject({
+      message: 'New password should be different from the old password',
+    })
   })
 })
