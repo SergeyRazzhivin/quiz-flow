@@ -5,6 +5,16 @@
 
 ---
 
+## v1.1 Requirements (Password Recovery)
+
+### Authentication
+
+- [ ] **AUTH-04**: Пользователь может запросить восстановление пароля, введя свой email на отдельной странице
+- [ ] **AUTH-05**: Пользователь получает email с одноразовой ссылкой восстановления (через встроенный Supabase SMTP, TTL по дефолту Supabase)
+- [ ] **AUTH-06**: Пользователь может установить новый пароль на странице сброса после клика по ссылке из письма
+
+---
+
 ## v1 Requirements
 
 ### Authentication
@@ -171,11 +181,14 @@
 | PAY-04 | Phase 5 | Complete |
 | PAY-05 | Phase 5 | Complete |
 
+| AUTH-04 | Phase 7 | Pending |
+| AUTH-05 | Phase 7 | Pending |
+| AUTH-06 | Phase 7 | Pending |
+
 **Coverage:**
-- v1 requirements: 48 total
-- Mapped to phases: 48
-- Unmapped: 0 ✓
+- v1 requirements: 48 total — all mapped, all delivered
+- v1.1 requirements: 3 total (AUTH-04, AUTH-05, AUTH-06) — all mapped to Phase 7
 
 ---
 *Requirements defined: 2026-05-16*
-*Last updated: 2026-05-17 — TAKE-08 complete; Phase 2 fully delivered (all TAKE/SHARE/EXT-04 requirements)*
+*Last updated: 2026-05-21 — v1.1 (Password Recovery): AUTH-04/05/06 added*
